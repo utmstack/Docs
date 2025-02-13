@@ -32,7 +32,27 @@
               "essentials/reusable-snippets"
             ]
           }
-        ]
+        ],
+        "versions": [
+            {
+              "version": "v10",
+              "groups": [
+                {
+                  "group": "Getting Started",
+                  "pages": ["v1/overview", "v1/quickstart", "v1/development"]
+                }
+              ]
+            },
+            {
+              "version": "v11",
+              "groups": [
+                {
+                  "group": "Getting Started",
+                  "pages": ["v2/overview", "v2/quickstart", "v2/development"]
+                }
+              ]
+            }
+          ]
       },
       {
         "tab": "API Reference",
