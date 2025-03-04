@@ -1,98 +1,782 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Documentation fot UTMStack",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#3A8DDE",
+    "light": "#3A8DDE",
+    "dark": "#655DC6"
   },
   "favicon": "/favicon.svg",
+
   "navigation": {
-    "tabs": [
+    "versions": [
       {
-        "tab": "Guides",
-        "groups": [
+        "version": "v10.5.19",
+        "tabs": [
           {
-            "group": "Get Started",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "development"
+            "tab": "Guides",
+            "groups": [
+              {
+                "group": "Get Started",
+                "pages": ["v10/introduction", "v10/quickstart"]
+              }
+              
             ]
           },
           {
-            "group": "Essentials",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+            "tab": "API Reference",
+            "groups": [
+              {
+                "group": "logs-resource",
+                "pages": [
+                  "v10/api-reference/logs-resource/get-managementlogs",
+                  "v10/api-reference/logs-resource/put-managementlogs"
+                ]
+              },
+              {
+                "group": "utm-visualization-resource",
+                "pages": [
+                  "v10/api-reference/utm-visualization-resource/get-apiutm-visualizations",
+                  "v10/api-reference/utm-visualization-resource/put-apiutm-visualizations",
+                  "v10/api-reference/utm-visualization-resource/post-apiutm-visualizations",
+                  "v10/api-reference/utm-visualization-resource/post-apiutm-visualizationsrun",
+                  "v10/api-reference/utm-visualization-resource/post-apiutm-visualizationsbatch",
+                  "v10/api-reference/utm-visualization-resource/get-apiutm-visualizations-1",
+                  "v10/api-reference/utm-visualization-resource/delete-apiutm-visualizations",
+                  "v10/api-reference/utm-visualization-resource/delete-apiutm-visualizationsbulk-delete"
+                ]
+              },
+              {
+                "group": "utm-server-resource",
+                "pages": [
+                  "v10/api-reference/utm-server-resource/get-apiutm-servers",
+                  "v10/api-reference/utm-server-resource/put-apiutm-servers",
+                  "v10/api-reference/utm-server-resource/post-apiutm-servers",
+                  "v10/api-reference/utm-server-resource/get-apiutm-servers-1",
+                  "v10/api-reference/utm-server-resource/delete-apiutm-servers",
+                  "v10/api-reference/utm-server-resource/get-apiutm-serverscount"
+                ]
+              },
+              {
+                "group": "utm-server-module-resource",
+                "pages": [
+                  "v10/api-reference/utm-server-module-resource/get-apiutm-server-modules",
+                  "v10/api-reference/utm-server-module-resource/put-apiutm-server-modules",
+                  "v10/api-reference/utm-server-module-resource/post-apiutm-server-modules",
+                  "v10/api-reference/utm-server-module-resource/get-apiutm-server-modules-1",
+                  "v10/api-reference/utm-server-module-resource/delete-apiutm-server-modules",
+                  "v10/api-reference/utm-server-module-resource/get-apiutm-server-modulesmodules-with-integrations",
+                  "v10/api-reference/utm-server-module-resource/get-apiutm-server-modulescount"
+                ]
+              },
+              {
+                "group": "utm-schedule-resource",
+                "pages": [
+                  "v10/api-reference/utm-schedule-resource/get-apiutm-schedules",
+                  "v10/api-reference/utm-schedule-resource/put-apiutm-schedules",
+                  "v10/api-reference/utm-schedule-resource/post-apiutm-schedules",
+                  "v10/api-reference/utm-schedule-resource/get-apiutm-schedules-1",
+                  "v10/api-reference/utm-schedule-resource/delete-apiutm-schedules"
+                ]
+              },
+              {
+                "group": "utm-report-resource",
+                "pages": [
+                  "v10/api-reference/utm-report-resource/get-apiutm-reports",
+                  "v10/api-reference/utm-report-resource/put-apiutm-reports",
+                  "v10/api-reference/utm-report-resource/post-apiutm-reports",
+                  "v10/api-reference/utm-report-resource/get-apiutm-reports-1",
+                  "v10/api-reference/utm-report-resource/delete-apiutm-reports",
+                  "v10/api-reference/utm-report-resource/get-apiutm-reportscount"
+                ]
+              },
+              {
+                "group": "utm-report-section-resource",
+                "pages": [
+                  "v10/api-reference/utm-report-section-resource/get-apiutm-report-sections",
+                  "v10/api-reference/utm-report-section-resource/put-apiutm-report-sections",
+                  "v10/api-reference/utm-report-section-resource/post-apiutm-report-sections",
+                  "v10/api-reference/utm-report-section-resource/get-apiutm-report-sections-1",
+                  "v10/api-reference/utm-report-section-resource/delete-apiutm-report-sections",
+                  "v10/api-reference/utm-report-section-resource/get-apiutm-report-sectionscount"
+                ]
+              },
+              {
+                "group": "utm-ports-resource",
+                "pages": [
+                  "v10/api-reference/utm-ports-resource/get-apiutm-open-ports",
+                  "v10/api-reference/utm-ports-resource/put-apiutm-open-ports",
+                  "v10/api-reference/utm-ports-resource/post-apiutm-open-ports",
+                  "v10/api-reference/utm-ports-resource/get-apiutm-open-ports-1",
+                  "v10/api-reference/utm-ports-resource/delete-apiutm-open-ports",
+                  "v10/api-reference/utm-ports-resource/get-apiutm-open-portscount"
+                ]
+              },
+              {
+                "group": "utm-network-scan-resource",
+                "pages": [
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scans",
+                  "v10/api-reference/utm-network-scan-resource/put-apiutm-network-scans",
+                  "v10/api-reference/utm-network-scan-resource/put-apiutm-network-scansupdatetype",
+                  "v10/api-reference/utm-network-scan-resource/put-apiutm-network-scansupdategroup",
+                  "v10/api-reference/utm-network-scan-resource/post-apiutm-network-scanssaveorupdatecustomasset",
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scans-1",
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scanssearchpropertyvalues",
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scanssearch-by-filters",
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scansgetnetworkscanreport",
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scanscount",
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scanscountnewassets",
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scanscan-run-command",
+                  "v10/api-reference/utm-network-scan-resource/get-apiutm-network-scansagent-os-platform",
+                  "v10/api-reference/utm-network-scan-resource/delete-apiutm-network-scansdeletecustomasset"
+                ]
+              },
+              {
+                "group": "utm-module-resource",
+                "pages": [
+                  "v10/api-reference/utm-module-resource/put-apiutm-modulesactivatedeactivate",
+                  "v10/api-reference/utm-module-resource/get-apiutm-modules",
+                  "v10/api-reference/utm-module-resource/get-apiutm-modulesmoduledetails",
+                  "v10/api-reference/utm-module-resource/get-apiutm-modulesmodulecategories",
+                  "v10/api-reference/utm-module-resource/get-apiutm-modulesmodule-details-decrypted",
+                  "v10/api-reference/utm-module-resource/get-apiutm-modulesis-active",
+                  "v10/api-reference/utm-module-resource/get-apiutm-modulescheckrequirements"
+                ]
+              },
+              {
+                "group": "utm-menu-authority-resource",
+                "pages": [
+                  "v10/api-reference/utm-menu-authority-resource/get-apiutm-menu-authorities",
+                  "v10/api-reference/utm-menu-authority-resource/put-apiutm-menu-authorities",
+                  "v10/api-reference/utm-menu-authority-resource/post-apiutm-menu-authorities",
+                  "v10/api-reference/utm-menu-authority-resource/get-apiutm-menu-authorities-1",
+                  "v10/api-reference/utm-menu-authority-resource/delete-apiutm-menu-authorities"
+                ]
+              },
+              {
+                "group": "utm-logstash-filter-group-resource",
+                "pages": [
+                  "v10/api-reference/utm-logstash-filter-group-resource/get-apiutm-logstash-filter-groups",
+                  "v10/api-reference/utm-logstash-filter-group-resource/put-apiutm-logstash-filter-groups",
+                  "v10/api-reference/utm-logstash-filter-group-resource/post-apiutm-logstash-filter-groups",
+                  "v10/api-reference/utm-logstash-filter-group-resource/get-apiutm-logstash-filter-groups-1",
+                  "v10/api-reference/utm-logstash-filter-group-resource/delete-apiutm-logstash-filter-groups",
+                  "v10/api-reference/utm-logstash-filter-group-resource/get-apiutm-logstash-filter-groupscount"
+                ]
+              },
+              {
+                "group": "utm-integration-resource",
+                "pages": [
+                  "v10/api-reference/utm-integration-resource/get-apiutm-integrations",
+                  "v10/api-reference/utm-integration-resource/put-apiutm-integrations",
+                  "v10/api-reference/utm-integration-resource/post-apiutm-integrations",
+                  "v10/api-reference/utm-integration-resource/get-apiutm-integrations-1",
+                  "v10/api-reference/utm-integration-resource/delete-apiutm-integrations",
+                  "v10/api-reference/utm-integration-resource/get-apiutm-integrationscount"
+                ]
+              },
+              {
+                "group": "utm-integration-conf-resource",
+                "pages": [
+                  "v10/api-reference/utm-integration-conf-resource/get-apiutm-integration-confs",
+                  "v10/api-reference/utm-integration-conf-resource/put-apiutm-integration-confs",
+                  "v10/api-reference/utm-integration-conf-resource/post-apiutm-integration-confs",
+                  "v10/api-reference/utm-integration-conf-resource/get-apiutm-integration-confs-1",
+                  "v10/api-reference/utm-integration-conf-resource/delete-apiutm-integration-confs",
+                  "v10/api-reference/utm-integration-conf-resource/get-apiutm-integration-confscount"
+                ]
+              },
+              {
+                "group": "utm-index-pattern-resource",
+                "pages": [
+                  "v10/api-reference/utm-index-pattern-resource/get-apiutm-index-patterns",
+                  "v10/api-reference/utm-index-pattern-resource/put-apiutm-index-patterns",
+                  "v10/api-reference/utm-index-pattern-resource/post-apiutm-index-patterns",
+                  "v10/api-reference/utm-index-pattern-resource/get-apiutm-index-patterns-1",
+                  "v10/api-reference/utm-index-pattern-resource/delete-apiutm-index-patterns",
+                  "v10/api-reference/utm-index-pattern-resource/get-apiutm-index-patternsfields"
+                ]
+              },
+              {
+                "group": "utm-incident-resource",
+                "pages": [
+                  "v10/api-reference/utm-incident-resource/put-apiutm-incidentschange-status",
+                  "v10/api-reference/utm-incident-resource/get-apiutm-incidents",
+                  "v10/api-reference/utm-incident-resource/post-apiutm-incidents",
+                  "v10/api-reference/utm-incident-resource/post-apiutm-incidentsadd-alerts",
+                  "v10/api-reference/utm-incident-resource/get-apiutm-incidents-1",
+                  "v10/api-reference/utm-incident-resource/get-apiutm-incidentsusers-assigned"
+                ]
+              },
+              {
+                "group": "utm-incident-variable-resource",
+                "pages": [
+                  "v10/api-reference/utm-incident-variable-resource/get-apiutm-incident-variables",
+                  "v10/api-reference/utm-incident-variable-resource/put-apiutm-incident-variables",
+                  "v10/api-reference/utm-incident-variable-resource/post-apiutm-incident-variables",
+                  "v10/api-reference/utm-incident-variable-resource/delete-apiutm-incident-variables"
+                ]
+              },
+              {
+                "group": "utm-incident-alert-resource",
+                "pages": [
+                  "v10/api-reference/utm-incident-alert-resource/get-apiutm-incident-alerts",
+                  "v10/api-reference/utm-incident-alert-resource/put-apiutm-incident-alerts",
+                  "v10/api-reference/utm-incident-alert-resource/post-apiutm-incident-alerts",
+                  "v10/api-reference/utm-incident-alert-resource/post-apiutm-incident-alertsupdate-status",
+                  "v10/api-reference/utm-incident-alert-resource/delete-apiutm-incident-alerts"
+                ]
+              },
+              {
+                "group": "utm-incident-action-resource",
+                "pages": [
+                  "v10/api-reference/utm-incident-action-resource/get-apiutm-incident-actions",
+                  "v10/api-reference/utm-incident-action-resource/put-apiutm-incident-actions",
+                  "v10/api-reference/utm-incident-action-resource/post-apiutm-incident-actions",
+                  "v10/api-reference/utm-incident-action-resource/get-apiutm-incident-actions-1",
+                  "v10/api-reference/utm-incident-action-resource/delete-apiutm-incident-actions",
+                  "v10/api-reference/utm-incident-action-resource/get-apiutm-incident-actionscount"
+                ]
+              },
+              {
+                "group": "utm-data-source-config-resource",
+                "pages": [
+                  "v10/api-reference/utm-data-source-config-resource/get-apiutm-datasource-configs",
+                  "v10/api-reference/utm-data-source-config-resource/put-apiutm-datasource-configs"
+                ]
+              },
+              {
+                "group": "utm-data-input-status-resource",
+                "pages": [
+                  "v10/api-reference/utm-data-input-status-resource/get-apiutm-data-input-statuses",
+                  "v10/api-reference/utm-data-input-status-resource/put-apiutm-data-input-statuses",
+                  "v10/api-reference/utm-data-input-status-resource/post-apiutm-data-input-statuses",
+                  "v10/api-reference/utm-data-input-status-resource/get-apiutm-data-input-statuses-1",
+                  "v10/api-reference/utm-data-input-status-resource/delete-apiutm-data-input-statuses",
+                  "v10/api-reference/utm-data-input-status-resource/get-apiutm-data-input-statusescount"
+                ]
+              },
+              {
+                "group": "utm-dashboard-resource",
+                "pages": [
+                  "v10/api-reference/utm-dashboard-resource/get-apiutm-dashboards",
+                  "v10/api-reference/utm-dashboard-resource/put-apiutm-dashboards",
+                  "v10/api-reference/utm-dashboard-resource/post-apiutm-dashboards",
+                  "v10/api-reference/utm-dashboard-resource/post-apiutm-dashboardsimport",
+                  "v10/api-reference/utm-dashboard-resource/get-apiutm-dashboards-1",
+                  "v10/api-reference/utm-dashboard-resource/delete-apiutm-dashboards"
+                ]
+              },
+              {
+                "group": "utm-dashboard-visualization-resource",
+                "pages": [
+                  "v10/api-reference/utm-dashboard-visualization-resource/get-apiutm-dashboard-visualizations",
+                  "v10/api-reference/utm-dashboard-visualization-resource/put-apiutm-dashboard-visualizations",
+                  "v10/api-reference/utm-dashboard-visualization-resource/post-apiutm-dashboard-visualizations",
+                  "v10/api-reference/utm-dashboard-visualization-resource/get-apiutm-dashboard-visualizations-1",
+                  "v10/api-reference/utm-dashboard-visualization-resource/delete-apiutm-dashboard-visualizations"
+                ]
+              },
+              {
+                "group": "utm-dashboard-authority-resource",
+                "pages": [
+                  "v10/api-reference/utm-dashboard-authority-resource/get-apiutm-dashboard-authorities",
+                  "v10/api-reference/utm-dashboard-authority-resource/put-apiutm-dashboard-authorities",
+                  "v10/api-reference/utm-dashboard-authority-resource/post-apiutm-dashboard-authorities",
+                  "v10/api-reference/utm-dashboard-authority-resource/get-apiutm-dashboard-authorities-1",
+                  "v10/api-reference/utm-dashboard-authority-resource/delete-apiutm-dashboard-authorities"
+                ]
+              },
+              {
+                "group": "utm-configuration-parameter-resource",
+                "pages": [
+                  "v10/api-reference/utm-configuration-parameter-resource/get-apiutm-configuration-parameters",
+                  "v10/api-reference/utm-configuration-parameter-resource/put-apiutm-configuration-parameters",
+                  "v10/api-reference/utm-configuration-parameter-resource/post-apicheckemailconfiguration",
+                  "v10/api-reference/utm-configuration-parameter-resource/get-apiutm-configuration-parameters-1"
+                ]
+              },
+              {
+                "group": "utm-module-group-resource",
+                "pages": [
+                  "v10/api-reference/utm-module-group-resource/put-apiutm-configuration-groups",
+                  "v10/api-reference/utm-module-group-resource/post-apiutm-configuration-groups",
+                  "v10/api-reference/utm-module-group-resource/get-apiutm-configuration-groups",
+                  "v10/api-reference/utm-module-group-resource/get-apiutm-configuration-groupsmodule-groups",
+                  "v10/api-reference/utm-module-group-resource/delete-apiutm-configuration-groupsdelete-single-module-group",
+                  "v10/api-reference/utm-module-group-resource/delete-apiutm-configuration-groupsdelete-all-module-groups"
+                ]
+              },
+              {
+                "group": "utm-asset-metrics-resource",
+                "pages": [
+                  "v10/api-reference/utm-asset-metrics-resource/get-apiutm-asset-metrics",
+                  "v10/api-reference/utm-asset-metrics-resource/put-apiutm-asset-metrics",
+                  "v10/api-reference/utm-asset-metrics-resource/post-apiutm-asset-metrics",
+                  "v10/api-reference/utm-asset-metrics-resource/get-apiutm-asset-metrics-1",
+                  "v10/api-reference/utm-asset-metrics-resource/delete-apiutm-asset-metrics"
+                ]
+              },
+              {
+                "group": "utm-asset-group-resource",
+                "pages": [
+                  "v10/api-reference/utm-asset-group-resource/put-apiutm-asset-groups",
+                  "v10/api-reference/utm-asset-group-resource/post-apiutm-asset-groups",
+                  "v10/api-reference/utm-asset-group-resource/get-apiutm-asset-groups",
+                  "v10/api-reference/utm-asset-group-resource/delete-apiutm-asset-groups",
+                  "v10/api-reference/utm-asset-group-resource/get-apiutm-asset-groupssearchgroupsbyfilter"
+                ]
+              },
+              {
+                "group": "utm-alert-tag-resource",
+                "pages": [
+                  "v10/api-reference/utm-alert-tag-resource/get-apiutm-alert-tags",
+                  "v10/api-reference/utm-alert-tag-resource/put-apiutm-alert-tags",
+                  "v10/api-reference/utm-alert-tag-resource/post-apiutm-alert-tags",
+                  "v10/api-reference/utm-alert-tag-resource/get-apiutm-alert-tags-1",
+                  "v10/api-reference/utm-alert-tag-resource/delete-apiutm-alert-tags"
+                ]
+              },
+              {
+                "group": "utm-alert-response-rule-resource",
+                "pages": [
+                  "v10/api-reference/utm-alert-response-rule-resource/get-apiutm-alert-response-rules",
+                  "v10/api-reference/utm-alert-response-rule-resource/put-apiutm-alert-response-rules",
+                  "v10/api-reference/utm-alert-response-rule-resource/post-apiutm-alert-response-rules",
+                  "v10/api-reference/utm-alert-response-rule-resource/get-apiutm-alert-response-rules-1",
+                  "v10/api-reference/utm-alert-response-rule-resource/get-apiutm-alert-response-rulesresolve-filter-values"
+                ]
+              },
+              {
+                "group": "utm-alert-log-resource",
+                "pages": [
+                  "v10/api-reference/utm-alert-log-resource/get-apiutm-alert-logs",
+                  "v10/api-reference/utm-alert-log-resource/put-apiutm-alert-logs",
+                  "v10/api-reference/utm-alert-log-resource/post-apiutm-alert-logs",
+                  "v10/api-reference/utm-alert-log-resource/get-apiutm-alert-logs-1",
+                  "v10/api-reference/utm-alert-log-resource/delete-apiutm-alert-logs",
+                  "v10/api-reference/utm-alert-log-resource/get-apiutm-alert-logscount"
+                ]
+              },
+              {
+                "group": "user-resource",
+                "pages": [
+                  "v10/api-reference/user-resource/get-apiusers",
+                  "v10/api-reference/user-resource/put-apiusers",
+                  "v10/api-reference/user-resource/post-apiusers",
+                  "v10/api-reference/user-resource/get-apiusers-1",
+                  "v10/api-reference/user-resource/delete-apiusers",
+                  "v10/api-reference/user-resource/get-apiusersfilter",
+                  "v10/api-reference/user-resource/get-apiusersauthorities"
+                ]
+              },
+              {
+                "group": "utm-collector-resource",
+                "pages": [
+                  "v10/api-reference/utm-collector-resource/put-apiupdategroup",
+                  "v10/api-reference/utm-collector-resource/post-apicollector-config",
+                  "v10/api-reference/utm-collector-resource/get-apisearchgroupsbyfilter",
+                  "v10/api-reference/utm-collector-resource/get-apisearch-by-filters",
+                  "v10/api-reference/utm-collector-resource/get-apigroups-by-collectors",
+                  "v10/api-reference/utm-collector-resource/get-apicollectors-list",
+                  "v10/api-reference/utm-collector-resource/get-apicollector-hostnames",
+                  "v10/api-reference/utm-collector-resource/get-apicollector-by-hostname-and-module",
+                  "v10/api-reference/utm-collector-resource/delete-apicollectors"
+                ]
+              },
+              {
+                "group": "utm-module-group-configuration-resource",
+                "pages": [
+                  "v10/api-reference/utm-module-group-configuration-resource/put-apimodule-group-configurationsupdate",
+                  "v10/api-reference/utm-module-group-configuration-resource/get-apimodule-group-configurationsby-group-id",
+                  "v10/api-reference/utm-module-group-configuration-resource/get-apimodule-group-configurationsby-group-and-key"
+                ]
+              },
+              {
+                "group": "utm-menu-resource",
+                "pages": [
+                  "v10/api-reference/utm-menu-resource/get-apimenu",
+                  "v10/api-reference/utm-menu-resource/put-apimenu",
+                  "v10/api-reference/utm-menu-resource/post-apimenu",
+                  "v10/api-reference/utm-menu-resource/post-apimenusave-menu-structure",
+                  "v10/api-reference/utm-menu-resource/get-apimenuget-menu-by-authorities",
+                  "v10/api-reference/utm-menu-resource/get-apimenuall",
+                  "v10/api-reference/utm-menu-resource/delete-apimenu"
+                ]
+              },
+              {
+                "group": "utm-logstash-pipeline-resource",
+                "pages": [
+                  "v10/api-reference/utm-logstash-pipeline-resource/get-apilogstash-pipelines",
+                  "v10/api-reference/utm-logstash-pipeline-resource/put-apilogstash-pipelines",
+                  "v10/api-reference/utm-logstash-pipeline-resource/post-apilogstash-pipelines",
+                  "v10/api-reference/utm-logstash-pipeline-resource/post-apilogstash-pipelinesvalidate",
+                  "v10/api-reference/utm-logstash-pipeline-resource/get-apilogstash-pipelines-1",
+                  "v10/api-reference/utm-logstash-pipeline-resource/delete-apilogstash-pipelines",
+                  "v10/api-reference/utm-logstash-pipeline-resource/get-apilogstash-pipelinesstats",
+                  "v10/api-reference/utm-logstash-pipeline-resource/get-apilogstash-pipelinesport"
+                ]
+              },
+              {
+                "group": "utm-logstash-input-resource",
+                "pages": [
+                  "v10/api-reference/utm-logstash-input-resource/put-apilogstash-inputs",
+                  "v10/api-reference/utm-logstash-input-resource/get-apilogstash-inputstypes",
+                  "v10/api-reference/utm-logstash-input-resource/get-apilogstash-inputsconfig",
+                  "v10/api-reference/utm-logstash-input-resource/get-apilogstash-inputsavailable-value",
+                  "v10/api-reference/utm-logstash-input-resource/delete-apilogstash-inputs"
+                ]
+              },
+              {
+                "group": "utm-logstash-filter-resource",
+                "pages": [
+                  "v10/api-reference/utm-logstash-filter-resource/get-apilogstash-filters",
+                  "v10/api-reference/utm-logstash-filter-resource/put-apilogstash-filters",
+                  "v10/api-reference/utm-logstash-filter-resource/post-apilogstash-filters",
+                  "v10/api-reference/utm-logstash-filter-resource/get-apilogstash-filters-1",
+                  "v10/api-reference/utm-logstash-filter-resource/delete-apilogstash-filters",
+                  "v10/api-reference/utm-logstash-filter-resource/get-apilogstash-filtersby-pipelineid"
+                ]
+              },
+              {
+                "group": "log-analyzer-resource",
+                "pages": [
+                  "v10/api-reference/log-analyzer-resource/get-apilog-analyzerqueries",
+                  "v10/api-reference/log-analyzer-resource/put-apilog-analyzerqueries",
+                  "v10/api-reference/log-analyzer-resource/post-apilog-analyzerqueries",
+                  "v10/api-reference/log-analyzer-resource/post-apilog-analyzertop-x-values-",
+                  "v10/api-reference/log-analyzer-resource/post-apilog-analyzerchart-view",
+                  "v10/api-reference/log-analyzer-resource/get-apilog-analyzerqueries-1",
+                  "v10/api-reference/log-analyzer-resource/delete-apilog-analyzerqueries"
+                ]
+              },
+              {
+                "group": "index-policy-resource",
+                "pages": [
+                  "v10/api-reference/index-policy-resource/get-apiindex-policypolicy",
+                  "v10/api-reference/index-policy-resource/put-apiindex-policypolicy"
+                ]
+              },
+              {
+                "group": "utm-incident-action-command-resource",
+                "pages": [
+                  "v10/api-reference/utm-incident-action-command-resource/get-apiincident-action-commands",
+                  "v10/api-reference/utm-incident-action-command-resource/put-apiincident-action-commands",
+                  "v10/api-reference/utm-incident-action-command-resource/post-apiincident-action-commands",
+                  "v10/api-reference/utm-incident-action-command-resource/delete-apiincident-action-commands"
+                ]
+              },
+              {
+                "group": "utm-images-resource",
+                "pages": [
+                  "v10/api-reference/utm-images-resource/put-apiimages",
+                  "v10/api-reference/utm-images-resource/get-apiimages",
+                  "v10/api-reference/utm-images-resource/get-apiimagesreset",
+                  "v10/api-reference/utm-images-resource/get-apiimagesall"
+                ]
+              },
+              {
+                "group": "utm-compliance-standard-resource",
+                "pages": [
+                  "v10/api-reference/utm-compliance-standard-resource/get-apicompliancestandard",
+                  "v10/api-reference/utm-compliance-standard-resource/put-apicompliancestandard",
+                  "v10/api-reference/utm-compliance-standard-resource/post-apicompliancestandard",
+                  "v10/api-reference/utm-compliance-standard-resource/get-apicompliancestandard-1",
+                  "v10/api-reference/utm-compliance-standard-resource/delete-apicompliancestandard"
+                ]
+              },
+              {
+                "group": "utm-compliance-standard-section-resource",
+                "pages": [
+                  "v10/api-reference/utm-compliance-standard-section-resource/get-apicompliancestandard-section",
+                  "v10/api-reference/utm-compliance-standard-section-resource/put-apicompliancestandard-section",
+                  "v10/api-reference/utm-compliance-standard-section-resource/post-apicompliancestandard-section",
+                  "v10/api-reference/utm-compliance-standard-section-resource/get-apicompliancestandard-section-1",
+                  "v10/api-reference/utm-compliance-standard-section-resource/delete-apicompliancestandard-section",
+                  "v10/api-reference/utm-compliance-standard-section-resource/get-apicompliancestandard-sectionsections-with-reports"
+                ]
+              },
+              {
+                "group": "utm-compliance-report-config-resource",
+                "pages": [
+                  "v10/api-reference/utm-compliance-report-config-resource/get-apicompliancereport-config",
+                  "v10/api-reference/utm-compliance-report-config-resource/put-apicompliancereport-config",
+                  "v10/api-reference/utm-compliance-report-config-resource/post-apicompliancereport-config",
+                  "v10/api-reference/utm-compliance-report-config-resource/post-apicompliancereport-configimport",
+                  "v10/api-reference/utm-compliance-report-config-resource/get-apicompliancereport-config-1",
+                  "v10/api-reference/utm-compliance-report-config-resource/delete-apicompliancereport-config",
+                  "v10/api-reference/utm-compliance-report-config-resource/get-apicompliancereport-configget-by-filters"
+                ]
+              },
+              {
+                "group": "utm-compliance-report-schedule-resource",
+                "pages": [
+                  "v10/api-reference/utm-compliance-report-schedule-resource/put-apicompliance-report-schedules",
+                  "v10/api-reference/utm-compliance-report-schedule-resource/post-apicompliance-report-schedules",
+                  "v10/api-reference/utm-compliance-report-schedule-resource/get-apicompliance-report-schedules-by-user",
+                  "v10/api-reference/utm-compliance-report-schedule-resource/get-apicompliance-report-schedules-by-id",
+                  "v10/api-reference/utm-compliance-report-schedule-resource/delete-apicompliance-report-schedules"
+                ]
+              },
+              {
+                "group": "authority-resource",
+                "pages": [
+                  "v10/api-reference/authority-resource/get-apiauthority",
+                  "v10/api-reference/authority-resource/put-apiauthority",
+                  "v10/api-reference/authority-resource/post-apiauthority",
+                  "v10/api-reference/authority-resource/delete-apiauthority"
+                ]
+              },
+              {
+                "group": "utm-alert-tag-rule-resource",
+                "pages": [
+                  "v10/api-reference/utm-alert-tag-rule-resource/get-apialert-tag-rules",
+                  "v10/api-reference/utm-alert-tag-rule-resource/put-apialert-tag-rules",
+                  "v10/api-reference/utm-alert-tag-rule-resource/post-apialert-tag-rules",
+                  "v10/api-reference/utm-alert-tag-rule-resource/get-apialert-tag-rules-1",
+                  "v10/api-reference/utm-alert-tag-rule-resource/delete-apialert-tag-rules",
+                  "v10/api-reference/utm-alert-tag-rule-resource/get-apialert-tag-rulesget-by-ids"
+                ]
+              },
+              {
+                "group": "agent-manager-group-resource",
+                "pages": [
+                  "v10/api-reference/agent-manager-group-resource/put-apiagent-manager-group",
+                  "v10/api-reference/agent-manager-group-resource/post-apiagent-manager-group",
+                  "v10/api-reference/agent-manager-group-resource/get-apiagent-manager-groupget-by-filter",
+                  "v10/api-reference/agent-manager-group-resource/delete-apiagent-manager-group"
+                ]
+              },
+              {
+                "group": "utm-incident-note-resource",
+                "pages": [
+                  "v10/api-reference/utm-incident-note-resource/get-apiutm-incident-notes",
+                  "v10/api-reference/utm-incident-note-resource/post-apiutm-incident-notes"
+                ]
+              },
+              {
+                "group": "utm-incident-job-resource",
+                "pages": [
+                  "v10/api-reference/utm-incident-job-resource/get-apiutm-incident-jobs",
+                  "v10/api-reference/utm-incident-job-resource/post-apiutm-incident-jobs",
+                  "v10/api-reference/utm-incident-job-resource/get-apiutm-incident-jobs-1",
+                  "v10/api-reference/utm-incident-job-resource/delete-apiutm-incident-jobs",
+                  "v10/api-reference/utm-incident-job-resource/get-apiutm-incident-jobscount"
+                ]
+              },
+              {
+                "group": "utm-getting-started-resource",
+                "pages": [
+                  "v10/api-reference/utm-getting-started-resource/post-apiutm-getting-startedinit",
+                  "v10/api-reference/utm-getting-started-resource/get-apiutm-getting-started",
+                  "v10/api-reference/utm-getting-started-resource/get-apiutm-getting-startedcomplete"
+                ]
+              },
+              {
+                "group": "utm-alert-resource",
+                "pages": [
+                  "v10/api-reference/utm-alert-resource/post-apiutm-alertstags",
+                  "v10/api-reference/utm-alert-resource/post-apiutm-alertsstatus",
+                  "v10/api-reference/utm-alert-resource/post-apiutm-alertsnotes",
+                  "v10/api-reference/utm-alert-resource/post-apiutm-alertsconvert-to-incident",
+                  "v10/api-reference/utm-alert-resource/get-apiutm-alertscount-open-alerts"
+                ]
+              },
+              {
+                "group": "utm-soc-ai-resource",
+                "pages": [
+                  "v10/api-reference/utm-soc-ai-resource/post-apisoc-aialerts"
+                ]
+              },
+              {
+                "group": "utm-stack-resource",
+                "pages": [
+                  "v10/api-reference/utm-stack-resource/post-apiencrypt",
+                  "v10/api-reference/utm-stack-resource/get-apiping",
+                  "v10/api-reference/utm-stack-resource/get-apiisindevelop",
+                  "v10/api-reference/utm-stack-resource/get-apihealthcheck",
+                  "v10/api-reference/utm-stack-resource/get-apidate-format"
+                ]
+              },
+              {
+                "group": "elasticsearch-resource",
+                "pages": [
+                  "v10/api-reference/elasticsearch-resource/post-apielasticsearchsearch",
+                  "v10/api-reference/elasticsearch-resource/post-apielasticsearchsearchcsv",
+                  "v10/api-reference/elasticsearch-resource/post-apielasticsearchpropertyvalues-with-count",
+                  "v10/api-reference/elasticsearch-resource/post-apielasticsearchindexdelete-index",
+                  "v10/api-reference/elasticsearch-resource/post-apielasticsearchgeneric-search",
+                  "v10/api-reference/elasticsearch-resource/get-apielasticsearchpropertyvalues",
+                  "v10/api-reference/elasticsearch-resource/get-apielasticsearchindexproperties",
+                  "v10/api-reference/elasticsearch-resource/get-apielasticsearchindexall",
+                  "v10/api-reference/elasticsearch-resource/get-apielasticsearchclusterstatus"
+                ]
+              },
+              {
+                "group": "account-resource",
+                "pages": [
+                  "v10/api-reference/account-resource/get-apiauthenticate",
+                  "v10/api-reference/account-resource/get-apiaccount",
+                  "v10/api-reference/account-resource/post-apiaccount",
+                  "v10/api-reference/account-resource/post-apiaccountreset-passwordinit",
+                  "v10/api-reference/account-resource/post-apiaccountreset-passwordfinish",
+                  "v10/api-reference/account-resource/post-apiaccountchange-password"
+                ]
+              },
+              {
+                "group": "user-jwt-controller",
+                "pages": [
+                  "v10/api-reference/user-jwt-controller/post-apiauthenticate",
+                  "v10/api-reference/user-jwt-controller/post-apiauthenticatefederationservicemanager",
+                  "v10/api-reference/user-jwt-controller/get-apitfaverifycode",
+                  "v10/api-reference/user-jwt-controller/get-apicheck-credentials"
+                ]
+              },
+              {
+                "group": "audit-resource",
+                "pages": [
+                  "v10/api-reference/audit-resource/get-managementaudits",
+                  "v10/api-reference/audit-resource/get-managementaudits-1"
+                ]
+              },
+              {
+                "group": "utm-auditor-users-resource",
+                "pages": [
+                  "v10/api-reference/utm-auditor-users-resource/get-apiwinlogbeat-info-by-filter",
+                  "v10/api-reference/utm-auditor-users-resource/get-apiutm-auditor-users-by-src"
+                ]
+              },
+              {
+                "group": "utm-incident-history-resource",
+                "pages": [
+                  "v10/api-reference/utm-incident-history-resource/get-apiutm-incident-histories",
+                  "v10/api-reference/utm-incident-history-resource/get-apiutm-incident-histories-1",
+                  "v10/api-reference/utm-incident-history-resource/get-apiutm-incident-historiescount"
+                ]
+              },
+              {
+                "group": "utm-configuration-section-resource",
+                "pages": [
+                  "v10/api-reference/utm-configuration-section-resource/get-apiutm-configuration-sections"
+                ]
+              },
+              {
+                "group": "utm-client-resource",
+                "pages": [
+                  "v10/api-reference/utm-client-resource/get-apiutm-clients",
+                  "v10/api-reference/utm-client-resource/get-apiutm-clients-1"
+                ]
+              },
+              {
+                "group": "utm-asset-types-resource",
+                "pages": [
+                  "v10/api-reference/utm-asset-types-resource/get-apiutm-asset-typesall"
+                ]
+              },
+              {
+                "group": "utm-alert-response-rule-history-resource",
+                "pages": [
+                  "v10/api-reference/utm-alert-response-rule-history-resource/get-apiutm-alert-response-rule-histories"
+                ]
+              },
+              {
+                "group": "utm-alert-response-rule-execution-resource",
+                "pages": [
+                  "v10/api-reference/utm-alert-response-rule-execution-resource/get-apiutm-alert-response-rule-executions"
+                ]
+              },
+              {
+                "group": "overview-resource",
+                "pages": [
+                  "v10/api-reference/overview-resource/get-apioverviewtop-windows-events",
+                  "v10/api-reference/overview-resource/get-apioverviewtop-alerts",
+                  "v10/api-reference/overview-resource/get-apioverviewtop-alerts-by-category",
+                  "v10/api-reference/overview-resource/get-apioverviewevents-in-time",
+                  "v10/api-reference/overview-resource/get-apioverviewcount-events-by-type",
+                  "v10/api-reference/overview-resource/get-apioverviewcount-alerts-today-and-last-week",
+                  "v10/api-reference/overview-resource/get-apioverviewcount-alerts-by-status",
+                  "v10/api-reference/overview-resource/get-apioverviewcount-alerts-by-severity"
+                ]
+              },
+              {
+                "group": "pdf-generator-resource",
+                "pages": [
+                  "v10/api-reference/pdf-generator-resource/get-apigenerate-pdf-report"
+                ]
+              },
+              {
+                "group": "utm-federation-service-client-resource",
+                "pages": [
+                  "v10/api-reference/utm-federation-service-client-resource/get-apifederation-servicetoken",
+                  "v10/api-reference/utm-federation-service-client-resource/get-apifederation-servicegenerateapitoken"
+                ]
+              },
+              {
+                "group": "custom-reports-resource",
+                "pages": [
+                  "v10/api-reference/custom-reports-resource/get-apicustom-reportsbuildthreatactivityforincidents",
+                  "v10/api-reference/custom-reports-resource/get-apicustom-reportsbuildthreatactivityforalerts",
+                  "v10/api-reference/custom-reports-resource/get-apicustom-reportsbuildassetmanagement"
+                ]
+              },
+              {
+                "group": "agent-manager-resource",
+                "pages": [
+                  "v10/api-reference/agent-manager-resource/get-apiagent-managercan-run-command",
+                  "v10/api-reference/agent-manager-resource/get-apiagent-manageragents",
+                  "v10/api-reference/agent-manager-resource/get-apiagent-manageragents-with-commands",
+                  "v10/api-reference/agent-manager-resource/get-apiagent-manageragent-commands",
+                  "v10/api-reference/agent-manager-resource/get-apiagent-manageragent-by-hostname"
+                ]
+              }
             ]
           }
-        ],
-        "versions": [
-            {
-              "version": "v10",
-              "groups": [
-                {
-                  "group": "Getting Started",
-                  "pages": ["v1/overview", "v1/quickstart", "v1/development"]
-                }
-              ]
-            },
-            {
-              "version": "v11",
-              "groups": [
-                {
-                  "group": "Getting Started",
-                  "pages": ["v2/overview", "v2/quickstart", "v2/development"]
-                }
-              ]
-            }
-          ]
+        ]
       },
       {
-        "tab": "API Reference",
-        "groups": [
+        "version": "v11.0.0",
+        "tabs": [
           {
-            "group": "API Documentation",
-            "pages": [
-              "api-reference/introduction"
+            "tab": "Guides",
+            "groups": [
+              {
+                "group": "Get Started",
+                "pages": ["v11/introduction", "v11/quickstart", "v11/development"]
+              },
+              {
+                "group": "Essentials",
+                "pages": [
+                  "v11/essentials/markdown",
+                  "v11/essentials/code",
+                  "v11/essentials/images",
+                  "v11/essentials/settings",
+                  "v11/essentials/navigation",
+                  "v11/essentials/reusable-snippets"
+                ]
+              }
             ]
           },
           {
-            "group": "Endpoint Examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete"
+            "tab": "API Reference",
+            "groups": [
+              {
+                "group": "API Documentation",
+                "pages": ["v11/api-reference/introduction"]
+              },
+              {
+                "group": "Endpoint Examples",
+                "pages": [
+                  "v11/api-reference/endpoint/get",
+                  "v11/api-reference/endpoint/create",
+                  "v11/api-reference/endpoint/delete"
+                ]
+              }
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",

@@ -1,0 +1,6 @@
+{
+  "openapi": "api-docs.json",
+  "outDir": "v10/api-reference",
+  "overwrite": true,
+  "groupByTag": true
+}
