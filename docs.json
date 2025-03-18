@@ -20,13 +20,16 @@
               {
                 "group": "Getting started",
                 "pages": [
-                  "v10/Getting started/Introduction",
-                  "v10/Getting started/Use Case"]
+                  "v10/Getting started/introduction",
+                  "v10/Getting started/use Case"
+                ]
               },
               {
                 "group": "Installation",
                 "pages": [
-                  "v10/Installation/System Requirements"]
+                    "v10/Installation/architecture",
+                    "v10/Installation/system requirements"
+                ]
               }
               
             ]
