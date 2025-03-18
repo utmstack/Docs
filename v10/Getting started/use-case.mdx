@@ -1,0 +1,40 @@
+---
+title: Use Case
+description: "Active attack simulation with a compromised workstation, showcasing UTMStack’s detection and response."
+---
+
+# Active Attack Scenario: Compromised Employee Workstation
+
+In this section, we will explore a realistic active attack scenario involving a compromised employee workstation. The purpose of this exercise is to demonstrate how UTMStack can effectively detect and respond to such attacks, ensuring the security of your corporate systems.
+
+## Attack Overview
+In this simulated attack, an external malicious actor successfully executes a social engineering attack, gaining unauthorized access to a corporate device. The attacker's objective is to infiltrate the corporate systems and carry out unauthorized activities. The attack unfolds in several phases, showcasing the attacker's techniques and UTMStack's capabilities in identifying and mitigating threats. The primary steps involved in this attack scenario are as follows:
+
+- **Reconnaissance Attack**: The attacker initiates the attack by conducting a reconnaissance phase to gather information about the target network. This phase enables the attacker to gain visibility and identify potential vulnerabilities.
+
+- **Exploitation of Saved Credentials**: Leveraging acquired knowledge, the attacker exploits saved credentials to gain unauthorized access to the corporate network. By compromising an employee workstation, the attacker bypasses initial security measures.
+
+- **Modifying the Host File**: To evade detection, the attacker modifies the host file, a critical system file used to map IP addresses to hostnames. By altering this file, the attacker can redirect network traffic and maintain persistence within the compromised system.
+
+- **Creation of a Masquerading User**: The attacker masquerades as a Windows update service account by creating a new user within the compromised employee's workstation. This technique allows the attacker to establish a covert presence, making it harder to detect their activities.
+
+
+## UTMStack Alert Management and Incident Response
+
+One common concern in incident response is the potential delay in detecting and responding to threats. However, UTMStack's correlation capabilities ensure that detection occurs in near real-time, significantly reducing the time between the initial attack and response.
+
+Upon accessing the UTMStack instance, you will immediately notice that it displays several alerts related to the previously executed network scan. This powerful feature enables security teams, such as a Security Operations Center (SOC), to efficiently manage and respond to potential threats.
+
+### **Step 1**: Access the Threat Management Menu
+
+Log in to the UTMStack platform using your credentials.
+Once logged in, navigate to the Threat Management menu. This menu is the central hub for managing security-related Alert activities within UTMStack.
+
+<img
+  height="200"
+  noZoom
+  className="block rounded-xl"
+  src="/images/case use/alertview.png"
+  alt="Access the Threat Management Menu"
+/>
+

@@ -18,8 +18,16 @@
             "tab": "Guides",
             "groups": [
               {
-                "group": "Get Started",
-                "pages": ["v10/introduction", "v10/quickstart"]
+                "group": "Getting started",
+                "pages": [
+                  "v10/Getting started/introduction",
+                  "v10/Getting started/use-case"]
+              },
+              {
+                "group": "Installation",
+                "pages": [
+                  "v10/Getting started/introduction",
+                  "v10/Getting started/use-case"]
               }
               
             ]
@@ -786,13 +794,13 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:contact@utmstack.com"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Online Demo",
+      "href": "https://utmstack.com/demo"
     }
   },
   "footer": {
