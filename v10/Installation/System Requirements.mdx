@@ -1,5 +1,73 @@
 ---
 title: System Requirements
 sidebarTitle: "System Requirements"
-description: "Elevate Your Cybersecurity with Open Source SIEM and XDR"
+description: "To ensure optimal installation and performance of UTMStack, adhere to the following system specifications."
 ---
+
+## 1. Data Storage Overview
+
+Before diving in, be aware that UTMStack approaches data retention in two distinct methods:
+
+* **Hot Log Storage**: Refers to data which isn't archived and can be accessed anytime for immediate analysis.
+* **Cold Storage**: Represents archived data that necessitates restoration prior to access.
+* **Data Source**: Denotes any individual origin of logs, such as devices, agents, or SaaS integrations.
+
+> Assumption: 50 data sources (devices) generate approximately 100 GB of data per month.
+
+## 2. UTMStack Server Specifications
+
+The UTMStack server is responsible for managing and orchestrating platform operations. Below are the recommended hardware specifications for hot log storage:
+
+| Data Sources (Approx. Monthly Data) | Cores | RAM   | Disk Space |
+| ----------------------------------- | ------| ------| -----------|
+| **50 (100 GB)**                     | 8     | 16 GB | 150 GB    |
+| **120 (250 GB)**                    | 16    | 32 GB | 250 GB    |
+| **240 (500 GB)**                    | 32    | 64 GB | 450 GB    |
+
+> **Scalability:** These tiers can be adjusted based on the number of devices and desired log retention period.
+
+## 3. Architecture Requirements
+
+To run UTMStack optimally, your hardware must meet the following minimum specifications:
+
+**CPU Requirements**
+
+* **Processor:** Must support x86-64 v2 architecture.
+* **Processor:** Must support x86-64 v2 architecture.
+
+**CPU Requirements for Virtualized Environments**
+
+UTMStack supports the following **CPU architectures** in **QEMU/KVM** environments:
+	1.	x86-64-v2 (QEMU): Optimized 64-bit architecture with second-gen instruction set.
+	2.	x86-64-v2-AES (QEMU): Adds AES-NI encryption acceleration for improved security.
+	3.	x86-64-v4 (QEMU): Advanced fourth-generation architecture with enhanced performance.
+	4.	Host (KVM): Uses the host processor’s features directly for maximum performance.
+
+## 4. Integration and Logging Volume Considerations
+
+**Integration Requirements**
+
+* Each integration requires **at least 1GB of reserved space** to maintain **efficient system operation**.
+
+**Log Volume Considerations**
+*	If logs exceed **1GB within a 10-minute interval, immediate** contact with the support team is required to **maintain stability and performance**.
+
+## 5. Supported Operating Systems
+
+UTMStack is officially supported on Ubuntu 22.04 LTS.
+
+> For installation instructions, refer to the [UTMStack Installation Guide](../Getting%20started/Introduction#adaptable-and-intelligent)
+
+##  6. Federated Server (UTMStackFSInstaller)
+
+For UTMStack federated installations, the following minimum system requirements apply:
+
+**Recommended Operating System**
+*	Ubuntu 22.04 LTS
+
+**Resources for Master:**
+
+| Recommendation                | Cores | RAM   | Disk Space |
+| ----------------------------- | ----- | ----- | ---------- |
+| Minimum Required (non-prod)   | 2     | 4 GB  | 20 GB      |
+| Recommended (prod)            | 4     | 8 GB  | 20 GB      |
