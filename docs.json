@@ -21,7 +21,7 @@
                 "group": "Getting started",
                 "pages": [
                   "v10/Getting started/introduction",
-                  "v10/Getting started/use Case"
+                  "v10/Getting started/use case"
                 ]
               },
               {
@@ -31,7 +31,6 @@
                     "v10/Installation/system requirements"
                 ]
               }
-              
             ]
           },
           {
