@@ -21,14 +21,14 @@
                 "group": "Getting started",
                 "pages": [
                   "v10/Getting started/introduction",
-                  "v10/Getting started/use case"
+                  "v10/Getting started/use_case"
                 ]
               },
               {
                 "group": "Installation",
                 "pages": [
                     "v10/Installation/architecture",
-                    "v10/Installation/system requirements"
+                    "v10/Installation/system_requirements"
                 ]
               }
             ]
