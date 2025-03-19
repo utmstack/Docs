@@ -1,0 +1,122 @@
+---
+title: UTMStack Server Setup Guide
+sidebarTitle: "Server Setup Guide"
+description: "This guide will walk you through the process of configuring the UTMStack Main Server."
+---
+
+The Main Server is the central component of UTMStack and is responsible for managing security operations and data collection.
+
+## Prepare the System
+
+Before starting the installation, make sure that your system meets the minimum requirements and is up to date. 
+
+<Note>
+Please refer to the [System Requirements](../Installation/system_requirements) page in the UTMStack documentation for detailed information about the recommended specifications for your environment.
+</Note>
+
+## Linux Installation Guide
+
+Execute the following commands to update the package list and install the required dependencies on your Ubuntu 22.04 LTS system:
+
+``` bash
+sudo apt update
+sudo apt install wget
+```
+
+### Step 1: Download the Installer Script
+
+Download the latest version of the UTMStack installer script from the official UTMStack website. You can use the following command to retrieve the script:
+
+``` bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+
+```
+
+### Step 2: Grant Execution Permissions
+
+Change to the root user to ensure proper execution of the installer script:
+
+``` bash
+sudo su
+```
+
+Set execution permissions for the installer script using the following command:
+
+``` bash
+chmod +x installer
+```
+
+### Step 3: Run the Installer
+
+Now, you are ready to run the installer script and begin the installation process.
+
+Execute the installer without parameters:
+
+``` bash
+./installer
+```
+
+The installer script will take care of downloading the necessary packages.
+
+Please note that the installation process may take some time depending on the system and the options selected.
+
+### Step 4. Trubleshooting
+
+<Warning>
+    **Trubleshooting:**
+    If you find any errors during the installation, please check the installation log for more details: `/var/log/utm-setup.log`
+</Warning>
+
+<Warning>
+  **Error During UTMStack Installation: Issue Regenerating the Geo-IP Index**
+
+  **Problem Description:** During the installation of UTMStack, an error may occur related to regenerating the Geo-IP index. This issue prevents the system from properly completing the configuration of the geographical location database, which can impact certain functionalities that rely on this information.
+</Warning>
+
+<Tip>
+    **Solution:** To resolve this issue, you need to rerun the UTMStack installer. Restarting the installation process will properly regenerate the `Geo-IP index`, ensuring that location data is correctly processed and stored.
+</Tip>
+    
+
+### Step 5: Configuration of UTMStack
+After successfully installing UTMStack on your servers, it is important to configure the necessary services to ensure proper functionality. This step involves setting up best-practice firewall rulesets to control network traffic effectively. Additionally, you have the option to integrate third-party applications like M365 to enhance UTMStack's capabilities.
+
+To learn more about the specific firewall rules you need to create for UTMStack, please refer to the [Firewall Rules](../Installation/firewall_rules) section for detailed instructions.
+
+## Step 6:  Installing and Configuring an SSL/TLS certificate
+
+Go to **<a href="./SSLConfiguration">Configuring an SSL/TLS certificate</a>** section for detailed instructions.
+
+## Step 7: Accessing the UTMStack Platform
+Once you have successfully installed the server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStack platform:
+
+Open your preferred web browser.
+
+Enter the HTTPS URL of your server's name or IP address in the browser's address bar. For example, if your server's IP address is 192.168.0.100, you would enter https://192.168.0.100.
+
+Press Enter to load the UTMStack login page.
+
+<img
+  width="300"
+  height="200"
+  noZoom
+  className="block rounded-xl"
+  src="/images/setup guide/login_utmstack.png"
+  alt="Access the Threat Management Menu"
+/>
+
+Once UTMStack is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/utmstack.yml
+
+<Note>
+    Note: Use HTTPS in front of your server name or IP to access the login page.
+</Note>
+
+> Default credentials for Ubuntu Server when using the ISO installer:
+
+<Tip>
+    * Default credentials for Ubuntu Server when using the ISO installer:
+        * **User:** utmstack
+        * **Password:** utmstack
+</Tip>
+
+Click on the "Sign In" button to authenticate and access the UTMStack platform.
