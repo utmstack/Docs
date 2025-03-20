@@ -42,7 +42,15 @@
                 "group": "Configuration",
                 "pages": [
                     "v10/configuration/license",
-                    "v10/configuration/conection_key"
+                    "v10/configuration/conection_key",
+                    "v10/configuration/application_settings",
+                    "v10/configuration/custom_logos_report",
+                    "v10/configuration/menu_management",
+                    "v10/configuration/user_access_audit",
+                    "v10/configuration/data_retention",
+                    "v10/configuration/logs_overview",
+                    "v10/configuration/index_management",
+                    "v10/configuration/patterns_management"
                 ]
               }
             ]

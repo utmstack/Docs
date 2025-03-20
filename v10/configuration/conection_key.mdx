@@ -1,6 +1,6 @@
 ---
 title: Connection Key
-sidebarTitle: "Connection Key"
+sidebarTitle: Connection Key
 description: "The Connection Key is a fundamental component of UTMStack, serving as a secure token to establish trusted communication between components within the system. It plays a crucial role in the following processes:"
 ---
 
@@ -24,15 +24,17 @@ description: "The Connection Key is a fundamental component of UTMStack, serving
 - **Process**: The Connection Key facilitates secure connection to a Federation Service, ensuring that all federated instances are properly managed and maintained within a centralized framework.
 
 
-<Warning>
+<Tip>
     **Security Tip**: To maintain the security integrity of your Connection Key, it’s vital to change it regularly and immediately if there is any suspicion of compromise. Avoid sharing the key with untrusted parties.
-</Warning>
+</Tip>
 
 ### Generating a New Connection Key
 
 - If you need to generate a new Connection Key, you can do so easily by clicking the `Generate new connection key` button. This action will create a new, unique key to replace the old one and will require updating the key across all deployed agents and services that use it.
 
 <Warning>
-    - Always ensure that the new key is distributed securely and updated in all configurations to prevent service disruption.
-    - Keep a secure backup of your Connection Key in a safe location.
+    Always ensure that the new key is distributed securely and updated in all configurations to prevent service disruption.
+</Warning>
+<Warning>
+    Keep a secure backup of your Connection Key in a safe location.
 </Warning>
