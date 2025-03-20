@@ -37,6 +37,13 @@
                     "v10/Installation/guide_for_azure",
                     "v10/Installation/install_from_iso"
                 ]
+              },
+              {
+                "group": "Configuration",
+                "pages": [
+                    "v10/configuration/license",
+                    "v10/configuration/conection_key"
+                ]
               }
             ]
           },
