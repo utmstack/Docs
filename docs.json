@@ -30,7 +30,10 @@
                     "v10/Installation/architecture",
                     "v10/Installation/system_requirements",
                     "v10/Installation/firewall_rules",
-                    "v10/Installation/setup_guide"
+                    "v10/Installation/setup_guide",
+                    "v10/Installation/ssl_certificate",
+                    "v10/Installation/federation_server",
+                    "v10/Installation/import_federation_server"
                 ]
               }
             ]
