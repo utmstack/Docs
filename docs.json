@@ -33,7 +33,8 @@
                     "v10/Installation/setup_guide",
                     "v10/Installation/ssl_certificate",
                     "v10/Installation/federation_server",
-                    "v10/Installation/import_federation_server"
+                    "v10/Installation/import_federation_server",
+                    "v10/Installation/guide_for_azure"
                 ]
               }
             ]
