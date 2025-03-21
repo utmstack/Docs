@@ -53,6 +53,12 @@
                     "v10/configuration/index_management",
                     "v10/configuration/patterns_management"
                 ]
+              },
+              {
+                "group": "Features",
+                "pages": [
+                  "v10/soc ia/soc_ia"
+                ]
               }
             ]
           },
