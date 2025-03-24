@@ -56,6 +56,13 @@
                 ]
               },
               {
+                "group": "Correlation Rules",
+                "pages": [
+                  "v10/correlation rules/correlation_rules", 
+                  "v10/correlation rules/customizable_rules"
+                ]
+              },
+              {
                 "group": "Features",
                 "pages": [
                   "v10/soc ia/soc_ia"
