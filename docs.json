@@ -63,6 +63,13 @@
                 ]
               },
               {
+                "group": "Compliances",
+                "pages": [
+                  "v10/compliance/compliance_management",
+                  "v10/compliance/compliance_schedule"
+                ]
+              },
+              {
                 "group": "Features",
                 "pages": [
                   "v10/soc ia/soc_ia"
