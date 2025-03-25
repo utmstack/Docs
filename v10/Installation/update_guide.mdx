@@ -1,0 +1,39 @@
+---
+title: UTMStack Update Guide
+sidebarTitle: "Update Guide"
+description: "Keeping your UTMSTACK software up to date is essential for maintaining system security, performance, and access to the latest features. This guide will walk you through the necessary steps to update UTMSTACK to the latest version."
+---
+
+<Tip> 
+The Main Server is the central component of UTMStack and is responsible for managing security operations and data collection.
+</Tip>
+
+1. Update packages list:
+
+```bash
+sudo apt update
+```
+
+2. Download the latest version of the installer:
+
+```bash
+wget http://github.com/utmstack/UTMStack/releases/latest/download/installer
+```
+
+3. Change to root user:
+
+```bash
+sudo su
+```
+
+4. Set execution permissions:
+
+```bash
+chmod +x installer
+```
+
+5. Execute the installer:
+
+```bash
+./installer
+```
