@@ -43,7 +43,6 @@
               {
                 "group": "Configuration",
                 "pages": [
-                    "v10/configuration/license",
                     "v10/configuration/conection_key",
                     "v10/configuration/application_settings",
                     "v10/configuration/custom_logos_report",
