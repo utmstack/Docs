@@ -55,6 +55,12 @@
                 ]
               },
               {
+                "group": "Data Sources",
+                "pages": [
+                  "v10/data sources/data_sources"
+                ]
+              },
+              {
                 "group": "Correlation Rules",
                 "pages": [
                   "v10/correlation rules/correlation_rules", 
