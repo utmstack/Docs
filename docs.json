@@ -12,7 +12,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "v10.5.19",
+        "version": "v10.7.0",
         "tabs": [
           {
             "tab": "Guides",
@@ -57,7 +57,8 @@
               {
                 "group": "Data Sources",
                 "pages": [
-                  "v10/data sources/data_sources"
+                  "v10/data sources/data_sources",
+                  "v10/data sources/collectors"
                 ]
               },
               {
