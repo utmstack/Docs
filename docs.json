@@ -80,6 +80,12 @@
                 ]
               },
               {
+                "group": "Threat Management",
+                "pages": [
+                  "v10/threat management/threatintelligence"
+                ]
+              },
+              {
                 "group": "Compliances",
                 "pages": [
                   "v10/compliance/compliance_management",
