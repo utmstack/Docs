@@ -60,7 +60,9 @@
                 "pages": [
                   "v10/dashboards/dashboard",
                   "v10/dashboards/dashboard_list",
-                  "v10/dashboards/creatingdashboard"
+                  "v10/dashboards/creatingdashboard",
+                  "v10/dashboards/visualizationlist",
+                  "v10/dashboards/creatingvisualization"
                 ]
               },
               {
