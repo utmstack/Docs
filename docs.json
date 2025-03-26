@@ -58,7 +58,8 @@
               {
                 "group": "Dashboards",
                 "pages": [
-                  "v10/dashboards/dashboard"
+                  "v10/dashboards/dashboard",
+                  "v10/dashboards/dashboard_list"
                 ]
               },
               {
