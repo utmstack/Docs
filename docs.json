@@ -73,6 +73,12 @@
                 ]
               },
               {
+                "group": "Log Explorer",
+                "pages": [
+                  "v10/logexplorer/logexplorer"
+                ]
+              },
+              {
                 "group": "Correlation Rules",
                 "pages": [
                   "v10/correlation rules/correlation_rules", 
@@ -806,48 +812,6 @@
                   "v10/api-reference/agent-manager-resource/get-apiagent-manageragents-with-commands",
                   "v10/api-reference/agent-manager-resource/get-apiagent-manageragent-commands",
                   "v10/api-reference/agent-manager-resource/get-apiagent-manageragent-by-hostname"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "version": "v11.0.0",
-        "tabs": [
-          {
-            "tab": "Guides",
-            "groups": [
-              {
-                "group": "Get Started",
-                "pages": ["v11/introduction", "v11/quickstart", "v11/development"]
-              },
-              {
-                "group": "Essentials",
-                "pages": [
-                  "v11/essentials/markdown",
-                  "v11/essentials/code",
-                  "v11/essentials/images",
-                  "v11/essentials/settings",
-                  "v11/essentials/navigation",
-                  "v11/essentials/reusable-snippets"
-                ]
-              }
-            ]
-          },
-          {
-            "tab": "API Reference",
-            "groups": [
-              {
-                "group": "API Documentation",
-                "pages": ["v11/api-reference/introduction"]
-              },
-              {
-                "group": "Endpoint Examples",
-                "pages": [
-                  "v11/api-reference/endpoint/get",
-                  "v11/api-reference/endpoint/create",
-                  "v11/api-reference/endpoint/delete"
                 ]
               }
             ]

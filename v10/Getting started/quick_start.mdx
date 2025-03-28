@@ -18,11 +18,6 @@ Furthermore, it's important to take into account the volume of logs generated an
 
 Deploy the UTMStack Server, which oversees security operations and data collection.
 
-### ISO Download Size
-<Warning>
-    **Important:** The UTMStack installation ISO file is **12 GB**. Ensure you have sufficient disk space and a stable internet connection before initiating the download. This is crucial to avoid interruptions and ensure a successful download process.
-</Warning>
-
 ### **Procedure**:
 
 Use the UTMStack installer for Ubuntu Linux 22.04 LTS.
@@ -49,6 +44,9 @@ Ensure the following ports are correctly configured on your firewall for UTM Sta
 - **80/TCP**: Web-based GUI Redirector (Restrict to admin and security analyst workstations).
 - **443/TCP**: Web-based GUI (Restrict to admin and security analyst workstations).
 - **9090/TCP**: Cockpit Web-based Interface (Restrict to admin workstation).
+- **9000/TCP**: Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
+- **9001/TCP**: Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
+- **50051/TCP**: Purpose: Agent-to-Master Communication (Required for communication between UTMStack agents and the master server).
 
 
 ### Setup SSL with Certbot (Optional, but recommended):
@@ -57,7 +55,6 @@ If you haven't manually installed an SSL certificate, use Certbot to generate on
 <Tip>   
     Follow the provided guide: [Generate SSL with Certbot](../Installation/ssl_certificate).
 </Tip>
-
 
 ## 2. Initial Configuration
 
@@ -69,7 +66,6 @@ Post installation, the first time you get access to UTMStack, its going to be re
 
 1. **Access Email Settings**:
     - Navigate to `Settings` > `Email Configuration` within the UTMStack platform.
-
 
 2. **SMTP Setup**:
 - **Mail Server Password**: The password for your email server to authenticate and send out notifications.
