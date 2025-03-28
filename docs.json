@@ -82,6 +82,8 @@
               {
                 "group": "Threat Management",
                 "pages": [
+                  "v10/threat management/alertmanagement",
+                  "v10/threat management/falsepositive",
                   "v10/threat management/threatintelligence"
                 ]
               },
