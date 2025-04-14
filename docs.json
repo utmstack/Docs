@@ -815,6 +815,42 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "🧩 Integrations",
+            "groups": [
+              {
+                "group": "Integrations",
+                "pages": ["v10/integrations/introduction"]
+              },
+              {
+                "group": "Agents and Syslog",
+                "pages": [
+                  "v10/integrations/windowsagent",
+                  "v10/integrations/linuxagent",
+                  "v10/integrations/syslog",
+                  "v10/integrations/vmware"
+                ]
+              },
+              {
+                "group": "Antivirus",
+                "pages": [
+                  "v10/integrations/windowsagent"
+                ]
+              },
+              {
+                "group": "Database",
+                "pages": [
+                 "v10/integrations/windowsagent"
+                ]
+              },
+              {
+                "group": "Cloud",
+                "pages": [
+                  "v10/integrations/windowsagent"
+                ]
+              }
+            ]
           }
         ]
       }
