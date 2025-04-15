@@ -815,6 +815,53 @@
                 ]
               }
             ]
+          },
+          {
+            "tab": "Integrations",
+            "groups": [
+              {
+                "group": "Cloud",
+                "pages": [
+                  "v10/integrations/azure",
+                  "v10/integrations/googlecloud",
+                  "v10/integrations/office365",
+                  "v10/integrations/aws",
+                  "v10/integrations/taefik"
+                ]
+              },
+              {
+                "group": "Agents and Syslog",
+                "pages": [
+                  "v10/integrations/windowsagent",
+                  "v10/integrations/linuxagent",
+                  "v10/integrations/syslog",
+                  "v10/integrations/vmware"
+                ]
+              },
+              {
+                "group": "Devices",
+                "pages": [
+                  "v10/integrations/cisco_asa",
+                  "v10/integrations/fortigate",
+                  "v10/integrations/sophos_xg",
+                  "v10/integrations/sonicwall",
+                  "v10/integrations/ibm_aix",
+                  "v10/integrations/ibmas400",
+                  "v10/integrations/fortiweb",
+                  "v10/integrations/pfsense",
+                  "v10/integrations/paloalto",
+                  "v10/integrations/mikrotik",
+                  "v10/integrations/ciscosw",
+                  "v10/integrations/firepower"
+                ]
+              },
+              {
+                "group": "Network",
+                "pages": [
+                  "v10/integrations/netflow"
+                ]
+              }
+            ]
           }
         ]
       }

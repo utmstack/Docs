@@ -1,0 +1,36 @@
+---
+title: Integration guide for Netflow
+sidebarTitle: "Netflow"
+description: "Integrating NetFlow you can redirect all logs of the network traffic to UTMStack, allowing you to monitor and analyze this logs more efficiently and effectively."
+---
+
+## Installing Netflow
+
+<Warning>
+   This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> This integration relies on Syslog. Logs received via Syslog are parsed and correlated by UTMStack automatically.
+
+
+### 1. Configure your device to send logs to a UTMStack agent on ports:
+        * 2055 UDP
+
+### 2. Enable log collector.
+
+<Note>
+    To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
+</Note>
+
+<Tip>
+    Execute command according to the selected platform
+</Tip>
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/netflow/step2.png"
+  alt="Netflow"
+/>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration
