@@ -824,6 +824,14 @@
                 "pages": ["v10/integrations/introduction"]
               },
               {
+                "group": "Cloud",
+                "pages": [
+                  "v10/integrations/azure",
+                  "v10/integrations/googlecloud",
+                  "v10/integrations/office365"
+                ]
+              },
+              {
                 "group": "Agents and Syslog",
                 "pages": [
                   "v10/integrations/windowsagent",
