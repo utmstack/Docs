@@ -856,6 +856,12 @@
                 ]
               },
               {
+                "group": "Databases",
+                "pages": [
+                  "v10/integrations/oracle"
+                ]
+              },
+              {
                 "group": "Network",
                 "pages": [
                   "v10/integrations/netflow"
