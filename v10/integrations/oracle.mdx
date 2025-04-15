@@ -1,0 +1,79 @@
+---
+title: Integration guide for Oracle
+sidebarTitle: "Oracle"
+description: "Oracle Database Audit Logs provide detailed records of database activity, including user actions, access attempts, and changes to data or configurations. These logs help ensure compliance, support forensic investigations, and enhance security monitoring."
+---
+
+## 1. Requirements
+
+1. UTMStack Agent (Windows or Linux) with Syslog integration **enabled on port 7014 TCP/UDP** (You can follow the Syslog integration guide from the **“Integrations”** menu on your **UTMStack instance**).
+2. rsyslog with module “imfile” enabled.
+3. Configure Oracle DB to write Audit, Listener and Alert logs to files.
+
+<Note>
+    The UTMStack agent can be installed on a separate instance dedicated to receiving logs, or on the UTMStack same server. However, it is recommended to install the UTMStack agent directly on the server running the Oracle DB to enable incident response commands.
+</Note>
+>
+<Warning>
+     Rsyslog must be installed on the same server as your OracleDB.
+</Warning>
+
+## 2. Configure logs forwarding to UTMStack
+
+### 1. Run the following command to create the configuration file:
+
+````
+sudo touch /etc/rsyslog.d/oracle-utmstack.conf
+````
+
+### 2. Open file “/etc/rsyslog.d/oracle-utmstack.conf” with your preferred editor and add the following configuration:
+
+`````
+input(type="imfile"
+      File="BASEDIR/admin/*/adump/*.aud"
+      Tag="oracle-audit"
+      Severity="info"
+      Facility="local5")
+
+input(type="imfile"
+      File="BASEDIR/diag/tnslsnr/*/listener/trace/listener.log"
+      Tag="oracle-listener"
+      Severity="info"
+      Facility="local5")
+
+input(type="imfile"
+      File="BASEDIR/diag/rdbms/*/*/trace/alert_*.log"
+      Tag="oracle-alerts"
+      Severity="info"
+      Facility="local5")
+
+local5.* @DESTINATION:7014
+`````
+
+### 3. Replace `BASEDIR` with the actual Oracle DB working/base path (e.g., `/u01/app/oracle`)
+
+### 4. Replace `DESTINATION` with the UTMStack Agent's IP address or Fully Qualified Domain Name (FQDN)
+
+<Note>
+    Rsyslog will send logs by default using UDP protocol, however, it is possible to use TCP protocol by  adding an additional @ just before the agent IP or FQDN. Example:
+</Note>
+
+`````
+local5.* @@DESTINATION:7014
+`````
+
+### 5. Restart rsyslog by running the following command
+
+`````
+sudo systemctl restart rsyslog
+`````
+
+### 6. Validate the configuration by sending test logs by running the following commands
+
+`````
+logger -p local5.info "Test Oracle Audit log message"
+logger -p local5.info "Test Oracle Listener log message"
+logger -p local5.info "Test Oracle Alert log message"
+
+`````
+### 7. Verify that UTMStack received these messages using the Logs Explorer and searching for the test message above.
