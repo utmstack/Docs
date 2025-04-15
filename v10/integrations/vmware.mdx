@@ -1,0 +1,90 @@
+---
+title: VMWare Syslog
+sidebarTitle: "VMWare Syslog"
+description: "VMWare allows businesses to run multiple application and operating system workloads on the one server. You can use the Syslog Service to redirect and store ESXi messages to UTMStack"
+---
+
+## Installing VMWare Syslog
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+    1. Log in to your VMware vSphere Client.
+    2. Select the host that manages your VMware inventory.
+    3. Click on the Configuration tab.
+    4. From the Software panel, click on Advanced Settings.
+    5. In the navigation menu, click on Syslog.
+    6. Configure values for the following parameters:
+
+        | Parameter                     | ESX version                      | Description                                                                                                                                                                     |
+        | ----------------------------  | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+        | Syslog.Local.DatastorePath    | ESX or ESXi 3.5.x or 4.x         | Type the directory path for the local syslog messages on your ESXi server. The default directory path is [] /scratch/log/messages.                                              |
+        | Syslog.Remote.Hostname        | ESX or ESXi 3.5.x or 4.x         | Type the IP address of the UTMStack agent.                                                                                                                                      |
+        | Syslog.Remote.Port            | ESX or ESXi 3.5.x or 4.x         | Type the port number the ESXi server uses to forward syslog data. Use the following ports: 7002 UDP, 7002 TCP                                                                   |
+        | Syslog.global.logHost         | ESXi v5.x or ESXi v6.x           | Type the URL and port number that the ESXi server uses to forward syslog data. Examples: udp://`<UTMStack Agent IP address>`:7002  tcp://`<UTMStack Agent IP address>`:7002     |
+
+    7. Click OK to save the configuration
+    8. Log in to your VMware ESXi Server.
+    9. Configure Local and Remote Logging: open a ESXi Shell console session where the esxcli command is available, such as the vCLI or on the ESXi host directly.
+    10. Display the existing five configuration options on the host by running this command:
+
+    ```bash
+    esxcli system syslog config get
+    ```
+
+    11. Set new host configuration, specifying options to change, by running a command: 
+
+    ```bash
+    esxcli system syslog config set --loghost='tcp://your_utmstack_agent_ip:7002’
+    ```
+
+    ```bash
+    esxcli system syslog config set --logdir=/scratch/log --loghost=your_utmstack_agent_ip --logdir-unique=true
+     ```
+
+    12. After making configuration changes, load the new configuration by running this command:
+
+     ```bash
+    esxcli system syslog reload
+     ```
+
+     13. Configuring ESXi Firewall Exception using the esxcli command/syslog port
+
+        ```bash
+        esxcli network firewall ruleset set --ruleset-id=syslog --enabled=true
+        ```
+
+        ```bash
+        esxcli network firewall refresh
+        ```
+    
+    14. Run this command to test if the port is reachable from the ESXi host:
+
+     ```bash
+        nc -z your_utmstack_agent_ip 7002
+    ```
+
+    15. Enable log collector.
+
+        > To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
+
+        <img
+            height="200"
+            className="block rounded-xl"
+            src="/images/integrations/syslog/step1.png"
+            alt="VMWare"
+        />
+
+        <Tip>
+            Execute command according to the selected platform
+        </Tip>
+
+        <img
+            height="200"
+            className="block rounded-xl"
+            src="/images/integrations/vmware/step2.png"
+            alt="VMWare"
+        />
+
+    16. Click on the button shown below, to activate the UTMStack features related to this integration

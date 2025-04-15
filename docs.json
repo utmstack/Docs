@@ -831,24 +831,6 @@
                   "v10/integrations/syslog",
                   "v10/integrations/vmware"
                 ]
-              },
-              {
-                "group": "Antivirus",
-                "pages": [
-                  "v10/integrations/windowsagent"
-                ]
-              },
-              {
-                "group": "Database",
-                "pages": [
-                 "v10/integrations/windowsagent"
-                ]
-              },
-              {
-                "group": "Cloud",
-                "pages": [
-                  "v10/integrations/windowsagent"
-                ]
               }
             ]
           }

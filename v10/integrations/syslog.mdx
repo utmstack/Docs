@@ -1,0 +1,44 @@
+---
+title: SysLog
+sidebarTitle: "SysLog"
+description: "Syslog is a standard for sending and receiving notification messages, in a particular format, from various network devices. UTMStack accepts syslog from firewalls and other devices that support it"
+---
+
+## Installing SysLog
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> This integration relies on Syslog. Logs received via Syslog are parsed and correlated by UTMStack automatically.
+
+
+### 1. Configure your device to send logs to a UTMStack agent on ports:
+        * 7014 TCP
+        * 7014 UDP
+
+
+### 2. Enable log collector.
+
+<Note>
+    To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
+</Note>
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/syslog/step1.png"
+  alt="Syslog"
+/>
+
+
+<Tip>
+    Execute command according to the selected platform
+</Tip>
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/syslog/step2.png"
+  alt="Syslog"
+/>
