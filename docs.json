@@ -820,15 +820,13 @@
             "tab": "Integrations",
             "groups": [
               {
-                "group": "Integrations",
-                "pages": ["v10/integrations/introduction"]
-              },
-              {
                 "group": "Cloud",
                 "pages": [
                   "v10/integrations/azure",
                   "v10/integrations/googlecloud",
-                  "v10/integrations/office365"
+                  "v10/integrations/office365",
+                  "v10/integrations/aws",
+                  "v10/integrations/taefik"
                 ]
               },
               {
