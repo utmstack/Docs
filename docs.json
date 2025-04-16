@@ -878,6 +878,13 @@
                 ]
               },
               {
+                "group": "XDR",
+                "pages": [
+                  "v10/integrations/sophoscentral",
+                  "v10/integrations/sentinelone"
+                ]
+              },
+              {
                 "group": "Network",
                 "pages": [
                   "v10/integrations/netflow"

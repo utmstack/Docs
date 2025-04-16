@@ -1,0 +1,45 @@
+---
+title: Integration guide for SentinelOne Endpoint Security
+sidebarTitle: "SentinelOne"
+description: "SentinelOne Endpoint Security technology provides solutions with three different tiers of functionality, Core, Control and Complete."
+---
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+### 1.  Click on the "Settings" menu in the SentinelOne sidebar.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/sentinelone/main_page.png"
+  alt="SentinelOne"
+/>
+
+### 2. Go to "Integrations" -> "Syslog", and configure SentinelOne Endpoint Security to send logs to a UTMStack agent to ports:
+
+    * 7012 TCP
+    * 7012 UDP
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/sentinelone/sentinelone_integration.png"
+  alt="SentinelOne"
+/>
+
+### 3. Enable log collector
+
+> To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/sentinelone/step3.png"
+  alt="SentinelOne"
+/>
+
+### 4. Click on the "Test" button to check connection with UTMStack, and save changes
+
+### 5. Click on the button shown below, to activate the UTMStack features related to this integration

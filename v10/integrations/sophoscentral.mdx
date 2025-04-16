@@ -1,0 +1,59 @@
+---
+title: Integration guide for Sophos Central
+sidebarTitle: "Sophos Central"
+description: "Sophos Central is a single cloud management solution for all your Sophos next-gen technologies: endpoint, server, mobile, firewall, ZTNA, email, and so much more"
+---
+
+> Sophos Central provides secure APIs to retrieve event and alert data. UTMStack can utilize these APIs to centralize monitoring and enhance your security visibility
+
+## Generate API Credentials in Sophos Central
+
+### 1. Navigate to General Settings -> API Credentials Management in Sophos Central Admin.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/sophoscentral/sophos-step-1.png"
+  alt="Sophos"
+/>
+
+### 2. Create a New Credential
+
+    * Click Add Credential (usually found at the top-right).
+    * Provide Name and Description.
+    * Select the appropriate Role.
+    * Click Add.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/sophoscentral/sophos-step-2.png"
+  alt="Sophos"
+/>
+
+### 3. Copy the Client ID and Client Secret and store them securely
+
+<Note>
+    The Client Secret is visible only once; ensure you save it somewhere safe.
+</Note>
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/sophoscentral/sophos-step-3.png"
+  alt="Sophos"
+/>
+
+### 4. Insert information in the following inputs.You can add more than one Sophos configuration by clicking on Add tenant button
+
+* Click *Add tenant*
+
+<img
+  width="400"
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/sophoscentral/addtenant.png"
+  alt="Sophos"
+/>
+
+### 5. Click on the button shown below, to activate the UTMStack features related to this integration
