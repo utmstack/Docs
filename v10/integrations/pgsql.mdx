@@ -1,0 +1,68 @@
+---
+title: Integration guide for PostgreSQL
+sidebarTitle: "PostgreSQL"
+description: "PostgreSQL is used as the primary data store or data warehouse for many web, mobile, geospatial, and analytics applications."
+---
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> PostgreSQL is a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 30 years of active development on the core platform.
+
+### 1. Enable module
+
+> Linux
+
+```
+cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable postgresql
+```
+
+> Windows
+
+```
+cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable postgresql
+```
+
+### 2. Configure Filebeat module
+
+> Linux
+
+```
+/opt/utmstack-linux-agent/beats/filebeat/modules.d/postgresql.yml
+```
+
+> Windows
+
+```
+C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\postgresql.yml
+```
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/pgsql/config-postgresql.png"
+  alt="Postgresql"
+/>
+
+<Note>
+    Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:
+</Note>
+
+> Linux
+
+```
+sudo systemctl restart UTMStackModulesLogsCollector
+```
+
+> Windows
+
+```
+sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
+```
+
+<Warning>
+    Depending on how you’ve installed Filebeat, you might see errors related to file ownership or permissions when you try to run Filebeat modules. See [Config File Ownership and Permissions](https://www.elastic.co/guide/en/beats/libbeat/8.5/config-file-permissions.html)
+</Warning>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration

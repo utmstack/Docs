@@ -858,7 +858,15 @@
               {
                 "group": "Databases",
                 "pages": [
-                  "v10/integrations/oracle"
+                  "v10/integrations/oracle",
+                  "v10/integrations/mysql",
+                  "v10/integrations/pgsql",
+                  "v10/integrations/mongodb",
+                  "v10/integrations/elastic",
+                  "v10/integrations/redis",
+                  "v10/integrations/kafka",
+                  "v10/integrations/kibana",
+                  "v10/integrations/logstash"
                 ]
               },
               {

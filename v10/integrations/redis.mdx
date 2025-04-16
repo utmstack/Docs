@@ -1,0 +1,70 @@
+---
+title: Integration guide for Redis
+sidebarTitle: "Redis"
+description: "Redis can be used with streaming solutions such as Apache Kafka and Amazon Kinesis as an in-memory data store to ingest, process, and analyze real-time data with sub-millisecond latency. Redis is an ideal choice for real-time analytics use cases such as social media analytics, ad targeting, personalization, and IoT."
+---
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache, and message broker. Redis provides data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes, and streams. Redis has built-in replication, Lua scripting, LRU eviction, transactions, and different levels of on-disk persistence, and provides high availability via Redis Sentinel and automatic partitioning with Redis Cluster
+
+### 1. Enable Filebeat module
+
+> Linux
+
+```
+cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable redis
+```
+
+> Windows
+
+```
+cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable redis
+```
+
+### 2. Configure Filebeat module
+
+> Configure the module configuration file according to the image below. You can find it in the path:
+
+> Linux
+
+```
+/opt/utmstack-linux-agent/beats/filebeat/modules.d/redis.yml
+```
+
+> Windows
+
+```
+C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\redis.yml
+```
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/redis/config-redis.png"
+  alt="Redis"
+/>
+
+<Note>
+    Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:   
+</Note>
+
+> Linux
+
+```
+sudo systemctl restart UTMStackModulesLogsCollector
+```
+
+> Windows
+
+```
+sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
+```
+
+<Warning>
+    Depending on how you’ve installed Filebeat, you might see errors related to file ownership or permissions when you try to run Filebeat modules. See [Config File Ownership and Permissions](https://www.elastic.co/guide/en/beats/libbeat/8.5/config-file-permissions.html)
+</Warning>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration
