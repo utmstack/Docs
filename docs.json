@@ -889,6 +889,12 @@
                 "pages": [
                   "v10/integrations/netflow"
                 ]
+              },
+              {
+                "group": "Proxy",
+                "pages": [
+                  "v10/integrations/haproxy"
+                ]
               }
             ]
           }

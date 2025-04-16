@@ -1,0 +1,68 @@
+---
+title: Integration guide for High Availability Proxy
+sidebarTitle: "High Availability Proxy"
+description: "HAProxy (High Availability Proxy) is open source proxy and load balancing server software. It provides high availability at the network (TCP) and application (HTTP/S) layers, improving speed and performance by distributing workload across multiple servers."
+---
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> High Availability Proxy is an open source proxy and load balancer. It is frequently used to improve server performance and reliability by distributing the workload across multiple servers. With a variety of advanced features, such as SSL support, real-time monitoring, and traffic compression, HAProxy has become a standard choice for highly available, high-traffic system needs.
+
+#### 1. Enable Filebeat module
+
+> Linux
+
+`````
+cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable haproxy
+`````
+
+> Windows
+
+`````
+cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable haproxy
+`````
+
+#### 2. Configure Filebeat module
+
+> Configure the module configuration file according to the image below. You can find it in the path:
+
+> Linux
+`````
+/opt/utmstack-linux-agent/beats/filebeat/modules.d/haproxy.yml
+`````
+
+> Windows
+`````
+C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\haproxy.yml
+`````
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/haproxy/config-haproxy.png"
+  alt="HaProxy"
+/>
+
+<Note>
+    Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:   
+</Note>
+
+> Linux
+
+```
+sudo systemctl restart UTMStackModulesLogsCollector
+```
+
+> Windows
+
+```
+sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
+```
+
+<Warning>
+    Depending on how you’ve installed Filebeat, you might see errors related to file ownership or permissions when you try to run Filebeat modules. See [Config File Ownership and Permissions](https://www.elastic.co/guide/en/beats/libbeat/8.5/config-file-permissions.html)
+</Warning>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration
