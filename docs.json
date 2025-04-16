@@ -870,6 +870,14 @@
                 ]
               },
               {
+                "group": "Web Server",
+                "pages": [
+                  "v10/integrations/iis",
+                  "v10/integrations/apache2",
+                  "v10/integrations/nginx"
+                ]
+              },
+              {
                 "group": "Network",
                 "pages": [
                   "v10/integrations/netflow"
