@@ -23,7 +23,8 @@
                   "v10/Getting started/introduction",
                   "v10/Getting started/use_case",
                   "v10/Getting started/quick_start",
-                  "v10/Getting started/getting_started"
+                  "v10/Getting started/getting_started",
+                  "v10/Getting started/api"
                 ]
               },
               {
@@ -812,6 +813,88 @@
                   "v10/api-reference/agent-manager-resource/get-apiagent-manageragents-with-commands",
                   "v10/api-reference/agent-manager-resource/get-apiagent-manageragent-commands",
                   "v10/api-reference/agent-manager-resource/get-apiagent-manageragent-by-hostname"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Integrations",
+            "groups": [
+              {
+                "group": "Cloud",
+                "pages": [
+                  "v10/integrations/azure",
+                  "v10/integrations/googlecloud",
+                  "v10/integrations/office365",
+                  "v10/integrations/aws",
+                  "v10/integrations/taefik"
+                ]
+              },
+              {
+                "group": "Agents and Syslog",
+                "pages": [
+                  "v10/integrations/windowsagent",
+                  "v10/integrations/linuxagent",
+                  "v10/integrations/syslog",
+                  "v10/integrations/vmware"
+                ]
+              },
+              {
+                "group": "Devices",
+                "pages": [
+                  "v10/integrations/cisco_asa",
+                  "v10/integrations/fortigate",
+                  "v10/integrations/sophos_xg",
+                  "v10/integrations/sonicwall",
+                  "v10/integrations/ibm_aix",
+                  "v10/integrations/ibmas400",
+                  "v10/integrations/fortiweb",
+                  "v10/integrations/pfsense",
+                  "v10/integrations/paloalto",
+                  "v10/integrations/mikrotik",
+                  "v10/integrations/ciscosw",
+                  "v10/integrations/firepower"
+                ]
+              },
+              {
+                "group": "Databases",
+                "pages": [
+                  "v10/integrations/oracle",
+                  "v10/integrations/mysql",
+                  "v10/integrations/pgsql",
+                  "v10/integrations/mongodb",
+                  "v10/integrations/elastic",
+                  "v10/integrations/redis",
+                  "v10/integrations/kafka",
+                  "v10/integrations/kibana",
+                  "v10/integrations/logstash"
+                ]
+              },
+              {
+                "group": "Web Server",
+                "pages": [
+                  "v10/integrations/iis",
+                  "v10/integrations/apache2",
+                  "v10/integrations/nginx"
+                ]
+              },
+              {
+                "group": "XDR",
+                "pages": [
+                  "v10/integrations/sophoscentral",
+                  "v10/integrations/sentinelone"
+                ]
+              },
+              {
+                "group": "Network",
+                "pages": [
+                  "v10/integrations/netflow"
+                ]
+              },
+              {
+                "group": "Proxy",
+                "pages": [
+                  "v10/integrations/haproxy"
                 ]
               }
             ]

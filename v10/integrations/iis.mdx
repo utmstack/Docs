@@ -1,0 +1,48 @@
+---
+title: Integration guide for Internet Information Services
+sidebarTitle: "Internet Information Services"
+description: "Internet Information Services (IIS) is a flexible, general-purpose web server from Microsoft that runs on Windows systems to serve requested HTML pages or files. An IIS web server accepts requests from remote client computers and returns the appropirate response."
+---
+
+## Configuring IIS module in Filebeat
+
+<Warning>
+    This integration requires the UTMStack Windows agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> The IIS module parses access and error logs created by the Internet Information Services (IIS) HTTP server.
+
+## Compatibility
+
+> The IIS module parses access and error logs created by the Internet Information Services (IIS) HTTP server. This module works only on Windows.
+
+### 1. Enable IIS module
+
+```
+cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable iis
+```
+
+### 2. Configure IIS module
+
+> Configure the module configuration file according to the image below. You can find it in the path:
+
+```
+C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\iis.yml
+```
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/iis/config-iis-windows.png"
+  alt="IIS"
+/>
+
+<Note>
+    Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:
+</Note>
+
+```
+sc stop ModulesLogsCollector && timeout /t 5 && sc start ModulesLogsCollector
+```
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration

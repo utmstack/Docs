@@ -1,10 +1,10 @@
 ---
-title: Integration guide for SysLog
-sidebarTitle: "SysLog"
-description: "Syslog is a standard for sending and receiving notification messages, in a particular format, from various network devices. UTMStack accepts syslog from firewalls and other devices that support it"
+title: Integration guide for FortiGate
+sidebarTitle: "FortiGate"
+description: "Fortinet's FortiGate next-generation firewalls (NGFW) provide organizations supreme protection against web-based network threats, including known and unknown threats and intrusion strategies."
 ---
 
-## Installing SysLog
+## Installing FortiGate
 
 <Warning>
     This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
@@ -14,9 +14,8 @@ description: "Syslog is a standard for sending and receiving notification messag
 
 
 ### 1. Configure your device to send logs to a UTMStack agent on ports:
-        * 7014 TCP
-        * 7014 UDP
-
+        * 7005 TCP
+        * 7005 UDP
 
 ### 2. Enable log collector.
 
@@ -24,21 +23,16 @@ description: "Syslog is a standard for sending and receiving notification messag
     To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
 </Note>
 
-<img
-  height="200"
-  className="block rounded-xl"
-  src="/images/integrations/syslog/step1.png"
-  alt="Syslog"
-/>
-
-
 <Tip>
     Execute command according to the selected platform
 </Tip>
 
+
 <img
   height="200"
   className="block rounded-xl"
-  src="/images/integrations/syslog/step2.png"
-  alt="Syslog"
+  src="/images/integrations/fortigate/step2.png"
+  alt="FortiGate"
 />
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration

@@ -13,11 +13,6 @@ Please refer to the [System Requirements](../Installation/system_requirements) p
 ### **Integration Requirements** : 
 To ensure optimal system performance, certain additional requirements beyond the minimums must be considered. Each integration being introduced should reserve at least 1GB of space. This reservation is crucial to ensure proper data storage and efficient system operation as a whole.
 
-### **Logging Volume Considerations**: 
-Furthermore, it's important to take into account the volume of logs generated and processed within 10-minute intervals. If this volume exceeds 1GB within any time interval, immediate communication with the support team is required. This communication is essential to ensure system stability and performance, as well as to address any potential issues related to log management.
-
-Deploy the UTMStack Server, which oversees security operations and data collection.
-
 ### **Procedure**:
 
 Use the UTMStack installer for Ubuntu Linux 22.04 LTS.
@@ -97,7 +92,7 @@ Post installation, the first time you get access to UTMStack, its going to be re
 
 ### 1. Pre-installation Requirements:
    * **Compatibility:** Ensure that the system is running Windows 10/11, Windows Server version 2016 R2 or later.
-   * **Network:** Ensure ports 9000 and 50051 are open.
+   * **Network:** Ensure ports 9000, 90001 and 50051 are open.
 
 ### 2. Installation Steps:
    1. Go to `Integrations` and select `Windows Agent`.

@@ -1,0 +1,37 @@
+---
+title: Integration guide for MikroTik
+sidebarTitle: "MikroTik"
+description: "MikroTik is company provides routing, switching and wireless equipment for all possible uses – from the customer location, up to high end data centres. MikroTik uses RouterOS, is an operating system and software capable of acting as a Router, Bridge, Firewall, Bandwidth Management, Wireless AP & Client and many other functions. RouterOS can perform almost all networking functions as well as some server functions."
+---
+
+## Installing MikroTik
+
+<Warning>
+   This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> This integration relies on Syslog. Logs received via Syslog are parsed and correlated by UTMStack automatically.
+
+
+### 1. Configure your device to send logs to a UTMStack agent on ports:
+        * 7007 TCP
+        * 7007 UDP
+
+### 2. Enable log collector.
+
+<Note>
+    To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
+</Note>
+
+<Tip>
+    Execute command according to the selected platform
+</Tip>
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/mikrotik/step2.png"
+  alt="MikroTik"
+/>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration

@@ -1,0 +1,134 @@
+---
+title: API Authentication Guide
+sidebarTitle: "API Authentication"
+description: "This guide explains how to authenticate with the UTMStack API using curl, retrieve a Bearer token, and access secured endpoints. It also includes details about where to find the official API documentation for each instance."
+---
+
+###  Step 1: Authentication Request
+
+<Tip>
+    Use the **/api/authenticate** endpoint to log in and receive a Bearer token.
+</Tip>
+
+> 🔧 Request Example:
+
+````
+curl -X POST https://demo.utmstack.com/api/authenticate \
+-H "Content-Type: application/json" \
+-d '{"username":"demo","password":"your_password"}'
+````
+
+<Note>
+    Make sure to replace the credentials **(username and password)** with the actual user **credentials for your environment**.    
+</Note>
+
+
+### Step 2: Parse the Response
+
+> The response will be a JSON object containing the Bearer token, usually under the key id_token or similar, for example:
+
+````
+{
+  "authenticated":true,
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+}
+````
+
+### Step 3: Use the Bearer Token
+
+> Include the token in the Authorization header when making requests to protected endpoints.
+
+<Tip>
+    Use the **/management/logs** endpoint to log in and receive a Bearer token.
+</Tip>
+
+> Request
+
+````
+curl -X 'GET' \
+  'https://demo.utmstack.com/management/logs' \
+  -H 'accept: */*' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZW1vIiwiYXV0aCI6IlJPTEVfQURNSU4sU...'
+````
+
+> Response
+
+`````
+[
+  {
+    "name": "ROOT",
+    "level": "ERROR"
+  },
+  {
+    "name": "LiquibaseSchemaResolver",
+    "level": "INFO"
+  },
+  {
+    "name": "_org",
+    "level": "ERROR"
+  },
+  {
+    "name": "_org.springframework",
+    "level": "ERROR"
+  },
+  {
+    "name": "_org.springframework.web",
+    "level": "ERROR"
+  },
+]
+`````
+
+<Warning>
+    What happens when you don't include the Authorization header when making requests to protected endpoints.
+</Warning>
+
+<Note>
+    Use the **/management/logs** endpoint to log in and receive a Bearer token.
+</Note>
+
+> Request
+
+````
+curl -X 'GET' \
+  'https://demo.utmstack.com/management/logs' \
+  -H 'accept: */*'
+````
+
+> Response
+
+````
+{
+  "timestamp": "2025-04-16T16:26:35.664+00:00",
+  "status": 401,
+  "error": "Unauthorized",
+  "path": "/management/logs"
+}
+````
+----
+
+## Official API Documentation
+
+UTMStack provides two official resources where developers can explore and interact with the API:
+
+### [API Reference on Documentation Portal](https://documentation.utmstack.com/v10/api-reference/logs-resource/get-managementlogs)
+
+You can access the full [API reference](https://documentation.utmstack.com/v10/api-reference/logs-resource/get-managementlogs), including endpoint structure, request/response schemas, and example usage under the **API Reference** tab
+
+### Interactive Swagger UI (Demo Instance)
+
+For hands-on testing and live API interaction, you can explore the Swagger UI provided by the public UTMStack demo instance:
+
+[https://demo.utmstack.com/swagger-ui/index.html](https://demo.utmstack.com/swagger-ui/index.html)
+
+<Note>
+    Each client instance has its own unique Swagger URL, based on how their environment is configured.
+</Note>
+
+Examples:
+- `https://<your-company>.utmstack.com/swagger-ui/index.html`
+- `https://utmstack.<your-domain>.com/swagger-ui/index.html`
+
+---
+<Tip>
+    These tools make it easy to test endpoints, view required parameters, and understand the behavior of the platform's APIs.    
+</Tip>

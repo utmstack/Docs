@@ -1,0 +1,68 @@
+---
+title: Integration guide for Traefik
+sidebarTitle: "Traefik"
+description: "Traefik is the modern standard for Routing, Load Balancing, and Proxies for the Cloud, On-Prem, and Hybrid workloads."
+---
+
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> Traefik is an open-source Edge Router that makes publishing your services a fun and easy experience. It receives requests on behalf of your system and finds out which components are responsible for handling them.
+
+
+### 1. Enable Filebeat module:
+
+> Linux
+`````
+cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable traefik 
+`````
+
+> Windows
+`````
+cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable traefik
+`````
+
+### 2. Configure Filebeat module:
+
+<Note>
+    Configure the module configuration file according to the image below. You can find it in the path:
+</Note>
+
+> Linux
+`````
+/opt/utmstack-linux-agent/beats/filebeat/modules.d/traefik.yml
+`````
+
+> Windows
+`````
+C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\traefik.yml
+`````
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/taefik/config-traefik.png"
+  alt="Taefik"
+/>
+
+<Note>
+    Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:
+</Note>
+
+> Linux
+`````
+sudo systemctl restart UTMStackModulesLogsCollector
+`````
+
+> Windows
+`````
+sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
+`````
+
+<Warning>
+    Depending on how you’ve installed Filebeat, you might see errors related to file ownership or permissions when you try to run Filebeat modules. See Config File Ownership and Permissions
+</Warning>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration
