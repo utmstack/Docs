@@ -833,6 +833,7 @@
               {
                 "group": "Agents and Syslog",
                 "pages": [
+                  "v10/integrations/macos",
                   "v10/integrations/windowsagent",
                   "v10/integrations/linuxagent",
                   "v10/integrations/syslog",
