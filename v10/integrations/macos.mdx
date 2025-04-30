@@ -1,0 +1,56 @@
+---
+title: Integration guide for MacOS
+sidebarTitle: "MacOS"
+description: "The macOS agent collects system and application logs, monitors activity, and communicates securely with the UTMStack master server or proxy. It also enables incident response actions."
+---
+
+<Note>
+    This feature is part of a **paid subscription**. Please contact our support team to obtain the required installation dependencies.
+</Note>
+
+## Installation Steps
+
+
+### 1. Configure your device to send logs to a UTMStack agent on ports:
+        * 9000 
+        * 9001
+        * 50051
+
+### 2. Contact Support.
+
+<Note>
+    Reach out to UTMStack support to request the **macOS installation dependencies**. These files are necessary to perform installation or uninstallation of the agent.
+</Note>
+
+### 3. Run the Corresponding Command
+
+<Tip>
+    Depending on whether you want to **install** or **uninstall** the agent, use the appropriate command provided in your UTMStack instance:
+</Tip>
+
+<Warning>
+    These commands must be copied **directly from your UTMStack instance**, under the **Integrations** section, to ensure the correct configuration.
+</Warning>
+
+```bash
+# Example (replace with actual command from instance)
+sudo ./utmstack-macos-installer install
+# or
+sudo ./utmstack-macos-installer uninstall
+```
+
+#### Example: 
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/macos/step1.png"
+  alt="MacOS"
+/>
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/macos/step2.png"
+  alt="MacOS"
+/>
