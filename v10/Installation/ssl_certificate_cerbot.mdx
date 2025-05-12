@@ -1,0 +1,144 @@
+---
+title: Generating and Renewing SSL Certificates with Certbot
+sidebarTitle: "Generating and Renewing SSL Certificates with Certbot"
+description: "Guide to Installing, Generating, and Renewing SSL Certificates with Certbot and Third-Party CAs on UTMStack Servers"
+---
+
+<Warning>
+    IMPORTANT: Replace **your-domain** with the actual domain of your UTMStack Service, e.g., .yourdomain.com.
+</Warning>
+
+## 1. Generate SSL Certificate with Certbot
+
+### Install Certbot and Nginx (Required only for Method 1 and 2)
+
+```bash
+sudo apt update  
+sudo apt install certbot python3-certbot-nginx nginx  
+```
+
+### Pause the frontend container
+
+```bash
+sudo docker pause id_container_frontend
+```
+
+### Start Nginx
+
+```bash
+sudo systemctl start nginx
+```
+
+## Method 1 – Certbot with Nginx (No DNS Validation), this is the recommended method for simplicity and automation.
+
+```bash
+sudo certbot --nginx -d <your-domain>
+```
+
+## Method 2 – Certbot Manual with DNS Validation, use this if DNS challenge is required.
+
+```bash
+sudo certbot certonly --manual \
+  --preferred-challenges=dns \
+  --email info@<your-domain> \
+  --server https://acme-v02.api.letsencrypt.org/directory \
+  --agree-tos \
+  -d <your-domain>
+```
+
+### Create the DNS TXT Record,  Access your DNS management console and add a TXT record:
+
+ - Type: TXT
+ - Name: _acme-challenge. **your-domain**
+ - Value: (provided by Certbot)
+
+<Note>
+ Wait for DNS propagation before continuing.   
+</Note>
+
+## Method 3 – Using Certificates from a Trusted Certificate Authority (CA)
+
+<Tip>
+Use this method if you already have an SSL certificate issued by a third-party CA (e.g., DigiCert, GoDaddy, etc.).
+This method does not require Nginx or Certbot.
+</Tip>
+
+### Replace existing certificates
+
+### 1. Copy the provided certificate and private key files:
+
+```bash
+sudo cp your_certificate.crt /utmstack/cert/utm.crt  
+sudo cp your_private_key.key /utmstack/cert/utm.key  
+```
+
+### Stop the frontend container,  use docker ps to identify the container ID:
+
+```bash
+sudo docker stop id_container_frontend
+```
+
+<Note>
+    Restart the frontend container or related services if necessary.
+</Note>
+
+### Stop and Disable Nginx (Only if used for Method 1 or 2)
+
+```bash
+sudo systemctl disable nginx  
+sudo systemctl stop nginx  
+```
+
+### 2. Renew SSL Certificate (For Certbot methods only), recommended every 60–90 days.
+
+### Pause the frontend container
+
+```bash
+sudo docker pause id_container_frontend  
+```
+
+### Start Nginx
+
+```bash
+sudo systemctl start nginx  
+```
+
+### Renew Certbot Certificates
+
+```bash
+sudo certbot renew  
+```
+
+### Stop and Disable Nginx
+
+```bash
+sudo systemctl disable nginx  
+sudo systemctl stop nginx  
+```
+
+### Update Certificates in UTMStack
+
+```bash
+sudo cp /etc/letsencrypt/live/<your-domain>/fullchain.pem /utmstack/cert/utm.crt  
+sudo cp /etc/letsencrypt/live/<your-domain>/privkey.pem /utmstack/cert/utm.key  
+```
+
+### Stop the frontend container
+
+
+```bash
+sudo docker stop id_container_frontend  
+```
+
+## Final Notes
+
+ - Certbot stores your certificates at:  /etc/letsencrypt/live/your-domain/
+ - Check expiration with:
+
+```bash
+sudo certbot certificates 
+```
+
+<Note>
+  Ensure your DNS provider supports TXT records for Method 2 – DNS Validation.
+</Note>
