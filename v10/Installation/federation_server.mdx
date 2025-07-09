@@ -20,63 +20,108 @@ Welcome to the installation page for the Federated Master Deployment of UTMStack
 Please refer to the [System Requirements](../Installation/system_requirements#6-federated-server-utmstackfsinstaller) page in the UTMStack documentation for detailed information about the recommended specifications for your environment.
 </Note>
 
-### Step 1. Update the package list on your system:
+## Linux Installation Guide
 
-```bash
-sudo apt update
-```
-
-### Step 2. Install the necessary dependencies, including wget and net-tools:
+Execute the following commands to update the package list and install the required dependencies on your Ubuntu 22.04 LTS system:
 
 ``` bash
-sudo apt install wget net-tools
+sudo apt update
+sudo apt install wget
 ```
 
-### Step 3. Download the latest version of the UTMStackFS
+### Step 1: Download the Installer Script
+
+Download the latest version of the UTMStackFS (Federation Service) installer script from the official UTMStack website
 
 <Warning>
     This feature is available exclusively in the enterprise version of the software.
 </Warning>
 
-### Step 4. Unzip the installer package using the following command
 
-If you don't have the unzip tool installed, you can do so by running 
-``` bash 
-sudo apt-get install zip unzip:
-```
+### Step 2: Grant Execution Permissions
+
+Change to the root user to ensure proper execution of the installer script:
 
 ``` bash
-unzip UTMStackFSInstaller*.zip
+sudo su
 ```
 
-### Step 5. Set execution permissions for the installer script:
+Set execution permissions for the installer script using the following command:
 
 ``` bash
-cd UTMStackFSInstaller
-sudo chmod +x utm_fs_installer.sh
+chmod +x installer
 ```
 
-### Step 6. Installation Process
-Execute the installer script to start the installation process:
+### Step 3: Run the Installer
+
+Now, you are ready to run the installer script and begin the installation process.
+
+Execute the installer without parameters:
 
 ``` bash
-./utm_fs_installer.sh
+./installer
 ```
+
+The installer script will take care of downloading the necessary packages.
+
+<Note>
+    Please note that the installation process may take some time depending on the system and the options selected.
+</Note>
+
+
+### Step 4: Configuration of UTMStackFS
+After successfully installing UTMStackFS on your servers, it is important to configure the necessary services to ensure proper functionality. This step involves setting up best-practice firewall rulesets to control network traffic effectively. Additionally, you have the option to integrate third-party applications like M365 to enhance UTMStack's capabilities.
+
+This section provides an overview of the required firewall rules for different components of UTMStackFS. Please refer to the following guidelines:
+
+**Required Ports:**
+
+- **Port: 22/TCP**
+  - Purpose: Secure Shell (We recommend creating a firewall rule to allow it only from the admin workstation).
+
+- **Port: 80/TCP**
+  - Purpose: UTMStack Web-based Graphical User Interface Redirector (We recommend creating a firewall rule to allow it only from admin and security analyst workstations).
+
+- **Port: 443/TCP**
+  - Purpose: UTMStack Web-based Graphical User Interface (We recommend creating a firewall rule to allow it only from admin and security analyst workstations).
+
+### Step 5:  Installing and Configuring an SSL/TLS certificate
+Go to [Configuring an SSL/TLS certificate](../Installation/ssl_certificate) section for detailed instructions.
+
 <Tip>   
  Follow the prompts and provide the necessary information during the installation process.
 </Tip>
 
-### Step 7. Once the installation is complete, you will be provided with the login credentials for the UTMStackFS panel. 
+### Step 6: Accessing the UTMStackFS Platform
+Once you have successfully installed the server, you can now access the platform and start using it for your cybersecurity needs. Follow these steps to log in to the UTMStackFS platform:
 
-The default username is `admin`, and the password is the one you entered during the installation.
+Open your preferred web browser.
 
-### Step 8. Access the UTMStackFS panel using your preferred web browser. 
-Enter the IP address or domain name of your server in the browser's address bar.
+Enter the HTTPS URL of your server's name or IP address in the browser's address bar. For example, if your server's IP address is 192.168.0.100, you would enter https://192.168.0.100.
+
+Press Enter to load the UTMStackFS login page.
+
+<img
+  width="300"
+  height="200"
+  noZoom
+  className="block rounded-xl"
+  src="/images/setup guide/login_utmstack.png"
+  alt="Access the Threat Management Menu"
+/>
+
+Once UTMStackFS is installed, use admin as the user and the password generated during the installation for the default user to login. You can find the password and other generated configurations in /root/utmstack.yml
+
+<Note>
+    Note: Use HTTPS in front of your server name or IP to access the login page.
+</Note>
 
 <Tip>
-Enter the provided username and password to log in to the UTMStackFS panel.
+    * Default credentials for UTMStackFS:
+        * **User:** utmstack
+        * **Password:** utmstack
 </Tip>
 
 <Note>
-    By following these steps, you will have successfully installed the UTMStack Federation Service (UTMStackFS) on your Ubuntu 20.04 LTS system. You can now access the UTMStackFS panel and begin using it for your cybersecurity needs.
+    Click on the "Sign In" button to authenticate and access the UTMStackFS platform.
 </Note>

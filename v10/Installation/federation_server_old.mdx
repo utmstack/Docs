@@ -1,0 +1,82 @@
+---
+title: UTMStack Federation Service Installation Guide
+sidebarTitle: "Install Federation Service"
+description: "This guide will walk you through the process of installing the UTMStack Federation Service (UTMStackFS)"
+---
+
+Welcome to the installation page for the Federated Master Deployment of UTMStack! If you're an MSP (Managed Service Provider) with the mission of managing multiple instances of UTMStack across various customer networks, you're in the right place. Our federated master deployment model is meticulously designed to provide a streamlined management experience, presenting a holistic view of activities across multiple clients and organizations.
+
+<Warning>
+    Please note that the installation of the UTMStackFS is an exclusive feature of the Enterprise edition of the software. To access this and other advanced features, we invite you to purchase the Enterprise edition.
+</Warning>
+
+<Note>
+    For more details contact Customer Service.
+</Note>
+
+## Preparing for Installation
+
+<Note>
+Please refer to the [System Requirements](../Installation/system_requirements#6-federated-server-utmstackfsinstaller) page in the UTMStack documentation for detailed information about the recommended specifications for your environment.
+</Note>
+
+### Step 1. Update the package list on your system:
+
+```bash
+sudo apt update
+```
+
+### Step 2. Install the necessary dependencies, including wget and net-tools:
+
+``` bash
+sudo apt install wget net-tools
+```
+
+### Step 3. Download the latest version of the UTMStackFS
+
+<Warning>
+    This feature is available exclusively in the enterprise version of the software.
+</Warning>
+
+### Step 4. Unzip the installer package using the following command
+
+If you don't have the unzip tool installed, you can do so by running 
+``` bash 
+sudo apt-get install zip unzip:
+```
+
+``` bash
+unzip UTMStackFSInstaller*.zip
+```
+
+### Step 5. Set execution permissions for the installer script:
+
+``` bash
+cd UTMStackFSInstaller
+sudo chmod +x utm_fs_installer.sh
+```
+
+### Step 6. Installation Process
+Execute the installer script to start the installation process:
+
+``` bash
+./utm_fs_installer.sh
+```
+<Tip>   
+ Follow the prompts and provide the necessary information during the installation process.
+</Tip>
+
+### Step 7. Once the installation is complete, you will be provided with the login credentials for the UTMStackFS panel. 
+
+The default username is `admin`, and the password is the one you entered during the installation.
+
+### Step 8. Access the UTMStackFS panel using your preferred web browser. 
+Enter the IP address or domain name of your server in the browser's address bar.
+
+<Tip>
+Enter the provided username and password to log in to the UTMStackFS panel.
+</Tip>
+
+<Note>
+    By following these steps, you will have successfully installed the UTMStack Federation Service (UTMStackFS) on your Ubuntu 20.04 LTS system. You can now access the UTMStackFS panel and begin using it for your cybersecurity needs.
+</Note>
