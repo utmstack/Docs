@@ -1,0 +1,67 @@
+---
+title: How to Install cURL in Windows
+sidebarTitle: "Install cURL in Windows"
+description: "This guide walks you through installing and configuring curl on Windows, verifying it works, and making it accessible from any terminal"
+---
+
+## Check if You Already Have cURL
+
+You might not need to install anything:
+
+- If you are using **Windows Server 2019** or **Windows 10 version 1803 or later**, `curl` is likely already installed.
+- Default path: `C:\Windows\System32\curl.exe`
+
+---
+
+## Manual Installation
+
+### 1. Download and Extract 
+
+- Download `curl` for Windows: [https://curl.se/windows](https://curl.se/windows)
+- Extract the ZIP package.
+- Locate `curl.exe`, usually under the `bin\` folder.
+
+---
+
+### 2. Choose a Permanent Folder 
+
+Recommended folders:
+
+- `C:\curl`
+- `C:\Program Files\curl`
+- `C:\Program Files\tools`
+
+<Note>
+Do **not** move the folder once placed.
+</Note>
+
+---
+
+### 3. Add to PATH
+
+<Tip>
+Open a Windows PowerShell or CMD as **Administrator**.
+</Tip>
+
+#### Steps:
+
+1. Press `Win` and type **environment**
+2. Select **Edit the system environment variables**
+3. Click on **Environment Variables**
+4. Under **System variables**, select `Path` and click **Edit**
+5. Click **New** and add the path (e.g., `C:\curl`)
+6. Click **OK** and restart your console
+
+
+<Note>
+If the folder is not in PATH, you'll need to navigate manually every time you use `curl`.
+</Note>
+
+---
+
+## Test the Installation
+
+Open a Command Prompt and run:
+
+```bash
+curl -V
