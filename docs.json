@@ -12,7 +12,7 @@
   "navigation": {
     "versions": [
       {
-        "version": "v10.8.6",
+        "version": "v10.9.0",
         "tabs": [
           {
             "tab": "Guides",
@@ -897,6 +897,12 @@
                 "group": "Proxy",
                 "pages": [
                   "v10/integrations/haproxy"
+                ]
+              },
+              {
+                "group": "Configurations",
+                "pages": [
+                  "v10/integrations/config_curl"
                 ]
               }
             ]
