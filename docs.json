@@ -112,6 +112,7 @@
           },
           {
             "tab": "API Reference",
+            "hidden": true,
             "groups": [
               {
                 "group": "logs-resource",
