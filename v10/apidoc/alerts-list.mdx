@@ -1,0 +1,425 @@
+---
+title: List Alerts API
+sidebarTitle: "List Alerts"
+description: "Retrieve and filter alerts from UTMStack's Elasticsearch index with advanced search capabilities, pagination, and sorting options."
+---
+
+## Overview
+
+This endpoint retrieves alerts from UTMStack's Elasticsearch index. It supports advanced filtering, pagination, and sorting, allowing analysts to query alerts within specific time ranges or by defined conditions.
+
+<Note>
+**Authorization Required:** All requests must include a valid Bearer Token obtained from the authentication endpoint.
+</Note>
+
+---
+
+## Endpoint Details
+
+<Card title="POST /api/elasticsearch/search" icon="magnifying-glass">
+  **Method:** POST  
+  **Content-Type:** application/json  
+  **Authentication:** Bearer Token required  
+  **Response:** Array of alert objects
+</Card>
+
+---
+
+## Query Parameters
+
+<ParamField query="page" type="integer" required>
+  Current page number (starts at 1)
+</ParamField>
+
+<ParamField query="size" type="integer" required>
+  Number of results per page (e.g., 25)
+</ParamField>
+
+<ParamField query="top" type="integer" required>
+  Maximum number of records to retrieve (e.g., 100000000)
+</ParamField>
+
+<ParamField query="indexPattern" type="string" required>
+  Elasticsearch index pattern (e.g., `alert-*`)
+</ParamField>
+
+<ParamField query="sort" type="string">
+  Sorting field and direction (e.g., `@timestamp,desc`)
+</ParamField>
+
+---
+
+## Request Body
+
+The request body is a JSON array of filter definitions used to refine the search.
+
+### Filter Structure
+
+<ParamField body="field" type="string" required>
+  Name of the alert field to filter (e.g., "status", "tags", "@timestamp")
+</ParamField>
+
+<ParamField body="operator" type="string" required>
+  Filter operator: `IS`, `IS_NOT`, `IS_BETWEEN`, `CONTAINS`, etc.
+</ParamField>
+
+<ParamField body="value" type="any" required>
+  Filter value (string, number, or array for range operations)
+</ParamField>
+
+### Example Filter Payload
+
+```json
+[
+  { 
+    "field": "status", 
+    "operator": "IS_NOT", 
+    "value": 1 
+  },
+  { 
+    "field": "tags", 
+    "operator": "IS_NOT", 
+    "value": "False positive" 
+  },
+  { 
+    "field": "@timestamp", 
+    "operator": "IS_BETWEEN", 
+    "value": ["now-7d", "now"] 
+  }
+]
+```
+
+---
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -H "Content-Type: application/json" \
+  -d '[
+    {"field": "status", "operator": "IS_NOT", "value": 1},
+    {"field": "tags", "operator": "IS_NOT", "value": "False positive"},
+    {"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-7d", "now"]}
+  ]'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+[
+  {
+    "severity": 3,
+    "severityLabel": "High",
+    "status": 2,
+    "statusLabel": "Open",
+    "name": "Windows: Multiple Windows logon failures",
+    "description": "Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained.",
+    "tactic": "Brute Force",
+    "category": "Potentially Malicious Activity",
+    "dataSource": "dev-wsrv-2016",
+    "@timestamp": "2024-10-15T10:30:00.000Z",
+    "source": {
+      "ip": "192.168.1.100",
+      "hostname": "workstation-01"
+    },
+    "destination": {
+      "ip": "192.168.1.10",
+      "hostname": "domain-controller"
+    }
+  }
+]
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from 'axios';
+
+const searchAlerts = async () => {
+  const url = 'https://demo.utmstack.com/api/elasticsearch/search';
+  const params = {
+    page: 1,
+    size: 25,
+    top: 100000000,
+    indexPattern: 'alert-*',
+    sort: '@timestamp,desc'
+  };
+  
+  const filters = [
+    { field: 'status', operator: 'IS_NOT', value: 1 },
+    { field: 'tags', operator: 'IS_NOT', value: 'False positive' },
+    { field: '@timestamp', operator: 'IS_BETWEEN', value: ['now-7d', 'now'] }
+  ];
+
+  try {
+    const response = await axios.post(url, filters, {
+      params,
+      headers: {
+        'Authorization': 'Bearer <your_access_token>',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching alerts:', error);
+  }
+};
+```
+
+```python Python
+import requests
+
+def search_alerts():
+    url = "https://demo.utmstack.com/api/elasticsearch/search"
+    
+    params = {
+        "page": 1,
+        "size": 25,
+        "top": 100000000,
+        "indexPattern": "alert-*",
+        "sort": "@timestamp,desc"
+    }
+    
+    filters = [
+        {"field": "status", "operator": "IS_NOT", "value": 1},
+        {"field": "tags", "operator": "IS_NOT", "value": "False positive"},
+        {"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-7d", "now"]}
+    ]
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json=filters, params=params, headers=headers)
+    return response.json()
+```
+
+</CodeGroup>
+
+---
+
+## Response Details
+
+Returns a JSON array of alert objects. Each alert includes metadata, source/destination information, and contextual details.
+
+### Complete Response Structure
+
+<Tabs>
+  <Tab title="Success Response">
+    ```json
+    [
+      {
+        "severity": 2,
+        "severityLabel": "Medium",
+        "status": 2,
+        "statusLabel": "Open",
+        "TagRulesApplied": null,
+        "notes": "",
+        "dataType": "wineventlog",
+        "name": "Windows: Multiple Windows logon failures",
+        "description": "Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained.",
+        "solution": "Set account lockout policies after a certain number of failed login attempts to prevent passwords from being guessed. Use multi-factor authentication.",
+        "statusObservation": "This alert has been evaluated by the tag rules engine",
+        "tactic": "Brute Force",
+        "category": "Potentially Malicious Activity",
+        "dataSource": "dev-wsrv-2016",
+        "tags": null,
+        "@timestamp": "2024-10-15T10:30:00.000Z",
+        "source": {
+          "ip": "192.168.1.100",
+          "hostname": "workstation-01"
+        },
+        "destination": {
+          "ip": "192.168.1.10",
+          "hostname": "domain-controller"
+        }
+      }
+    ]
+    ```
+  </Tab>
+  <Tab title="Empty Response">
+    ```json
+    []
+    ```
+  </Tab>
+  <Tab title="Error Response">
+    ```json
+    {
+      "error": "Invalid filter syntax",
+      "message": "Field 'invalid_field' is not recognized",
+      "timestamp": "2024-10-16T10:30:00.000Z",
+      "status": 400
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Response Fields
+
+<ResponseField name="severity" type="integer">
+  Alert severity level (1-5, where 5 is highest)
+</ResponseField>
+
+<ResponseField name="severityLabel" type="string">
+  Human-readable severity label (Low, Medium, High, Critical)
+</ResponseField>
+
+<ResponseField name="status" type="integer">
+  Alert status code (1=Ignored, 2=Open, 3=In Review, 5=Completed)
+</ResponseField>
+
+<ResponseField name="statusLabel" type="string">
+  Human-readable status label
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Alert rule name or title
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Detailed description of the security event
+</ResponseField>
+
+<ResponseField name="solution" type="string">
+  Recommended remediation steps
+</ResponseField>
+
+<ResponseField name="tactic" type="string">
+  MITRE ATT&CK tactic classification
+</ResponseField>
+
+<ResponseField name="category" type="string">
+  Alert category classification
+</ResponseField>
+
+<ResponseField name="dataSource" type="string">
+  Source system that generated the alert
+</ResponseField>
+
+<ResponseField name="@timestamp" type="string">
+  ISO 8601 timestamp when the alert was created
+</ResponseField>
+
+---
+
+## Filter Operators
+
+<AccordionGroup>
+  <Accordion title="Basic Operators">
+    - **IS**: Exact match
+    - **IS_NOT**: Not equal to
+    - **CONTAINS**: Contains substring
+    - **STARTS_WITH**: Begins with value
+    - **ENDS_WITH**: Ends with value
+  </Accordion>
+
+  <Accordion title="Numeric Operators">
+    - **GREATER_THAN**: Greater than value
+    - **LESS_THAN**: Less than value
+    - **GREATER_EQUAL**: Greater than or equal to
+    - **LESS_EQUAL**: Less than or equal to
+  </Accordion>
+
+  <Accordion title="Range Operators">
+    - **IS_BETWEEN**: Between two values (requires array)
+    - **IS_IN**: Value in list (requires array)
+    - **IS_NOT_IN**: Value not in list (requires array)
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Common Filter Examples
+
+### Filter by Severity
+
+```json
+[
+  { "field": "severity", "operator": "GREATER_EQUAL", "value": 3 }
+]
+```
+
+### Filter by Time Range (Last 24 hours)
+
+```json
+[
+  { "field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-24h", "now"] }
+]
+```
+
+### Filter by Multiple Statuses
+
+```json
+[
+  { "field": "status", "operator": "IS_IN", "value": [2, 3] }
+]
+```
+
+### Filter by Data Source
+
+```json
+[
+  { "field": "dataSource", "operator": "CONTAINS", "value": "windows" }
+]
+```
+
+---
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Search completed successfully. Returns array of alerts.
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  Invalid request parameters or malformed filter syntax.
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token.
+</ResponseField>
+
+<ResponseField name="403" type="Forbidden">
+  Insufficient permissions to access alerts.
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Elasticsearch service error or internal server issue.
+</ResponseField>
+
+---
+
+## Pagination
+
+The API supports pagination through the `page` and `size` parameters:
+
+- **page**: Current page number (1-based)
+- **size**: Number of results per page
+- **top**: Maximum total results to consider
+
+<Tip>
+For optimal performance, use reasonable `size` values (25-100) and implement client-side pagination for large result sets.
+</Tip>
+
+---
+
+## Performance Considerations
+
+<Warning>
+**Performance Tips:**
+- Use specific time ranges to limit search scope
+- Apply filters to reduce the result set size
+- Avoid very large `top` values unless necessary
+- Consider using field-specific filters for better query performance
+</Warning>

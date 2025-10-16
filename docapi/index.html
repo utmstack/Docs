@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UTMStack Alerts API Documentation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <style>
+    body { font-family: "Inter", sans-serif; background: #f5f7fa; color: #343a40; }
+    .navbar { background-color: #0d6efd; color: #fff; }
+    .navbar-brand img { height: 40px; margin-right: 10px; }
+    .sidebar { background-color: #fff; border-right: 1px solid #dee2e6; height: 100vh; overflow-y: auto; padding-top: 1rem; }
+    .sidebar .nav-link { color: #495057; padding: 0.5rem 1rem; }
+    .sidebar .nav-link:hover { background-color: #e9ecef; border-radius: 0.25rem; }
+    .content { padding: 2rem; width: 100%; }
+    .endpoint-card { background: #fff; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+    pre { background: #2d2d2d; color: #f8f8f2; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+    #alerts-log { background-color: #f1f3f5; border: 1px solid #dee2e6; border-radius: 0.5rem; padding: 1rem; max-height: 300px; overflow-y: auto; font-family: monospace; font-size:0.9rem; }
+    footer { padding: 1rem; text-align: center; font-size: 0.9rem; color: #6c757d; margin-top: 3rem; border-top: 1px solid #dee2e6; }
+  </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="https://utmstack.com/assets/images/logo.svg" alt="UTMStack Logo">
+      <span>UTMStack Alerts API</span>
+    </a>
+    <span class="text-white ms-auto">Version 1.0 — 2025-10-16</span>
+  </div>
+</nav>
+
+<div class="d-flex">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <ul class="nav flex-column">
+      <li class="nav-item"><a href="#authentication" class="nav-link">Authentication</a></li>
+      <li class="nav-item"><a href="#overview" class="nav-link">Overview</a></li>
+      <li class="nav-item"><a href="#list-alerts" class="nav-link">List Alerts</a></li>
+      <li class="nav-item"><a href="#update-status" class="nav-link">Update Alert Status</a></li>
+      <li class="nav-item"><a href="#update-notes" class="nav-link">Update Alert Notes</a></li>
+      <li class="nav-item"><a href="#update-tags" class="nav-link">Update Alert Tags</a></li>
+      <li class="nav-item"><a href="#convert-incident" class="nav-link">Convert to Incident</a></li>
+      <li class="nav-item"><a href="#count-by-field" class="nav-link">Alert Counts by Field</a></li>
+      <li class="nav-item"><a href="#activity-log" class="nav-link">Activity Log</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content flex-grow-1">
+
+    <!-- Overview -->
+    <section id="overview" class="endpoint-card">
+      <h2>Alerts API Overview</h2>
+      <p><strong>UTMStack Alerts API</strong> allows programmatic access to all alert-related functionality within UTMStack. Users can manage, monitor, and respond to security alerts from multiple sources.</p>
+      <ul>
+        <li>List and filter alerts by status, severity, tags, timestamp</li>
+        <li>Update alert details: status, notes, and tags</li>
+        <li>Convert alerts to incidents</li>
+        <li>Retrieve aggregated counts of alerts by field values</li>
+      </ul>
+      <p><strong>Authentication:</strong> All endpoints require JWT Bearer tokens.</p>
+      <p><strong>Alert statuses (AlertStatusEnum):</strong> OPEN=2, IN_REVIEW=3, COMPLETED=5</p>
+      <p><strong>References:</strong>
+        <a href="https://utmstack.com" target="_blank">UTMStack Website</a> |
+        <a href="https://github.com/utmstack/UTMStack" target="_blank">GitHub Repository</a>
+      </p>
+    </section>
+
+    <!-- Authentication -->
+    <section id="authentication" class="endpoint-card">
+      <h3>User Authentication</h3>
+      <p>Authenticate a user and obtain a <strong>JWT Bearer token</strong> required for all alerts endpoints.</p>
+      <p><strong>Route:</strong> <code>POST /api/authenticate</code></p>
+      <p><strong>Auth required:</strong> No</p>
+      <p><strong>Request Body:</strong></p>
+      <pre>{
+  "username": "string",
+  "password": "string",
+  "rememberMe": true
+}</pre>
+      <p><strong>Response Example:</strong></p>
+      <pre>{
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "authenticated": true
+}</pre>
+      <p><strong>cURL Example:</strong></p>
+      <pre>curl -X POST https://192.168.1.20/api/authenticate \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'</pre>
+    </section>
+
+    <!-- List/Search Alerts -->
+    <section id="search-alerts" class="endpoint-card">
+      <h3>List/Search Alerts</h3>
+      <p>Retrieve alerts with optional filters and pagination.</p>
+      <p><strong>Route:</strong> <code>POST /api/elasticsearch/search</code></p>
+      <p><strong>Auth required:</strong> Yes, Bearer token in <code>Authorization</code> header</p>
+      <p><strong>Request Body:</strong></p>
+      <pre>[
+  {"field":"status","operator":"IS_NOT","value":1},
+  {"field":"tags","operator":"IS_NOT","value":"False positive"},
+  {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-7d","now"]}
+]</pre>
+      <p><strong>Response Example:</strong></p>
+      <pre>[
+  {
+    "id": "c1c4e32c-dd9f-4a15-98c4-0dac2af40740",
+    "name": "Windows: Multiple Windows logon failures",
+    "severity": 2,
+    "severityLabel": "Medium",
+    "status": 2,
+    "statusLabel": "Open",
+    "description": "Adversaries may use brute force techniques...",
+    "destination": {...},
+    "source": {...}
+  }
+]</pre>
+      <p><strong>cURL Example:</strong></p>
+      <pre>curl -X POST https://192.168.1.20/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '[{"field":"status","operator":"IS_NOT","value":1},{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-7d","now"]}]'</pre>
+    </section>
+
+    <!-- Update Alert Status -->
+    <section id="update-status" class="endpoint-card">
+      <h3>Update Alert Status</h3>
+      <p>Change the status of one or more alerts. Status values:</p>
+      <pre>
+  export enum AlertStatusEnum {
+    OPEN = 2,
+    IN_REVIEW = 3,
+    COMPLETED = 5
+  }
+  </pre>
+      <p><strong>Route:</strong> <code>POST /api/utm-alerts/status</code></p>
+      <p><strong>Auth required:</strong> Yes</p>
+      <p><strong>Request Body:</strong></p>
+      <pre>{
+  "alertIds": ["uuid1", "uuid2"],
+  "status": 3,
+  "statusObservation": "Reviewed by SOC team",
+  "addFalsePositiveTag": false
+}</pre>
+      <p><strong>cURL Example:</strong></p>
+      <pre>curl -X POST https://192.168.1.20/api/utm-alerts/status \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"alertIds":["uuid1","uuid2"],"status":3,"statusObservation":"Reviewed by SOC team","addFalsePositiveTag":false}'</pre>
+    </section>
+
+    <!-- Update Alert Notes -->
+    <section id="update-notes" class="endpoint-card">
+      <h3>Update Alert Notes</h3>
+      <p>Add or modify notes for a specific alert.</p>
+      <p><strong>Route:</strong> <code>POST /api/utm-alerts/notes</code></p>
+      <p><strong>Auth required:</strong> Yes</p>
+      <p><strong>Request Body:</strong> (optional)</p>
+      <pre>"Investigation completed, no action required."</pre>
+      <p><strong>Query Param:</strong> <code>alertId=uuid1</code></p>
+      <p><strong>cURL Example:</strong></p>
+      <pre>curl -X POST "https://192.168.1.20/api/utm-alerts/notes?alertId=uuid1" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '"Investigation completed, no action required."' </pre>
+    </section>
+
+    <!-- Update Alert Tags -->
+    <section id="update-tags" class="endpoint-card">
+      <h3>Update Alert Tags</h3>
+      <p>Add or modify tags for alerts. Optionally create a tagging rule.</p>
+      <p><strong>Route:</strong> <code>POST /api/utm-alerts/tags</code></p>
+      <p><strong>Auth required:</strong> Yes</p>
+      <p><strong>Request Body:</strong></p>
+      <pre>{
+  "alertIds": ["uuid1","uuid2"],
+  "tags": ["malware","SOC-reviewed"],
+  "createRule": true
+}</pre>
+      <p><strong>cURL Example:</strong></p>
+      <pre>curl -X POST https://192.168.1.20/api/utm-alerts/tags \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"alertIds":["uuid1","uuid2"],"tags":["malware","SOC-reviewed"],"createRule":true}'</pre>
+    </section>
+
+    <!-- Convert to Incident -->
+    <section id="convert-to-incident" class="endpoint-card">
+      <h3>Convert Alerts to Incident</h3>
+      <p>Convert one or more alerts into a single incident.</p>
+      <p><strong>Route:</strong> <code>POST /api/utm-alerts/convert-to-incident</code></p>
+      <p><strong>Auth required:</strong> Yes</p>
+      <p><strong>Request Body:</strong></p>
+      <pre>{
+  "eventIds": ["uuid1","uuid2"],
+  "incidentName": "SOC Investigation 001",
+  "incidentId": 123,
+  "incidentSource": "UTMStack"
+}</pre>
+      <p><strong>cURL Example:</strong></p>
+      <pre>curl -X POST https://192.168.1.20/api/utm-alerts/convert-to-incident \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"eventIds":["uuid1","uuid2"],"incidentName":"SOC Investigation 001","incidentId":123,"incidentSource":"UTMStack"}'</pre>
+    </section>
+
+    <!-- Count Open Alerts -->
+    <section id="count-open-alerts" class="endpoint-card">
+      <h3>Count Open Alerts</h3>
+      <p>Get the number of alerts currently with status <code>OPEN</code>.</p>
+      <p><strong>Route:</strong> <code>GET /api/utm-alerts/count-open-alerts</code></p>
+      <p><strong>Auth required:</strong> Yes</p>
+      <p><strong>cURL Example:</strong></p>
+      <pre>curl -X GET https://192.168.1.20/api/utm-alerts/count-open-alerts \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</pre>
+    </section>
+
+    <!-- Values with Count -->
+    <section id="values-with-count" class="endpoint-card">
+      <h3>Alert Counts by Field</h3>
+      <p>Get the number of alerts grouped by a field (e.g., status).</p>
+      <p><strong>Route:</strong> <code>POST /api/elasticsearch/property/values-with-count</code></p>
+      <p><strong>Auth required:</strong> Yes</p>
+      <p><strong>Request Body:</strong></p>
+      <pre>{
+  "field":"status",
+  "filters":[
+    {"field":"tags","operator":"IS_NOT","value":"False positive"},
+    {"field":"@timestamp","operator":"IS_BETWEEN","value":["now-7d","now"]}
+  ],
+  "index":"alert-*",
+  "top":10
+}</pre>
+      <p><strong>cURL Example:</strong></p>
+      <pre>curl -X POST https://192.168.1.20/api/elasticsearch/property/values-with-count \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"field":"status","filters":[{"field":"tags","operator":"IS_NOT","value":"False positive"},{"field":"@timestamp","operator":"IS_BETWEEN","value":["now-7d","now"]}],"index":"alert-*","top":10}'</pre>
+    </section>
+
+    <!-- Activity Log -->
+    <section id="activity-log" class="log-section">
+      <h3>Activity Log</h3>
+      <p>All API events, errors, and operations are logged here for auditing purposes.</p>
+      <ul>
+        <li>Authentication attempts</li>
+        <li>Alert status updates</li>
+        <li>Notes and tags modifications</li>
+        <li>Incident conversions</li>
+        <li>Error messages generated by Global Exception Handler</li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  © UTMStack 2025 — All rights reserved. | <a href="https://utmstack.com" target="_blank">Website</a> | <a href="https://github.com/utmstack/UTMStack" target="_blank">GitHub</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
