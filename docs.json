@@ -915,6 +915,7 @@
                 "group": "Getting Started",
                 "pages": [
                   "v10/apidoc/overview",
+                  "v10/apidoc/postman-collection",
                   "v10/Getting started/api"
                 ]
               },
@@ -931,6 +932,20 @@
                   "v10/apidoc/update-status",
                   "v10/apidoc/update-tags",
                   "v10/apidoc/update-notes"
+                ]
+              },
+              {
+                "group": "Incident Management",
+                "pages": [
+                  "v10/apidoc/convert-incident"
+                ]
+              },
+              {
+                "group": "Analytics & Utilities",
+                "pages": [
+                  "v10/apidoc/count-alerts",
+                  "v10/apidoc/property-values",
+                  "v10/apidoc/csv-export"
                 ]
               }
             ]

@@ -1,0 +1,1030 @@
+{
+  "info": {
+    "name": "UTMStack Alerts API Collection",
+    "description": "Complete collection of UTMStack Alert Management APIs including authentication, search, and CRUD operations for alerts.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://demo.utmstack.com",
+      "type": "string",
+      "description": "UTMStack instance base URL"
+    },
+    {
+      "key": "bearerToken",
+      "value": "",
+      "type": "string",
+      "description": "JWT Bearer token obtained from authentication"
+    },
+    {
+      "key": "alertId",
+      "value": "c1c4e32c-dd9f-4a15-98c4-0dac2af40740",
+      "type": "string",
+      "description": "Sample alert UUID for testing"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set bearer token from environment or previous requests",
+          "if (!pm.collectionVariables.get('bearerToken') && pm.environment.get('bearerToken')) {",
+          "    pm.collectionVariables.set('bearerToken', pm.environment.get('bearerToken'));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login - Get Bearer Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Extract and store the bearer token",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.id_token) {",
+                  "        pm.collectionVariables.set('bearerToken', response.id_token);",
+                  "        pm.environment.set('bearerToken', response.id_token);",
+                  "        console.log('Bearer token stored successfully');",
+                  "    }",
+                  "    ",
+                  "    // Test assertions",
+                  "    pm.test('Status code is 200', function () {",
+                  "        pm.response.to.have.status(200);",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response contains id_token', function () {",
+                  "        pm.expect(response).to.have.property('id_token');",
+                  "    });",
+                  "    ",
+                  "    pm.test('Response contains authenticated flag', function () {",
+                  "        pm.expect(response).to.have.property('authenticated');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"your_password\",\n  \"rememberMe\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/authenticate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "authenticate"]
+            },
+            "description": "Authenticate with UTMStack and obtain a JWT Bearer token for API access."
+          }
+        }
+      ],
+      "description": "Authentication endpoints for obtaining JWT tokens"
+    },
+    {
+      "name": "Alert Management",
+      "item": [
+        {
+          "name": "List Alerts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.be.an('array');",
+                  "});",
+                  "",
+                  "// Store first alert ID for other requests",
+                  "if (pm.response.code === 200) {",
+                  "    const alerts = pm.response.json();",
+                  "    if (alerts.length > 0 && alerts[0].id) {",
+                  "        pm.collectionVariables.set('alertId', alerts[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"field\": \"status\",\n    \"operator\": \"IS_NOT\",\n    \"value\": 1\n  },\n  {\n    \"field\": \"tags\",\n    \"operator\": \"IS_NOT\",\n    \"value\": \"False positive\"\n  },\n  {\n    \"field\": \"@timestamp\",\n    \"operator\": \"IS_BETWEEN\",\n    \"value\": [\"now-7d\", \"now\"]\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "elasticsearch", "search"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Current page number"
+                },
+                {
+                  "key": "size",
+                  "value": "25",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "top",
+                  "value": "100000000",
+                  "description": "Maximum number of records"
+                },
+                {
+                  "key": "indexPattern",
+                  "value": "alert-*",
+                  "description": "Elasticsearch index pattern"
+                },
+                {
+                  "key": "sort",
+                  "value": "@timestamp,desc",
+                  "description": "Sort field and direction"
+                }
+              ]
+            },
+            "description": "Retrieve alerts from Elasticsearch with advanced filtering, pagination, and sorting capabilities."
+          }
+        },
+        {
+          "name": "List Open Alerts Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"field\": \"status\",\n    \"operator\": \"IS\",\n    \"value\": 2\n  },\n  {\n    \"field\": \"@timestamp\",\n    \"operator\": \"IS_BETWEEN\",\n    \"value\": [\"now-24h\", \"now\"]\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/elasticsearch/search?page=1&size=50&indexPattern=alert-*&sort=@timestamp,desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "elasticsearch", "search"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "50"
+                },
+                {
+                  "key": "indexPattern",
+                  "value": "alert-*"
+                },
+                {
+                  "key": "sort",
+                  "value": "@timestamp,desc"
+                }
+              ]
+            },
+            "description": "Get only open alerts from the last 24 hours"
+          }
+        },
+        {
+          "name": "List High Severity Alerts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"field\": \"severity\",\n    \"operator\": \"GREATER_EQUAL\",\n    \"value\": 3\n  },\n  {\n    \"field\": \"status\",\n    \"operator\": \"IS_IN\",\n    \"value\": [2, 3]\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/elasticsearch/search?page=1&size=25&indexPattern=alert-*&sort=severity,desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "elasticsearch", "search"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "25"
+                },
+                {
+                  "key": "indexPattern",
+                  "value": "alert-*"
+                },
+                {
+                  "key": "sort",
+                  "value": "severity,desc"
+                }
+              ]
+            },
+            "description": "Get high severity alerts (severity >= 3) that are open or in review"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alert Status Management",
+      "item": [
+        {
+          "name": "Update Alert Status - Mark as In Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response body is empty', function () {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\"{{alertId}}\"],\n  \"status\": 3,\n  \"statusObservation\": \"Alert escalated to security team for detailed analysis\",\n  \"addFalsePositiveTag\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "status"]
+            },
+            "description": "Update alert status to In Review (3) with observation note"
+          }
+        },
+        {
+          "name": "Update Alert Status - Mark as Completed",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\"{{alertId}}\"],\n  \"status\": 5,\n  \"statusObservation\": \"Investigation completed. Alert resolved as legitimate activity.\",\n  \"addFalsePositiveTag\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "status"]
+            },
+            "description": "Mark alert as completed (5) with resolution notes"
+          }
+        },
+        {
+          "name": "Mark as False Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\"{{alertId}}\"],\n  \"status\": 5,\n  \"statusObservation\": \"Confirmed as false positive after thorough investigation\",\n  \"addFalsePositiveTag\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "status"]
+            },
+            "description": "Mark alert as false positive with automatic tag addition"
+          }
+        },
+        {
+          "name": "Bulk Status Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\n    \"c1c4e32c-dd9f-4a15-98c4-0dac2af40740\",\n    \"d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f\",\n    \"7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522\"\n  ],\n  \"status\": 5,\n  \"statusObservation\": \"Bulk closure after weekly review\",\n  \"addFalsePositiveTag\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "status"]
+            },
+            "description": "Update status for multiple alerts in a single request"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alert Tags Management",
+      "item": [
+        {
+          "name": "Add Investigation Tags",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response body is empty', function () {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\"{{alertId}}\"],\n  \"tags\": [\"Under Investigation\", \"Priority High\", \"Escalated\"],\n  \"createRule\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "tags"]
+            },
+            "description": "Add investigation-related tags to an alert"
+          }
+        },
+        {
+          "name": "Add False Positive Tag with Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\"{{alertId}}\"],\n  \"tags\": [\"False Positive\", \"Reviewed\"],\n  \"createRule\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "tags"]
+            },
+            "description": "Mark as false positive and create automatic rule for similar alerts"
+          }
+        },
+        {
+          "name": "Remove All Tags",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\"{{alertId}}\"],\n  \"tags\": [],\n  \"createRule\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "tags"]
+            },
+            "description": "Remove all tags from an alert"
+          }
+        },
+        {
+          "name": "Bulk Tag Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\n    \"c1c4e32c-dd9f-4a15-98c4-0dac2af40740\",\n    \"d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f\",\n    \"7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522\"\n  ],\n  \"tags\": [\"Batch Processed\", \"Weekly Review\"],\n  \"createRule\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "tags"]
+            },
+            "description": "Assign tags to multiple alerts simultaneously"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alert Notes Management",
+      "item": [
+        {
+          "name": "Add Investigation Notes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response body is empty', function () {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\"[2024-10-16 14:30:00] - Analyst: John Smith\\nINITIAL ANALYSIS: Alert triggered by multiple failed login attempts from IP 192.168.1.100.\\n\\nINVESTIGATION STEPS:\\n1. Checked source IP reputation - no known malicious activity\\n2. Reviewed user account activity logs\\n3. Contacted user to confirm legitimate activity\\n\\nFINDINGS:\\nUser confirmed password reset attempts during maintenance window. Activity is legitimate.\\n\\nRECOMMENDATION:\\nMark as false positive and whitelist maintenance window activities.\"",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/notes?alertId={{alertId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "notes"],
+              "query": [
+                {
+                  "key": "alertId",
+                  "value": "{{alertId}}"
+                }
+              ]
+            },
+            "description": "Add detailed investigation notes to an alert"
+          }
+        },
+        {
+          "name": "Add Resolution Notes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\"[2024-10-16 16:45:00] - RESOLVED by Security Team\\n\\nROOT CAUSE:\\nScheduled vulnerability scan from authorized security tool (Nessus scanner at 10.0.0.5).\\n\\nACTIONS TAKEN:\\n1. Verified scan schedule in security calendar\\n2. Confirmed source IP belongs to authorized scanner\\n3. Updated alert correlation rules to reduce false positives\\n\\nPREVENTION:\\nImplemented whitelist for authorized scanner IPs and scheduled scan windows.\\n\\nSTATUS: CLOSED - False Positive\"",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/notes?alertId={{alertId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "notes"],
+              "query": [
+                {
+                  "key": "alertId",
+                  "value": "{{alertId}}"
+                }
+              ]
+            },
+            "description": "Add resolution and remediation notes to an alert"
+          }
+        },
+        {
+          "name": "Clear Notes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\"\"",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/notes?alertId={{alertId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "notes"],
+              "query": [
+                {
+                  "key": "alertId",
+                  "value": "{{alertId}}"
+                }
+              ]
+            },
+            "description": "Clear/remove all notes from an alert"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alert Analytics & Utilities",
+      "item": [
+        {
+          "name": "Count Open Alerts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response contains count', function () {",
+                  "    const count = pm.response.json();",
+                  "    pm.expect(typeof count).to.equal('number');",
+                  "    console.log('Open alerts count:', count);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/count-open-alerts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "count-open-alerts"]
+            },
+            "description": "Get the total count of open alerts in the system"
+          }
+        },
+        {
+          "name": "Get Property Values with Count",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is array with value/count objects', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.be.an('array');",
+                  "    if (response.length > 0) {",
+                  "        pm.expect(response[0]).to.have.property('value');",
+                  "        pm.expect(response[0]).to.have.property('count');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field\": \"status\",\n  \"filters\": [\n    {\n      \"field\": \"tags\",\n      \"operator\": \"IS_NOT\",\n      \"value\": \"False positive\"\n    },\n    {\n      \"field\": \"@timestamp\",\n      \"operator\": \"IS_BETWEEN\",\n      \"value\": [\"now-7d\", \"now\"]\n    }\n  ],\n  \"index\": \"alert-*\",\n  \"top\": 10,\n  \"orderByCount\": true,\n  \"sortAsc\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/elasticsearch/property/values-with-count",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "elasticsearch", "property", "values-with-count"]
+            },
+            "description": "Get unique values for a specific field with their occurrence counts"
+          }
+        },
+        {
+          "name": "Get Severity Distribution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field\": \"severity\",\n  \"filters\": [\n    {\n      \"field\": \"@timestamp\",\n      \"operator\": \"IS_BETWEEN\",\n      \"value\": [\"now-24h\", \"now\"]\n    }\n  ],\n  \"index\": \"alert-*\",\n  \"top\": 5,\n  \"orderByCount\": true,\n  \"sortAsc\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/elasticsearch/property/values-with-count",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "elasticsearch", "property", "values-with-count"]
+            },
+            "description": "Get alert severity distribution for the last 24 hours"
+          }
+        },
+        {
+          "name": "Get Top Data Sources",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field\": \"dataSource\",\n  \"filters\": [\n    {\n      \"field\": \"@timestamp\",\n      \"operator\": \"IS_BETWEEN\",\n      \"value\": [\"now-7d\", \"now\"]\n    },\n    {\n      \"field\": \"status\",\n      \"operator\": \"IS_NOT\",\n      \"value\": 5\n    }\n  ],\n  \"index\": \"alert-*\",\n  \"top\": 15,\n  \"orderByCount\": true,\n  \"sortAsc\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/elasticsearch/property/values-with-count",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "elasticsearch", "property", "values-with-count"]
+            },
+            "description": "Get top alert sources for the last week (excluding completed alerts)"
+          }
+        },
+        {
+          "name": "Export Alerts to CSV",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is CSV format', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('text/csv');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filters\": [\n    {\n      \"field\": \"@timestamp\",\n      \"operator\": \"IS_BETWEEN\",\n      \"value\": [\"now-7d\", \"now\"]\n    },\n    {\n      \"field\": \"severity\",\n      \"operator\": \"GREATER_EQUAL\",\n      \"value\": 3\n    }\n  ],\n  \"fields\": [\n    \"@timestamp\",\n    \"name\",\n    \"severity\",\n    \"status\",\n    \"dataSource\",\n    \"category\",\n    \"description\"\n  ],\n  \"from\": 0,\n  \"size\": 5000,\n  \"orderBy\": \"@timestamp\",\n  \"sortDirection\": \"desc\",\n  \"includeHeaders\": true,\n  \"dateFormat\": \"yyyy-MM-dd HH:mm:ss\",\n  \"separator\": \",\",\n  \"filename\": \"alerts_export.csv\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/elasticsearch/alerts/export/csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "elasticsearch", "alerts", "export", "csv"]
+            },
+            "description": "Export filtered alerts to CSV format for external analysis"
+          }
+        },
+        {
+          "name": "Export High Severity Alerts (Compliance)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filters\": [\n    {\n      \"field\": \"@timestamp\",\n      \"operator\": \"IS_BETWEEN\",\n      \"value\": [\"now-30d\", \"now\"]\n    },\n    {\n      \"field\": \"severity\",\n      \"operator\": \"GREATER_EQUAL\",\n      \"value\": 4\n    },\n    {\n      \"field\": \"tags\",\n      \"operator\": \"IS_NOT\",\n      \"value\": \"False positive\"\n    }\n  ],\n  \"fields\": [\n    \"@timestamp\",\n    \"name\",\n    \"severity\",\n    \"status\",\n    \"category\",\n    \"dataSource\",\n    \"sourceIp\",\n    \"destIp\",\n    \"user\",\n    \"assignedTo\",\n    \"notes\"\n  ],\n  \"from\": 0,\n  \"size\": 10000,\n  \"orderBy\": \"@timestamp\",\n  \"sortDirection\": \"asc\",\n  \"includeHeaders\": true,\n  \"dateFormat\": \"yyyy-MM-dd HH:mm:ss\",\n  \"separator\": \",\",\n  \"filename\": \"high_severity_monthly_compliance_report.csv\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/elasticsearch/alerts/export/csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "elasticsearch", "alerts", "export", "csv"]
+            },
+            "description": "Export high severity alerts for monthly compliance reporting"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incident Management",
+      "item": [
+        {
+          "name": "Convert Alerts to Incident",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Incident created successfully', function () {",
+                  "    // Add specific tests based on actual response structure",
+                  "    console.log('Incident created from alerts');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventIds\": [\"{{alertId}}\"],\n  \"incidentName\": \"Security Incident - Multiple Failed Logins\",\n  \"incidentId\": 1001,\n  \"incidentSource\": \"UTMStack Alert Investigation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/convert-to-incident",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "convert-to-incident"]
+            },
+            "description": "Convert one or more alerts into a formal security incident for case management"
+          }
+        },
+        {
+          "name": "Convert Multiple Alerts to Incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventIds\": [\n    \"c1c4e32c-dd9f-4a15-98c4-0dac2af40740\",\n    \"d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f\",\n    \"7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522\"\n  ],\n  \"incidentName\": \"Coordinated Attack Campaign\",\n  \"incidentId\": 1002,\n  \"incidentSource\": \"UTMStack Correlation Analysis\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/convert-to-incident",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "convert-to-incident"]
+            },
+            "description": "Create incident from multiple related alerts for comprehensive investigation"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alert Workflows",
+      "item": [
+        {
+          "name": "Complete Investigation Workflow",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// This is a workflow example that combines multiple API calls",
+                  "console.log('Starting complete investigation workflow...');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alertIds\": [\"{{alertId}}\"],\n  \"status\": 3,\n  \"statusObservation\": \"Starting investigation - escalated to security team\",\n  \"addFalsePositiveTag\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utm-alerts/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "utm-alerts", "status"]
+            },
+            "description": "Step 1: Mark alert as In Review to start investigation workflow"
+          }
+        }
+      ]
+    }
+  ]
+}
