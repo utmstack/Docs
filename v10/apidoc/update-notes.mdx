@@ -1,0 +1,368 @@
+---
+title: Update Alert Notes API
+sidebarTitle: "Update Notes"
+description: "Add or update notes for a specific alert to document observations, investigations, or remediation steps."
+---
+
+## Overview
+
+Adds or updates **notes** for a specific alert. Notes allow analysts to document observations, investigations, or remediation steps related to an alert. Supports auditing for traceability.
+
+<Note>
+**Authorization Required:** Include a valid Bearer Token in the Authorization header.
+</Note>
+
+---
+
+## Endpoint Details
+
+<Card title="POST /api/utm-alerts/notes" icon="note-sticky">
+  **Method:** POST  
+  **Content-Type:** application/json  
+  **Authentication:** Bearer Token required  
+  **Response:** HTTP 200 OK (no body)
+</Card>
+
+---
+
+## Parameters
+
+### Query Parameters
+
+<ParamField query="alertId" type="string" required>
+  UUID of the alert to update with notes
+  <Expandable title="Example">
+    ```
+    ?alertId=c1c4e32c-dd9f-4a15-98c4-0dac2af40740
+    ```
+  </Expandable>
+</ParamField>
+
+### Request Body
+
+The request body should contain the notes as a plain JSON string.
+
+<ParamField body="notes" type="string">
+  Text notes for the alert. Can be empty to clear existing notes.
+  <Expandable title="Example">
+    ```json
+    "Investigated alert, determined as false positive after analyzing network traffic patterns."
+    ```
+  </Expandable>
+</ParamField>
+
+---
+
+## JSON Schema
+
+```json
+{
+  "type": "string",
+  "description": "Notes content as a plain string"
+}
+```
+
+---
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd9f-4a15-98c4-0dac2af40740" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -H "Content-Type: application/json" \
+  -d '"Investigated alert, determined as false positive after analyzing network traffic patterns."'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+HTTP/1.1 200 OK
+Content-Length: 0
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from "axios";
+
+const updateAlertNotes = async () => {
+  const token = "<your_access_token>";
+  const alertId = "c1c4e32c-dd9f-4a15-98c4-0dac2af40740";
+  const notes = "Investigated alert, determined as false positive after analyzing network traffic patterns.";
+
+  try {
+    const response = await axios.post(
+      `https://demo.utmstack.com/api/utm-alerts/notes?alertId=${alertId}`, 
+      JSON.stringify(notes), 
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`, 
+          "Content-Type": "application/json" 
+        }
+      }
+    );
+    
+    console.log("Notes updated successfully", response.status);
+    return response;
+  } catch (error) {
+    console.error("Error updating notes:", error.response?.data || error.message);
+  }
+};
+```
+
+```python Python
+import requests
+import json
+
+def update_alert_notes():
+    url = "https://demo.utmstack.com/api/utm-alerts/notes"
+    alert_id = "c1c4e32c-dd9f-4a15-98c4-0dac2af40740"
+    notes = "Investigated alert, determined as false positive after analyzing network traffic patterns."
+    
+    params = {"alertId": alert_id}
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>",
+        "Content-Type": "application/json"
+    }
+    
+    # Send notes as a JSON string
+    response = requests.post(
+        url, 
+        data=json.dumps(notes), 
+        params=params, 
+        headers=headers
+    )
+    
+    if response.status_code == 200:
+        print("Notes updated successfully")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+    
+    return response
+```
+
+</CodeGroup>
+
+---
+
+## Response Details
+
+### Successful Update
+
+<Tabs>
+  <Tab title="Success Response">
+    ```http
+    HTTP/1.1 200 OK
+    Content-Length: 0
+    Date: Wed, 16 Oct 2024 10:30:00 GMT
+    ```
+  </Tab>
+  <Tab title="Error Response">
+    ```json
+    {
+      "error": "Alert not found",
+      "message": "Alert with ID 'c1c4e32c-dd9f-4a15-98c4-0dac2af40740' does not exist",
+      "timestamp": "2024-10-16T10:30:00.000Z",
+      "status": 404
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+The API returns **HTTP 200 OK** with no response body when notes are successfully updated.
+</Note>
+</ResponseExample>
+
+<Note>
+The API returns **HTTP 200 OK** with no response body when notes are successfully updated.
+</Note>
+
+---
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Notes updated successfully
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  Invalid request payload or missing alert ID
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token
+</ResponseField>
+
+<ResponseField name="404" type="Not Found">
+  Alert not found with the specified ID
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Internal server error during notes update
+</ResponseField>
+
+---
+
+## Usage Examples
+
+### Add Investigation Notes
+
+```json
+"Initial investigation shows multiple failed login attempts from IP 192.168.1.100. Checking for related alerts and network activity."
+```
+
+### Document Resolution
+
+```json
+"RESOLVED: Confirmed as legitimate admin activity. User was resetting passwords for multiple accounts during maintenance window. Alert marked as false positive."
+```
+
+### Add Remediation Steps
+
+```json
+"REMEDIATION ACTIONS TAKEN:\n1. Blocked suspicious IP at firewall\n2. Reset affected user passwords\n3. Enabled additional monitoring on affected systems\n4. Notified security team for follow-up"
+```
+
+### Clear Existing Notes
+
+```json
+""
+```
+
+### Add Timestamp and Analyst Info
+
+```json
+"[2024-10-16 14:30:00] - Analyst: John Smith\nINITIAL ANALYSIS: Alert triggered by automated scan. Investigating source and legitimacy.\n\n[2024-10-16 15:45:00] - Analyst: John Smith\nUPDATE: Confirmed as scheduled vulnerability scan from authorized security tool. No action required."
+```
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Note Structure">
+    **Recommended Format:**
+    - Start with timestamp and analyst name
+    - Use clear action indicators (INVESTIGATING, RESOLVED, etc.)
+    - Include specific technical details
+    - Document decision rationale
+    - Add follow-up actions if needed
+  </Accordion>
+
+  <Accordion title="Content Guidelines">
+    **What to Include:**
+    - Investigation findings and methodology
+    - Evidence reviewed (logs, network data, etc.)
+    - Remediation actions taken
+    - Lessons learned or recommendations
+    - Links to related tickets or incidents
+  </Accordion>
+
+  <Accordion title="Formatting Tips">
+    **For Readability:**
+    - Use line breaks (`\n`) for separation
+    - Use bullet points or numbered lists
+    - Include timestamps for multi-step investigations
+    - Use consistent terminology and abbreviations
+    - Keep notes concise but comprehensive
+  </Accordion>
+
+  <Accordion title="Security Considerations">
+    **Sensitive Information:**
+    - Avoid including passwords or credentials
+    - Sanitize personal information (PII)
+    - Use internal reference numbers instead of external details
+    - Consider classification requirements
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Note Templates
+
+### Investigation Template
+
+```json
+"[TIMESTAMP] - Analyst: [NAME]\n\nINITIAL ASSESSMENT:\n- Alert Type: [TYPE]\n- Severity: [LEVEL]\n- Affected Systems: [SYSTEMS]\n\nINVESTIGATION STEPS:\n1. [STEP 1]\n2. [STEP 2]\n3. [STEP 3]\n\nFINDINGS:\n[DETAILED FINDINGS]\n\nRECOMMENDATION:\n[ACTION/RESOLUTION]"
+```
+
+### Resolution Template
+
+```json
+"[TIMESTAMP] - RESOLVED by [ANALYST]\n\nROOT CAUSE:\n[EXPLANATION]\n\nACTIONS TAKEN:\n1. [ACTION 1]\n2. [ACTION 2]\n\nPREVENTION:\n[FUTURE PREVENTION MEASURES]\n\nSTATUS: [CLOSED/MONITORING/ESCALATED]"
+```
+
+---
+
+## Security Considerations
+
+<Warning>
+**Security Notes:**
+- Requires Bearer token authentication
+- All note changes are **audited** for compliance
+- Notes are stored in plain text - avoid sensitive data
+- Users without proper permissions will receive 401 Unauthorized
+- Alert ID must be a valid UUID that exists in the system
+</Warning>
+
+---
+
+## Integration with UTMStack
+
+<Info>
+**Platform Integration:**
+- Notes appear in the UTMStack alert detail view
+- Changes are reflected in real-time across the platform
+- Notes are included in alert export and reporting
+- Search functionality includes note content
+- History of note changes is maintained for audit purposes
+</Info>
+
+---
+
+## OpenAPI Specification
+
+```yaml
+post:
+  summary: "Update alert notes"
+  tags:
+    - Alerts
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: alertId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: "UUID of the alert to update"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: string
+          description: "Notes content as a plain string"
+  responses:
+    '200':
+      description: "Notes updated successfully"
+    '400':
+      description: "Invalid request payload or missing alert ID"
+    '401':
+      description: "Unauthorized"
+    '404':
+      description: "Alert not found"
+    '500':
+      description: "Internal server error"
+```

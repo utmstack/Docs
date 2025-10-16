@@ -1,0 +1,384 @@
+---
+title: Update Alert Status API
+sidebarTitle: "Update Status"
+description: "Update the status of one or more alerts with auditing and optional false positive tagging capabilities."
+---
+
+## Overview
+
+Updates the **status** of one or more alerts. Allows analysts to change the alert state (e.g., Open, In Review, Completed) and optionally add an observation note. Supports auditing for traceability.
+
+<Note>
+**Authorization Required:** Include a valid Bearer Token in the Authorization header.
+</Note>
+
+---
+
+## Endpoint Details
+
+<Card title="POST /api/utm-alerts/status" icon="refresh">
+  **Method:** POST  
+  **Content-Type:** application/json  
+  **Authentication:** Bearer Token required  
+  **Response:** HTTP 200 OK (no body)
+</Card>
+
+---
+
+## Request Body
+
+<ParamField body="alertIds" type="array" required>
+  Array of alert UUIDs to update
+  <Expandable title="Example">
+    ```json
+    ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740", "7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522"]
+    ```
+  </Expandable>
+</ParamField>
+
+<ParamField body="status" type="integer" required>
+  New status code for the alerts (see status codes below)
+</ParamField>
+
+<ParamField body="statusObservation" type="string">
+  Optional observation note about the status change
+</ParamField>
+
+<ParamField body="addFalsePositiveTag" type="boolean" default="false">
+  Whether to add a "False positive" tag to the alerts
+</ParamField>
+
+---
+
+## Status Codes Reference
+
+<CardGroup cols={3}>
+  <Card title="OPEN" icon="circle-exclamation">
+    **Value:** 2  
+    Alert is open and pending review
+  </Card>
+  
+  <Card title="IN_REVIEW" icon="eye">
+    **Value:** 3  
+    Alert is currently being reviewed
+  </Card>
+  
+  <Card title="COMPLETED" icon="circle-check">
+    **Value:** 5  
+    Alert has been resolved/completed
+  </Card>
+</CardGroup>
+
+---
+
+## JSON Schema
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "alertIds": {
+      "type": "array",
+      "items": { 
+        "type": "string", 
+        "format": "uuid" 
+      },
+      "description": "Array of alert UUIDs"
+    },
+    "status": { 
+      "type": "integer", 
+      "enum": [2, 3, 5],
+      "description": "New status code"
+    },
+    "statusObservation": { 
+      "type": "string",
+      "description": "Optional observation note"
+    },
+    "addFalsePositiveTag": { 
+      "type": "boolean",
+      "description": "Add false positive tag"
+    }
+  },
+  "required": ["alertIds", "status"]
+}
+```
+
+---
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X POST "https://demo.utmstack.com/api/utm-alerts/status" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "alertIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
+    "status": 3,
+    "statusObservation": "Reviewed and confirmed as false positive",
+    "addFalsePositiveTag": true
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+HTTP/1.1 200 OK
+Content-Length: 0
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from "axios";
+
+const updateAlertStatus = async () => {
+  const token = "<your_access_token>";
+  
+  const payload = {
+    alertIds: ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
+    status: 3,
+    statusObservation: "Reviewed and confirmed as false positive",
+    addFalsePositiveTag: true
+  };
+
+  try {
+    const response = await axios.post(
+      "https://demo.utmstack.com/api/utm-alerts/status", 
+      payload, 
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    console.log("Status updated successfully", response.status);
+    return response;
+  } catch (error) {
+    console.error("Error updating status:", error.response?.data || error.message);
+  }
+};
+```
+
+```python Python
+import requests
+
+def update_alert_status():
+    url = "https://demo.utmstack.com/api/utm-alerts/status"
+    
+    payload = {
+        "alertIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
+        "status": 3,
+        "statusObservation": "Reviewed and confirmed as false positive",
+        "addFalsePositiveTag": True
+    }
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    
+    if response.status_code == 200:
+        print("Status updated successfully")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+    
+    return response
+```
+
+</CodeGroup>
+
+---
+
+## Response Details
+
+### Successful Update
+
+<Tabs>
+  <Tab title="Success Response">
+    ```http
+    HTTP/1.1 200 OK
+    Content-Length: 0
+    Date: Wed, 16 Oct 2024 10:30:00 GMT
+    ```
+  </Tab>
+  <Tab title="Error Response">
+    ```json
+    {
+      "error": "Invalid alert ID",
+      "message": "Alert with ID 'invalid-uuid' not found",
+      "timestamp": "2024-10-16T10:30:00.000Z",
+      "status": 404
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+The API returns **HTTP 200 OK** with no response body when the status is successfully updated.
+</Note>
+
+---
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Status updated successfully
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  Invalid request payload or malformed JSON
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token
+</ResponseField>
+
+<ResponseField name="404" type="Not Found">
+  One or more alerts not found
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Internal server error during update
+</ResponseField>
+
+---
+
+## Usage Examples
+
+### Mark Alert as False Positive
+
+```json
+{
+  "alertIds": ["c1c4e32c-dd9f-4a15-98c4-0dac2af40740"],
+  "status": 5,
+  "statusObservation": "Confirmed false positive after investigation",
+  "addFalsePositiveTag": true
+}
+```
+
+### Move Alert to Review
+
+```json
+{
+  "alertIds": ["7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522"],
+  "status": 3,
+  "statusObservation": "Escalated to security team for detailed analysis"
+}
+```
+
+### Bulk Status Update
+
+```json
+{
+  "alertIds": [
+    "c1c4e32c-dd9f-4a15-98c4-0dac2af40740",
+    "7a12c4f3-894c-4e2a-9f1b-c7c7a0b84522",
+    "9b34f5e7-123a-456b-789c-def012345678"
+  ],
+  "status": 5,
+  "statusObservation": "Bulk closure after investigation completed"
+}
+```
+
+---
+
+## Security Considerations
+
+<Warning>
+**Security Notes:**
+- Requires Bearer token authentication
+- All status changes are **audited** using ApplicationEventService for traceability
+- Users without proper permissions will receive 401 Unauthorized
+- Alert IDs must be valid UUIDs that exist in the system
+</Warning>
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Status Workflow">
+    Follow a logical status progression:
+    1. **OPEN** (2) - Initial alert state
+    2. **IN_REVIEW** (3) - Under investigation
+    3. **COMPLETED** (5) - Resolved or closed
+  </Accordion>
+
+  <Accordion title="Observation Notes">
+    Always include meaningful `statusObservation` notes:
+    - Document the reason for status change
+    - Include investigation findings
+    - Reference any related tickets or incidents
+  </Accordion>
+
+  <Accordion title="False Positive Handling">
+    When marking alerts as false positives:
+    - Set `status` to 5 (COMPLETED)
+    - Set `addFalsePositiveTag` to true
+    - Include detailed reasoning in `statusObservation`
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## OpenAPI Specification
+
+```yaml
+post:
+  summary: "Update alert status"
+  tags:
+    - Alerts
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/UpdateAlertStatusRequest'
+  responses:
+    '200':
+      description: "Status updated successfully"
+    '400':
+      description: "Invalid request payload"
+    '401':
+      description: "Unauthorized"
+    '404':
+      description: "Alert not found"
+    '500':
+      description: "Internal server error"
+
+components:
+  schemas:
+    UpdateAlertStatusRequest:
+      type: object
+      required:
+        - alertIds
+        - status
+      properties:
+        alertIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        status:
+          type: integer
+          enum: [2, 3, 5]
+        statusObservation:
+          type: string
+        addFalsePositiveTag:
+          type: boolean
+          default: false
+```

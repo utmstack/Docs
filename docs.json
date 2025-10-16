@@ -23,8 +23,7 @@
                   "v10/Getting started/introduction",
                   "v10/Getting started/use_case",
                   "v10/Getting started/quick_start",
-                  "v10/Getting started/getting_started",
-                  "v10/Getting started/api"
+                  "v10/Getting started/getting_started"
                 ]
               },
               {
@@ -904,6 +903,34 @@
                 "group": "Configurations",
                 "pages": [
                   "v10/integrations/config_curl"
+                ]
+              }
+            ]
+          }, 
+          
+          {
+            "tab": "API Documentation",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "v10/apidoc/overview",
+                  "v10/Getting started/api"
+                ]
+              },
+              {
+                "group": "Authentication",
+                "pages": [
+                  "v10/apidoc/authentication"
+                ]
+              },
+              {
+                "group": "Alert Management",
+                "pages": [
+                  "v10/apidoc/alerts-list",
+                  "v10/apidoc/update-status",
+                  "v10/apidoc/update-tags",
+                  "v10/apidoc/update-notes"
                 ]
               }
             ]
