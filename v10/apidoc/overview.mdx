@@ -106,7 +106,133 @@ Get up and running with the UTMStack API in just a few steps:
   >
     Add investigation notes to alerts
   </Card>
+  
+  <Card 
+    title="Convert to Incident" 
+    icon="exclamation-triangle"
+    href="/v10/apidoc/convert-incident"
+  >
+    Convert alerts into security incidents
+  </Card>
+  
+  <Card 
+    title="Count Alerts" 
+    icon="calculator"
+    href="/v10/apidoc/count-alerts"
+  >
+    Get count of open alerts for dashboards
+  </Card>
+  
+  <Card 
+    title="Property Values" 
+    icon="chart-bar"
+    href="/v10/apidoc/property-values"
+  >
+    Analyze field values and their distributions
+  </Card>
+  
+  <Card 
+    title="CSV Export" 
+    icon="download"
+    href="/v10/apidoc/csv-export"
+  >
+    Export alert data to CSV for reporting
+  </Card>
 </CardGroup>
+
+---
+
+## 📦 Postman Collection
+
+Get started quickly by importing our complete Postman collection that includes all API endpoints with pre-configured examples, authentication, and test scripts.
+
+<Card 
+  title="Download UTMStack Alerts API Collection" 
+  icon="download"
+  href="/images/downloads/UTMStack_Alerts_API.postman_collection.json"
+>
+  **Complete Postman Collection (JSON)**  
+  Includes all 9 API endpoints with examples, authentication setup, and automated tests.
+  
+  <br/>
+  
+  **What's included:**
+  - 🔐 JWT authentication with automatic token management
+  - 📋 Pre-configured examples for all endpoints
+  - 🧪 Automated test scripts for response validation
+  - 📊 Multiple scenarios for each API call
+  - 🔧 Environment variables for easy configuration
+  
+  <Tip>
+  **Download Tip**: If your browser displays the JSON instead of downloading it, right-click the link above and select "Save link as..." to save the file to your computer.
+  </Tip>
+</Card>
+
+### How to Import
+
+<Steps>
+  <Step title="Download Collection">
+    Click the download link above to get the JSON file
+  </Step>
+  
+  <Step title="Open Postman">
+    Launch Postman application or visit [web.postman.co](https://web.postman.co)
+  </Step>
+  
+  <Step title="Import Collection">
+    - Click "Import" button in Postman
+    - Select "Upload Files" 
+    - Choose the downloaded JSON file
+    - Click "Import"
+  </Step>
+  
+  <Step title="Configure Environment">
+    Set up collection variables:
+    - `baseUrl`: Your UTMStack instance URL
+    - `bearerToken`: Will be set automatically after authentication
+    - `alertId`: Sample alert ID for testing
+  </Step>
+  
+  <Step title="Start Testing">
+    Run the "Authentication" request first, then explore other endpoints
+  </Step>
+</Steps>
+
+<Tip>
+**Pro Tip:** The collection includes pre-request scripts that automatically handle authentication token management. Just run the authentication request once, and all other requests will use the token automatically.
+</Tip>
+
+---
+
+## Alternative Download Methods
+
+If you prefer to access the collection file directly:
+
+<CodeGroup>
+
+```bash wget
+# Download using wget
+wget https://your-docs-site.com/images/downloads/UTMStack_Alerts_API.postman_collection.json
+```
+
+```bash curl  
+# Download using curl
+curl -O https://your-docs-site.com/images/downloads/UTMStack_Alerts_API.postman_collection.json
+```
+
+```powershell PowerShell
+# Download using PowerShell
+Invoke-WebRequest -Uri "https://your-docs-site.com/images/downloads/UTMStack_Alerts_API.postman_collection.json" -OutFile "UTMStack_Alerts_API.postman_collection.json"
+```
+
+```javascript JavaScript
+// Download programmatically
+const response = await fetch('https://your-docs-site.com/images/downloads/UTMStack_Alerts_API.postman_collection.json');
+const collection = await response.json();
+// Use with Newman or Postman SDK
+```
+
+</CodeGroup>
 
 ---
 

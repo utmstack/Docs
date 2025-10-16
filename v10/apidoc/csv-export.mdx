@@ -1,0 +1,821 @@
+---
+title: CSV Export API
+sidebarTitle: "CSV Export"
+description: "Export alert data to CSV format for reporting, analysis, and integration with external tools."
+---
+
+## Overview
+
+This endpoint allows you to export alert data in CSV format. You can apply filters, select specific fields, and control the format of the exported data. This is useful for creating reports, data analysis, and integrating with external business intelligence tools.
+
+<Note>
+**Authorization Required:** Include a valid Bearer Token in the Authorization header.
+</Note>
+
+---
+
+## Endpoint Details
+
+<Card title="POST /api/elasticsearch/alerts/export/csv" icon="download">
+  **Method:** POST  
+  **Content-Type:** application/json  
+  **Authentication:** Bearer Token required  
+  **Response:** CSV file download or CSV data
+</Card>
+
+---
+
+## Request Body
+
+<ParamField body="filters" type="array">
+  Filters to apply when selecting alerts for export
+</ParamField>
+
+<ParamField body="fields" type="array" required>
+  List of field names to include in the CSV export
+</ParamField>
+
+<ParamField body="from" type="integer" default="0">
+  Starting position for pagination (0-based)
+</ParamField>
+
+<ParamField body="size" type="integer" default="10000">
+  Maximum number of records to export
+</ParamField>
+
+<ParamField body="orderBy" type="string" default="@timestamp">
+  Field to sort results by
+</ParamField>
+
+<ParamField body="sortDirection" type="string" default="desc">
+  Sort direction: "asc" or "desc"
+</ParamField>
+
+<ParamField body="includeHeaders" type="boolean" default="true">
+  Whether to include column headers in the CSV
+</ParamField>
+
+<ParamField body="dateFormat" type="string" default="yyyy-MM-dd HH:mm:ss">
+  Format for date/time fields in the CSV
+</ParamField>
+
+<ParamField body="separator" type="string" default=",">
+  Field separator character (comma, semicolon, tab)
+</ParamField>
+
+<ParamField body="filename" type="string">
+  Optional filename for the CSV export
+</ParamField>
+
+---
+
+## JSON Schema
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "filters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string" },
+          "operator": { "type": "string" },
+          "value": { "oneOf": [{"type": "string"}, {"type": "integer"}, {"type": "array"}] }
+        }
+      },
+      "description": "Filters to apply"
+    },
+    "fields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fields to include in export"
+    },
+    "from": {
+      "type": "integer",
+      "description": "Starting position for pagination"
+    },
+    "size": {
+      "type": "integer",
+      "description": "Maximum records to export"
+    },
+    "orderBy": {
+      "type": "string",
+      "description": "Field to sort by"
+    },
+    "sortDirection": {
+      "type": "string",
+      "enum": ["asc", "desc"],
+      "description": "Sort direction"
+    },
+    "includeHeaders": {
+      "type": "boolean",
+      "description": "Include column headers"
+    },
+    "dateFormat": {
+      "type": "string",
+      "description": "Date format pattern"
+    },
+    "separator": {
+      "type": "string",
+      "description": "Field separator"
+    },
+    "filename": {
+      "type": "string",
+      "description": "Export filename"
+    }
+  },
+  "required": ["fields"]
+}
+```
+
+---
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filters": [
+      {
+        "field": "@timestamp",
+        "operator": "IS_BETWEEN",
+        "value": ["now-7d", "now"]
+      },
+      {
+        "field": "severity", 
+        "operator": "GREATER_EQUAL",
+        "value": 3
+      }
+    ],
+    "fields": [
+      "@timestamp",
+      "name",
+      "severity",
+      "status",
+      "dataSource",
+      "category",
+      "description"
+    ],
+    "from": 0,
+    "size": 5000,
+    "orderBy": "@timestamp",
+    "sortDirection": "desc",
+    "includeHeaders": true,
+    "dateFormat": "yyyy-MM-dd HH:mm:ss",
+    "separator": ",",
+    "filename": "high_severity_alerts_weekly_report.csv"
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```csv Response
+@timestamp,name,severity,status,dataSource,category,description
+2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01","Authentication","Multiple failed login attempts detected"
+2024-01-15 14:28:42,"Port Scan Detected",3,2,"firewall-main","Network","Port scanning activity from external IP"
+2024-01-15 14:15:33,"Malware Signature Match",5,3,"endpoint-protection","Malware","Known malware signature detected in file"
+2024-01-15 13:45:18,"Privilege Escalation",4,2,"linux-server-02","System","Unauthorized privilege escalation attempt"
+2024-01-15 13:22:07,"SQL Injection Attempt",4,3,"web-app-prod","Application","SQL injection pattern in HTTP request"
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from "axios";
+import fs from "fs";
+
+const exportAlertsToCSV = async (exportOptions) => {
+  const token = "<your_access_token>";
+  
+  const defaultOptions = {
+    fields: [
+      "@timestamp", "name", "severity", "status", 
+      "dataSource", "category", "description"
+    ],
+    from: 0,
+    size: 10000,
+    orderBy: "@timestamp",
+    sortDirection: "desc",
+    includeHeaders: true,
+    dateFormat: "yyyy-MM-dd HH:mm:ss",
+    separator: ",",
+    ...exportOptions
+  };
+
+  try {
+    const response = await axios.post(
+      "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv",
+      defaultOptions,
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        responseType: 'text'
+      }
+    );
+    
+    // Save to file
+    const filename = exportOptions.filename || 
+      `alerts_export_${new Date().toISOString().slice(0,10)}.csv`;
+    
+    fs.writeFileSync(filename, response.data);
+    console.log(`CSV exported successfully: ${filename}`);
+    
+    return response.data;
+  } catch (error) {
+    console.error("Error exporting CSV:", error.response?.data || error.message);
+  }
+};
+
+// Usage examples
+await exportAlertsToCSV({
+  filters: [
+    {
+      field: "@timestamp",
+      operator: "IS_BETWEEN", 
+      value: ["now-24h", "now"]
+    }
+  ],
+  filename: "daily_alerts_report.csv"
+});
+
+// Export high severity alerts
+await exportAlertsToCSV({
+  filters: [
+    {
+      field: "severity",
+      operator: "GREATER_EQUAL",
+      value: 4
+    }
+  ],
+  fields: ["@timestamp", "name", "severity", "dataSource", "description"],
+  filename: "high_severity_alerts.csv"
+});
+```
+
+```python Python
+import requests
+import io
+import pandas as pd
+from datetime import datetime
+
+def export_alerts_to_csv(fields, filters=None, filename=None, **options):
+    url = "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv"
+    
+    payload = {
+        "fields": fields,
+        "filters": filters or [],
+        "from": options.get("from", 0),
+        "size": options.get("size", 10000),
+        "orderBy": options.get("orderBy", "@timestamp"),
+        "sortDirection": options.get("sortDirection", "desc"),
+        "includeHeaders": options.get("includeHeaders", True),
+        "dateFormat": options.get("dateFormat", "yyyy-MM-dd HH:mm:ss"),
+        "separator": options.get("separator", ","),
+        "filename": filename
+    }
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    
+    if response.status_code == 200:
+        # Save to file
+        if not filename:
+            filename = f"alerts_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(response.text)
+        
+        print(f"CSV exported successfully: {filename}")
+        
+        # Optionally return as pandas DataFrame
+        csv_data = io.StringIO(response.text)
+        df = pd.read_csv(csv_data)
+        return df
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return None
+
+# Usage examples
+basic_fields = ["@timestamp", "name", "severity", "status", "dataSource"]
+
+# Export last 24 hours
+df = export_alerts_to_csv(
+    fields=basic_fields,
+    filters=[
+        {"field": "@timestamp", "operator": "IS_BETWEEN", "value": ["now-24h", "now"]}
+    ],
+    filename="daily_report.csv"
+)
+
+# Export critical alerts
+critical_alerts = export_alerts_to_csv(
+    fields=basic_fields + ["category", "description", "tags"],
+    filters=[
+        {"field": "severity", "operator": "EQUALS", "value": 5},
+        {"field": "status", "operator": "IS_NOT", "value": 5}
+    ],
+    filename="critical_alerts.csv"
+)
+
+print(f"Exported {len(df)} alerts to CSV")
+```
+
+</CodeGroup>
+
+---
+
+## Response Details
+
+### Successful Response
+
+<Tabs>
+  <Tab title="Standard Export">
+    ```csv
+    @timestamp,name,severity,status,dataSource
+    2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01"
+    2024-01-15 14:28:42,"Port Scan Detected",3,2,"firewall-main"
+    2024-01-15 14:15:33,"Malware Signature Match",5,3,"endpoint-protection"
+    ```
+  </Tab>
+  <Tab title="Custom Separator">
+    ```csv
+    @timestamp;name;severity;status;dataSource
+    2024-01-15 14:32:15;"Suspicious Login Attempt";4;2;"windows-server-01"
+    2024-01-15 14:28:42;"Port Scan Detected";3;2;"firewall-main"
+    ```
+  </Tab>
+  <Tab title="No Headers">
+    ```csv
+    2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01"
+    2024-01-15 14:28:42,"Port Scan Detected",3,2,"firewall-main"
+    2024-01-15 14:15:33,"Malware Signature Match",5,3,"endpoint-protection"
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  CSV data successfully exported
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  Invalid field names, malformed filters, or invalid parameters
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token
+</ResponseField>
+
+<ResponseField name="413" type="Payload Too Large">
+  Export size exceeds maximum allowed limit
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Internal server error during export
+</ResponseField>
+
+---
+
+## Common Use Cases
+
+### Security Incident Reports
+
+```javascript
+// Export security incidents for executive reporting
+const exportSecurityIncidents = async () => {
+  const lastWeekFilters = [
+    {
+      field: "@timestamp",
+      operator: "IS_BETWEEN",
+      value: ["now-7d", "now"]
+    },
+    {
+      field: "severity",
+      operator: "GREATER_EQUAL", 
+      value: 4
+    },
+    {
+      field: "category",
+      operator: "IS_IN",
+      value: ["Malware", "Intrusion", "Data Breach"]
+    }
+  ];
+  
+  return await exportAlertsToCSV({
+    filters: lastWeekFilters,
+    fields: [
+      "@timestamp", "name", "severity", "status", 
+      "category", "dataSource", "assignedTo", "description"
+    ],
+    filename: "weekly_security_incidents.csv",
+    size: 5000
+  });
+};
+```
+
+### Compliance Reports
+
+```python
+def export_compliance_report(start_date, end_date):
+    """Export alerts for compliance reporting"""
+    
+    compliance_fields = [
+        "@timestamp", "name", "severity", "status", "category",
+        "dataSource", "sourceIp", "destIp", "user", "action",
+        "outcome", "tags", "notes"
+    ]
+    
+    filters = [
+        {
+            "field": "@timestamp",
+            "operator": "IS_BETWEEN",
+            "value": [start_date, end_date]
+        },
+        {
+            "field": "tags",
+            "operator": "CONTAINS",
+            "value": "compliance"
+        }
+    ]
+    
+    return export_alerts_to_csv(
+        fields=compliance_fields,
+        filters=filters,
+        filename=f"compliance_report_{start_date}_to_{end_date}.csv",
+        size=50000,
+        orderBy="@timestamp",
+        sortDirection="asc"
+    )
+
+# Generate quarterly compliance report
+quarterly_report = export_compliance_report("now-90d", "now")
+```
+
+### Data Analysis Export
+
+```javascript
+// Export for data science analysis
+const exportForAnalysis = async () => {
+  const analysisFields = [
+    "@timestamp", "severity", "status", "category", "tactic", 
+    "technique", "dataSource", "sourceIp", "destIp", "sourcePort",
+    "destPort", "protocol", "bytes", "packets", "duration"
+  ];
+  
+  return await exportAlertsToCSV({
+    filters: [
+      {
+        field: "@timestamp",
+        operator: "IS_BETWEEN",
+        value: ["now-30d", "now"]
+      }
+    ],
+    fields: analysisFields,
+    size: 100000,
+    filename: "alerts_analysis_dataset.csv",
+    separator: ",",
+    dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+  });
+};
+```
+
+---
+
+## Available Fields
+
+<AccordionGroup>
+  <Accordion title="Core Alert Fields">
+    **Essential fields for most exports:**
+    - `@timestamp` - Alert timestamp
+    - `name` - Alert name/title
+    - `severity` - Severity level (1-5)
+    - `status` - Alert status code
+    - `category` - Alert category
+    - `description` - Alert description
+    - `dataSource` - Source system
+  </Accordion>
+
+  <Accordion title="Network Fields">
+    **Network-related alert fields:**
+    - `sourceIp` - Source IP address
+    - `destIp` - Destination IP address
+    - `sourcePort` - Source port
+    - `destPort` - Destination port
+    - `protocol` - Network protocol
+    - `bytes` - Bytes transferred
+    - `packets` - Packet count
+  </Accordion>
+
+  <Accordion title="Security Fields">
+    **Security-focused fields:**
+    - `tactic` - MITRE ATT&CK tactic
+    - `technique` - MITRE ATT&CK technique
+    - `user` - Associated username
+    - `process` - Process information
+    - `file` - File path
+    - `hash` - File/process hash
+    - `signature` - Detection signature
+  </Accordion>
+
+  <Accordion title="Management Fields">
+    **Alert management fields:**
+    - `assignedTo` - Assigned analyst
+    - `tags` - Applied tags
+    - `notes` - Investigation notes
+    - `disposition` - Final disposition
+    - `createdAt` - Creation time
+    - `updatedAt` - Last update time
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Export Formats & Options
+
+### Date Format Patterns
+
+<CodeGroup>
+
+```text Standard Formats
+yyyy-MM-dd HH:mm:ss     → 2024-01-15 14:32:15
+yyyy-MM-dd'T'HH:mm:ss'Z' → 2024-01-15T14:32:15Z
+MM/dd/yyyy HH:mm:ss     → 01/15/2024 14:32:15
+dd-MM-yyyy HH:mm        → 15-01-2024 14:32
+yyyy-MM-dd              → 2024-01-15
+HH:mm:ss                → 14:32:15
+```
+
+```text Custom Patterns
+yyyy-MM-dd HH:mm:ss.SSS → 2024-01-15 14:32:15.123
+E, MMM dd yyyy          → Mon, Jan 15 2024
+yyyy-DDD                → 2024-015 (day of year)
+yyyy-'W'ww              → 2024-W03 (week number)
+```
+
+</CodeGroup>
+
+### Separator Options
+
+```json
+{
+  "separator": ",",     // Comma (default)
+  "separator": ";",     // Semicolon (Excel EU)
+  "separator": "\t",    // Tab-delimited
+  "separator": "|",     // Pipe-delimited
+  "separator": " "      // Space-delimited
+}
+```
+
+### Size Limits
+
+<Warning>
+**Export Limits:**
+- Maximum size: 100,000 records per request
+- Maximum file size: ~50MB 
+- Timeout: 5 minutes for large exports
+- Use pagination (`from` + `size`) for larger datasets
+- Consider filtering to reduce result set size
+</Warning>
+
+---
+
+## Advanced Examples
+
+### Multi-file Export Strategy
+
+```javascript
+const exportLargeDataset = async (totalRecords, batchSize = 10000) => {
+  const batches = Math.ceil(totalRecords / batchSize);
+  const files = [];
+  
+  for (let i = 0; i < batches; i++) {
+    const from = i * batchSize;
+    const filename = `alerts_batch_${i + 1}_of_${batches}.csv`;
+    
+    await exportAlertsToCSV({
+      fields: ["@timestamp", "name", "severity", "status", "dataSource"],
+      from: from,
+      size: batchSize,
+      filename: filename,
+      includeHeaders: i === 0 // Only first file has headers
+    });
+    
+    files.push(filename);
+  }
+  
+  console.log(`Export complete: ${files.length} files generated`);
+  return files;
+};
+
+// Export 50,000 records in 5 batches
+await exportLargeDataset(50000, 10000);
+```
+
+### Custom Field Mapping
+
+```python
+def export_with_field_mapping(field_mapping, **options):
+    """Export with custom field names"""
+    
+    # Original field names for the query
+    original_fields = list(field_mapping.keys())
+    
+    # Export with original field names
+    df = export_alerts_to_csv(
+        fields=original_fields,
+        **options
+    )
+    
+    if df is not None:
+        # Rename columns to friendly names
+        df = df.rename(columns=field_mapping)
+        
+        # Save with new names
+        filename = options.get('filename', 'alerts_mapped.csv')
+        df.to_csv(filename, index=False)
+        
+        print(f"Exported with custom field mapping: {filename}")
+        return df
+    
+    return None
+
+# Usage with field mapping
+field_mapping = {
+    "@timestamp": "Alert Time",
+    "name": "Alert Name", 
+    "severity": "Risk Level",
+    "status": "Current Status",
+    "dataSource": "Source System",
+    "category": "Threat Category"
+}
+
+export_with_field_mapping(
+    field_mapping=field_mapping,
+    filename="executive_report.csv"
+)
+```
+
+### Scheduled Export Script
+
+```bash
+#!/bin/bash
+# scheduled_export.sh - Daily alert export for reporting
+
+DATE=$(date +%Y%m%d)
+EXPORT_DIR="/reports/daily"
+API_TOKEN="your_token_here"
+
+# Create daily directory
+mkdir -p "$EXPORT_DIR/$DATE"
+
+# Export high severity alerts
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filters": [
+      {
+        "field": "@timestamp",
+        "operator": "IS_BETWEEN",
+        "value": ["now-24h", "now"]
+      },
+      {
+        "field": "severity", 
+        "operator": "GREATER_EQUAL",
+        "value": 4
+      }
+    ],
+    "fields": [
+      "@timestamp", "name", "severity", "status", 
+      "dataSource", "category", "description"
+    ],
+    "filename": "high_severity_daily_'$DATE'.csv"
+  }' > "$EXPORT_DIR/$DATE/high_severity_alerts.csv"
+
+# Export summary statistics
+curl -X POST "https://demo.utmstack.com/api/elasticsearch/alerts/export/csv" \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filters": [
+      {
+        "field": "@timestamp",
+        "operator": "IS_BETWEEN", 
+        "value": ["now-24h", "now"]
+      }
+    ],
+    "fields": ["@timestamp", "severity", "status", "category", "dataSource"],
+    "filename": "daily_summary_'$DATE'.csv"
+  }' > "$EXPORT_DIR/$DATE/daily_summary.csv"
+
+echo "Daily export completed: $EXPORT_DIR/$DATE"
+```
+
+---
+
+## OpenAPI Specification
+
+```yaml
+post:
+  summary: "Export alert data to CSV format"
+  tags:
+    - Alert Export
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/CSVExportRequest'
+  responses:
+    '200':
+      description: "CSV data exported successfully"
+      content:
+        text/csv:
+          schema:
+            type: string
+            format: binary
+          example: |
+            @timestamp,name,severity,status,dataSource
+            2024-01-15 14:32:15,"Suspicious Login Attempt",4,2,"windows-server-01"
+    '400':
+      description: "Invalid request parameters"
+    '401':
+      description: "Unauthorized"
+    '413':
+      description: "Export size exceeds limit"
+    '500':
+      description: "Internal server error"
+
+components:
+  schemas:
+    CSVExportRequest:
+      type: object
+      required:
+        - fields
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterType'
+          description: "Filters to apply"
+        fields:
+          type: array
+          items:
+            type: string
+          description: "Fields to include in export"
+        from:
+          type: integer
+          default: 0
+          description: "Starting position for pagination"
+        size:
+          type: integer
+          default: 10000
+          description: "Maximum records to export"
+        orderBy:
+          type: string
+          default: "@timestamp"
+          description: "Field to sort by"
+        sortDirection:
+          type: string
+          enum: ["asc", "desc"]
+          default: "desc"
+          description: "Sort direction"
+        includeHeaders:
+          type: boolean
+          default: true
+          description: "Include column headers"
+        dateFormat:
+          type: string
+          default: "yyyy-MM-dd HH:mm:ss"
+          description: "Date format pattern"
+        separator:
+          type: string
+          default: ","
+          description: "Field separator"
+        filename:
+          type: string
+          description: "Export filename"
+```
