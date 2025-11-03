@@ -91,7 +91,8 @@
                 "pages": [
                   "v10/threat management/alertmanagement",
                   "v10/threat management/falsepositive",
-                  "v10/threat management/threatintelligence"
+                  "v10/threat management/threatintelligence",
+                  "v10/threat management/incident_response"
                 ]
               },
               {

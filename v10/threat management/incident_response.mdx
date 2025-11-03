@@ -1,0 +1,813 @@
+---
+title: Incident Response Commands
+sidebarTitle: "Incident Response"
+description: "Essential command-line commands for rapid incident response through UTMStack console across Windows, Linux, and macOS systems."
+---
+
+## Introduction
+
+UTMStack provides powerful incident response capabilities through its integrated console, allowing security teams to execute immediate containment and remediation actions across all managed endpoints. This guide covers the most critical commands for responding to security incidents in real-time.
+
+<Warning>
+These commands can significantly impact system operations. Always verify the target system and parameters before execution. Actions may disrupt user workflows and should be executed with proper authorization.
+</Warning>
+
+## Quick Actions Reference
+
+<CardGroup cols={2}>
+  <Card title="Network Isolation" icon="network-wired" color="#e74c3c">
+    Immediately isolate compromised hosts from the network
+  </Card>
+  
+  <Card title="User Management" icon="user-lock" color="#f39c12">
+    Disable compromised accounts and sessions
+  </Card>
+  
+  <Card title="Threat Blocking" icon="shield-halved" color="#3498db">
+    Block malicious IPs and prevent further attacks
+  </Card>
+  
+  <Card title="Process Control" icon="microchip" color="#9b59b6">
+    Terminate malicious processes and services
+  </Card>
+</CardGroup>
+
+## 1. Isolate Host (Disable Network)
+
+Immediately disconnect a compromised system from the network to prevent lateral movement and data exfiltration.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    Get-NetAdapter | Disable-NetAdapter -Confirm:$false
+    ```
+    
+    **What it does:**
+    - Lists all network adapters on the system
+    - Disables each adapter without confirmation prompts
+    - Completely isolates the system from the network
+    
+    <Note>
+    This command disables ALL network adapters. The system will be completely isolated until adapters are manually re-enabled.
+    </Note>
+  </Tab>
+  
+  <Tab title="Linux (RHEL/CentOS)">
+    **Bash Command**
+    
+    ```bash
+    for interface in $(ip link show | grep -E '^[0-9]+:' | grep -v 'lo:' | awk -F: '{print $2}' | tr -d ' '); do 
+      ip link set $interface down
+    done
+    ```
+    
+    **What it does:**
+    - Lists all network interfaces
+    - Filters out the loopback interface
+    - Disables each network interface
+  </Tab>
+  
+  <Tab title="Linux (Debian/Ubuntu)">
+    **Bash Command**
+    
+    ```bash
+    for interface in $(ip link show | grep -E '^[0-9]+:' | grep -v 'lo:' | awk -F: '{print $2}' | tr -d ' '); do 
+      ip link set $interface down
+    done
+    ```
+  </Tab>
+  
+  <Tab title="Linux (OpenSUSE)">
+    **Bash Command**
+    
+    ```bash
+    for interface in $(ip link show | grep -E '^[0-9]+:' | grep -v 'lo:' | awk -F: '{print $2}' | tr -d ' '); do 
+      ip link set $interface down
+    done
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    for interface in $(networksetup -listallnetworkservices | grep -v "asterisk"); do 
+      networksetup -setnetworkserviceenabled "$interface" off
+    done
+    ```
+    
+    **What it does:**
+    - Lists all network services
+    - Excludes already disabled services
+    - Disables each active network service
+  </Tab>
+</Tabs>
+
+## 2. Disable User Account
+
+Immediately disable a compromised or suspicious user account to prevent unauthorized access.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    net user [username] /active:no
+    ```
+    
+    **Example:**
+    ```powershell
+    net user test_user /active:no
+    ```
+    
+    <Info>
+    Replace [username] with the actual username. UTMStack can automatically substitute variables from alert context.
+    </Info>
+  </Tab>
+  
+  <Tab title="Linux (RHEL/CentOS)">
+    **Bash Command**
+    
+    ```bash
+    usermod -s /sbin/nologin [username]
+    ```
+    
+    **Example:**
+    ```bash
+    usermod -s /sbin/nologin test_user
+    ```
+    
+    **What it does:**
+    - Changes the user shell to nologin
+    - Prevents interactive login
+    - Account remains in system but cannot authenticate
+  </Tab>
+  
+  <Tab title="Linux (Debian/Ubuntu)">
+    **Bash Command**
+    
+    ```bash
+    usermod -s /sbin/nologin [username]
+    ```
+    
+    **Example:**
+    ```bash
+    usermod -s /sbin/nologin test_user
+    ```
+  </Tab>
+  
+  <Tab title="Linux (OpenSUSE)">
+    **Bash Command**
+    
+    ```bash
+    usermod -s /sbin/nologin [username]
+    ```
+    
+    **Example:**
+    ```bash
+    usermod -s /sbin/nologin test_user
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    chsh -s /usr/bin/false [username]
+    ```
+    
+    **Example:**
+    ```bash
+    chsh -s /usr/bin/false test_user
+    ```
+  </Tab>
+</Tabs>
+
+## 3. Block Adversary IP Address
+
+Block incoming traffic from a malicious IP address to prevent further attacks.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    netsh advfirewall firewall add rule name="Block-Attack-[IP]" dir=in action=block remoteip="[IP]" enable=yes
+    ```
+    
+    **Example:**
+    ```powershell
+    netsh advfirewall firewall add rule name="Block-Attack-8.8.8.8" dir=in action=block remoteip="8.8.8.8" enable=yes
+    ```
+    
+    <Note>
+    This creates a permanent firewall rule that persists across reboots.
+    </Note>
+  </Tab>
+  
+  <Tab title="Linux (RHEL/CentOS)">
+    **Bash Command**
+    
+    ```bash
+    firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="[IP]" drop' --permanent
+    firewall-cmd --reload
+    ```
+    
+    **Example:**
+    ```bash
+    firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="192.168.1.100" drop' --permanent
+    firewall-cmd --reload
+    ```
+  </Tab>
+  
+  <Tab title="Linux (Debian/Ubuntu)">
+    **Bash Command**
+    
+    ```bash
+    iptables -A INPUT -s [IP] -j DROP
+    ```
+    
+    **Example:**
+    ```bash
+    iptables -A INPUT -s "10.34.22.55" -j DROP
+    ```
+    
+    <Warning>
+    This rule is not persistent by default. Use iptables-save to make it permanent.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Linux (OpenSUSE)">
+    **Bash Command**
+    
+    ```bash
+    firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="[IP]" drop' --permanent
+    firewall-cmd --reload
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    echo "block drop in from [IP] to any" | pfctl -f - && pfctl -e
+    ```
+    
+    **Example:**
+    ```bash
+    echo "block drop in from 192.168.1.100 to any" | pfctl -f - && pfctl -e
+    ```
+  </Tab>
+</Tabs>
+
+## 4. Kill Malicious Process
+
+Terminate a suspicious or malicious process immediately.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    taskkill /F /IM [process-name.exe]
+    ```
+    
+    **Example:**
+    ```powershell
+    taskkill /F /IM notepad.exe
+    ```
+    
+    **Options:**
+    - /F = Force termination
+    - /IM = Identifies process by image name
+  </Tab>
+  
+  <Tab title="Linux (All Distributions)">
+    **Bash Command**
+    
+    ```bash
+    pkill -9 [process-name]
+    ```
+    
+    **Examples:**
+    ```bash
+    pkill -9 malware_process
+    pkill -9 suspicious_script
+    ```
+    
+    <Note>
+    Signal 9 (SIGKILL) force kills the process without allowing cleanup. Use with caution.
+    </Note>
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    pkill -9 [process-name]
+    ```
+  </Tab>
+</Tabs>
+
+## 5. Stop Malicious Service
+
+Stop a compromised or suspicious system service.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    Stop-Service -Name "[service-name]" -Force
+    ```
+    
+    **Example:**
+    ```powershell
+    Stop-Service -Name "Spooler" -Force
+    ```
+    
+    <Info>
+    The -Force parameter stops the service even if it has dependent services.
+    </Info>
+  </Tab>
+  
+  <Tab title="Linux (All Distributions)">
+    **Bash Command**
+    
+    ```bash
+    systemctl stop [service-name]
+    ```
+    
+    **Example:**
+    ```bash
+    systemctl stop suspicious_service
+    ```
+    
+    **To prevent restart on reboot:**
+    ```bash
+    systemctl stop [service-name]
+    systemctl disable [service-name]
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    launchctl stop [service-name]
+    ```
+    
+    **Example:**
+    ```bash
+    launchctl stop com.example.service
+    ```
+  </Tab>
+</Tabs>
+
+## 6. Delete Malicious File
+
+Permanently remove a malicious file from the system.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    Remove-Item -LiteralPath "[file-path]" -Force -Recurse
+    ```
+    
+    **Example:**
+    ```powershell
+    Remove-Item -LiteralPath "C:\Users\john\Documents\malware.exe" -Force
+    ```
+    
+    **Alternative (CMD):**
+    ```cmd
+    del /f "[file-path]"
+    ```
+  </Tab>
+  
+  <Tab title="Linux (All Distributions)">
+    **Bash Command**
+    
+    ```bash
+    sudo rm -f [file-path]
+    ```
+    
+    **Example:**
+    ```bash
+    rm -f /tmp/malware-file.txt
+    ```
+    
+    <Warning>
+    The -f flag forces deletion without confirmation. Verify the path before execution.
+    </Warning>
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    sudo rm -f [file-path]
+    ```
+    
+    **Example:**
+    ```bash
+    sudo rm -f /tmp/suspicious-file.sh
+    ```
+  </Tab>
+</Tabs>
+
+## 7. Block Server Outbound Network Access
+
+Prevent a compromised server from communicating with external malicious infrastructure.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    netsh advfirewall firewall add rule name="Block-Outbound-[IP]" dir=out action=block remoteip="[IP]"
+    ```
+    
+    **Example:**
+    ```powershell
+    netsh advfirewall firewall add rule name="Block-Outbound-203.0.113.45" dir=out action=block remoteip="203.0.113.45"
+    ```
+  </Tab>
+  
+  <Tab title="Linux (All Distributions)">
+    **Bash Command**
+    
+    ```bash
+    iptables -A OUTPUT -d [IP] -j DROP
+    ```
+    
+    **Example:**
+    ```bash
+    iptables -A OUTPUT -d "10.23.33.44" -j DROP
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    echo "block out from any to [IP]" | pfctl -f -
+    ```
+  </Tab>
+</Tabs>
+
+## 8. Block Server Inbound Network Access
+
+Block incoming connections from a specific malicious IP address.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    netsh advfirewall firewall add rule name="Block-Inbound-[IP]" dir=in action=block remoteip="[IP]"
+    ```
+  </Tab>
+  
+  <Tab title="Linux (RHEL/CentOS)">
+    **Bash Command**
+    
+    ```bash
+    firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="[IP]" drop' --permanent
+    firewall-cmd --reload
+    ```
+    
+    **Example:**
+    ```bash
+    firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="8.8.8.8" drop' --permanent
+    firewall-cmd --reload
+    ```
+  </Tab>
+  
+  <Tab title="Linux (Debian/Ubuntu)">
+    **Bash Command**
+    
+    ```bash
+    iptables -A INPUT -s [IP] -j DROP
+    ```
+    
+    **Example:**
+    ```bash
+    iptables -A INPUT -s "10.33.44.55" -j DROP
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    echo "block in from [IP] to any" | pfctl -f -
+    ```
+  </Tab>
+</Tabs>
+
+## 9. Uninstall Malicious Application
+
+Remove a malicious or compromised application from the system.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command (searches and uninstalls silently)**
+    
+    ```powershell
+    Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object {$_.DisplayName -like "*[app-name]*"} | ForEach-Object {Start-Process -FilePath $_.UninstallString -ArgumentList "/S" -Wait}
+    ```
+    
+    **Example:**
+    ```powershell
+    Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object {$_.DisplayName -like "*VLC*"} | ForEach-Object {Start-Process -FilePath $_.UninstallString -ArgumentList "/S" -Wait}
+    ```
+  </Tab>
+  
+  <Tab title="Linux (RHEL/CentOS)">
+    **Bash Command**
+    
+    ```bash
+    yum remove -y [package-name]
+    ```
+    
+    **Example:**
+    ```bash
+    yum remove -y nano
+    ```
+  </Tab>
+  
+  <Tab title="Linux (Debian/Ubuntu)">
+    **Bash Command**
+    
+    ```bash
+    apt-get remove -y [package-name]
+    ```
+    
+    **Example:**
+    ```bash
+    apt-get remove -y wget
+    ```
+    
+    **For complete removal including config files:**
+    ```bash
+    apt-get purge -y [package-name]
+    ```
+  </Tab>
+  
+  <Tab title="Linux (OpenSUSE)">
+    **Bash Command**
+    
+    ```bash
+    zypper remove -y [package-name]
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    brew uninstall --force [app-name] 2>/dev/null || find /Applications -iname "[app-name].app" -maxdepth 2 -type d -exec rm -rf {} + 2>/dev/null
+    ```
+    
+    <Note>
+    Attempts Homebrew uninstall first, then falls back to direct removal from Applications folder.
+    </Note>
+  </Tab>
+</Tabs>
+
+## 10. Remove All User Permissions
+
+Strip all elevated permissions from a compromised user account.
+
+<Tabs>
+  <Tab title="Windows">
+    **PowerShell Command**
+    
+    ```powershell
+    Get-LocalGroup | Where-Object { $_.Name -ne "Users" } | ForEach-Object { Remove-LocalGroupMember -Group $_.Name -Member "[username]" -ErrorAction SilentlyContinue }
+    ```
+    
+    **Example:**
+    ```powershell
+    Get-LocalGroup | Where-Object { $_.Name -ne "Users" } | ForEach-Object { Remove-LocalGroupMember -Group $_.Name -Member "TestUser" -ErrorAction SilentlyContinue }
+    ```
+    
+    <Note>
+    Removes the user from all groups except the base Users group.
+    </Note>
+  </Tab>
+  
+  <Tab title="Linux (All Distributions)">
+    **Bash Command**
+    
+    ```bash
+    for grp in $(id -nG [username] | tr ' ' '\n' | grep -v "^[username]$"); do 
+      gpasswd -d [username] "$grp"
+    done
+    ```
+    
+    **Example:**
+    ```bash
+    for grp in $(id -nG testuser | tr ' ' '\n' | grep -v "^testuser$"); do 
+      gpasswd -d testuser "$grp"
+    done
+    ```
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    for grp in $(id -nG [username] | tr ' ' '\n' | grep -v -E "^([username]|staff|everyone)$"); do 
+      dseditgroup -o edit -d [username] -t user "$grp" 2>/dev/null
+    done
+    ```
+    
+    <Note>
+    Excludes standard system groups (staff, everyone) to prevent system instability.
+    </Note>
+  </Tab>
+</Tabs>
+
+## 11. Kill Session and Logout User
+
+Forcefully terminate all active sessions of a compromised user account.
+
+<Tabs>
+  <Tab title="Windows">
+    **Command**
+    
+    ```cmd
+    logoff [username]
+    ```
+    
+    **Example:**
+    ```cmd
+    logoff testuser
+    ```
+    
+    <Info>
+    Terminates active sessions but does not prevent re-login. Combine with Disable User Account for complete containment.
+    </Info>
+  </Tab>
+  
+  <Tab title="Linux (All Distributions)">
+    **Bash Command**
+    
+    ```bash
+    pkill -KILL -u [username]
+    ```
+    
+    **Example:**
+    ```bash
+    pkill -KILL -u usertest
+    ```
+    
+    <Warning>
+    SIGKILL signal immediately terminates all processes without allowing graceful shutdown. May cause data loss.
+    </Warning>
+  </Tab>
+  
+  <Tab title="macOS">
+    **Bash Command**
+    
+    ```bash
+    pkill -KILL -u [username]
+    ```
+  </Tab>
+</Tabs>
+
+## Variable Substitution in UTMStack
+
+UTMStack automatically substitutes context variables from alerts and incidents when executing commands.
+
+### Common Variables
+
+**Target Variables** (affected system/resource):
+- `$(target.user)` - Username of affected account
+- `$(target.applicationname)` - Name of target application
+- `$(target.hostname)` - Hostname of affected system
+- `$(target.ip)` - IP address of target system
+
+**Adversary Variables** (threat actor):
+- `$(adversary.ip)` - Attacker IP address
+- `$(adversary.user)` - Compromised username
+- `$(adversary.process)` - Malicious process name/path
+- `$(adversary.service)` - Suspicious service name
+- `$(adversary.windowsServiceDisplayName)` - Windows service display name
+
+**Log Variables** (from log data):
+- `$(log.winlogEventDataProcessName)` - Windows process path from event log
+- `$(log.sourceIp)` - Source IP from log entry
+- `$(log.username)` - Username from log entry
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Verify Before Execute" icon="magnifying-glass">
+    Always verify the target system and parameters before executing commands. Review alert context for accuracy.
+  </Card>
+  
+  <Card title="Document Actions" icon="book">
+    Log all incident response actions including timestamps, commands executed, and outcomes for compliance.
+  </Card>
+  
+  <Card title="Coordinate with Team" icon="users">
+    Communicate with your security team before taking disruptive actions. Monitor for unintended consequences.
+  </Card>
+  
+  <Card title="Test in Lab First" icon="flask">
+    When possible, test commands in a lab environment before deploying to production systems.
+  </Card>
+  
+  <Card title="Have Rollback Plan" icon="rotate-left">
+    Know how to reverse each action if needed. Keep documentation for re-enabling services, users, or network access.
+  </Card>
+  
+  <Card title="Follow Playbooks" icon="clipboard-list">
+    Adhere to incident response playbooks and escalation procedures. Ensure proper authorization.
+  </Card>
+</CardGroup>
+
+## Command Impact Reference
+
+| Action | Severity | User Impact | Reversibility | Requires Admin |
+|--------|----------|-------------|---------------|----------------|
+| Isolate Host | Critical | All users | Manual | Yes |
+| Disable User | High | Target user | Easy | Yes |
+| Block IP | High | Specific connections | Easy | Yes |
+| Kill Process | Medium | App users | N/A | Sometimes |
+| Stop Service | Medium | Service users | Easy | Yes |
+| Uninstall App | High | App users | Difficult | Yes |
+| Delete File | Critical | N/A | Impossible | Sometimes |
+| Block Outbound | High | Specific connections | Easy | Yes |
+| Block Inbound | Medium | External only | Easy | Yes |
+| Remove Permissions | High | Target user | Manual | Yes |
+| Kill Session | Medium | Target user | User can re-login | Yes |
+
+## Troubleshooting Common Issues
+
+<Tip>
+**Permission Denied Errors**
+
+Ensure the UTMStack agent is running with appropriate privileges:
+- Linux/macOS: Verify sudo permissions
+- Windows: Ensure administrative rights
+- Check if remote execution is enabled on target system
+</Tip>
+
+<Tip>
+**Variable Substitution Not Working**
+
+- Verify the alert context contains required fields
+- Check variable name spelling and case sensitivity
+- Ensure execution is from UTMStack console, not manual
+- Review alert data source configuration
+</Tip>
+
+<Tip>
+**Firewall Rules Not Persisting**
+
+- **iptables**: Save with `iptables-save > /etc/iptables/rules.v4`
+- **firewall-cmd**: Always use `--permanent` flag and `--reload`
+- **Windows**: Rules created with netsh advfirewall persist automatically
+- **macOS**: Add rules to `/etc/pf.conf` for persistence
+</Tip>
+
+<Tip>
+**Service Won't Stop**
+
+- Check for service dependencies
+- Use force flags when available
+- Kill the process directly if service does not respond
+- Check service logs for errors
+- Consider disabling: `systemctl disable [service-name]`
+</Tip>
+
+## Security Considerations
+
+<Warning>
+**Critical Security Reminders**
+
+1. **Authorization Required** - All actions must be authorized by appropriate security personnel
+2. **Audit Trail** - Every command execution is logged in UTMStack
+3. **Change Management** - Follow organization procedures, even during incidents
+4. **Business Impact** - Consider operations before isolating critical systems
+5. **Evidence Preservation** - Ensure evidence preservation before destructive actions
+6. **Legal Compliance** - Adhere to legal and regulatory requirements
+</Warning>
+
+<Info>
+**UTMStack Integration Benefits**
+
+- All commands executed through UTMStack console are automatically logged
+- Execution results are recorded in the incident timeline
+- Failed commands trigger alerts for security team review
+- Commands can be integrated into automated response playbooks
+- Historical execution data available for compliance reporting
+</Info>
