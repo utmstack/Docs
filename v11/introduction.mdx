@@ -1,71 +1,212 @@
 ---
-title: Introduction
-description: "Welcome to the UTMStack documentation v11"
+title: Introduction to UTMStack v11
+description: "Welcome to UTMStack v11 - A Major Evolution in SIEM and XDR Technology"
 ---
+
+UTMStack has officially released version 11.0.0, a major stable update that transforms its SIEM platform. This release introduces a redesigned architecture, stronger security, and a more intuitive user experience—positioning UTMStack to meet the demands of modern cybersecurity operations.
 
 <img
   className="block dark:hidden"
-  src="/images/hero-light.png"
-  alt="Hero Light"
+  src="/images/Diagrama claro.gif"
+  alt="UTMStack v11 Architecture Diagram"
 />
 <img
   className="hidden dark:block"
-  src="/images/hero-dark.png"
-  alt="Hero Dark"
+  src="/images/Diagrama oscuro.gif"
+  alt="UTMStack v11 Architecture Diagram"
 />
 
-## Setting up
+## Overview
 
-The first step to world-class documentation is setting up your editing environments.
+Welcome to the UTMStack open-source project! UTMStack is a unified threat management platform that merges **SIEM** (Security Information and Event Management) and **XDR** (Extended Detection and Response) technologies. Our unique approach allows real-time correlation of log data, threat intelligence, and malware activity patterns from multiple sources, enabling the identification and halting of complex threats that use stealthy techniques.
+
+<Card title="Try Online Demo" icon="globe" href="https://utmstack.com/demo">
+  Experience UTMStack in action with our live demo
+</Card>
+
+---
+
+<Warning>
+## Important: Fresh Installation Required
+
+UTMStack v11 can only be installed on **new instances**.
+
+- Direct upgrades from v10 are not supported
+- v11 includes architectural changes incompatible with previous versions
+- If you're currently using v10, keep it running on its existing infrastructure
+- Deploy v11 on a separate, new server instance
+
+For migration planning and assistance, please contact UTMStack support.
+</Warning>
+
+---
+
+## What's New in v11
+
+### 1. Performance and Scalability
+
+<AccordionGroup>
+  <Accordion title="Revolutionary Event Processing" icon="bolt">
+    - Replaced Logstash with **EventProcessor** (developed by Threatwinds)
+    - Drastically reduced resource usage
+    - Improved log processing speed significantly
+    - New architecture using two container types: **manager** and **worker**
+    - Each container capable of running plugins and processing data in parallel
+    - Add additional workers to scale horizontally and eliminate bottlenecks
+  </Accordion>
+</AccordionGroup>
+
+### 2. Modular Plugin Architecture
+
+<AccordionGroup>
+  <Accordion title="Official Plugin System" icon="puzzle-piece">
+    - New official plugin system for independent feature integration
+    - Improved maintainability and code organization
+    - Easier platform expansion and customization
+    - Community-friendly architecture for contributions
+  </Accordion>
+</AccordionGroup>
+
+### 3. Enhanced Security
+
+<AccordionGroup>
+  <Accordion title="Strengthened Security Protocols" icon="shield-halved">
+    - Strengthened TLS protocols across all components
+    - **Multi-Factor Authentication (MFA) is now mandatory** for platform access
+    - Elevated protection against unauthorized access
+    - Enhanced encryption for all data in transit
+    - Daily code reviews for vulnerable dependencies
+    - Yearly penetration testing and testing after major releases
+  </Accordion>
+</AccordionGroup>
+
+### 4. SOC-AI with Custom Model Support
+
+<AccordionGroup>
+  <Accordion title="AI-Powered Threat Detection" icon="brain">
+    - SOC-AI module now supports **user-defined machine learning models**
+    - Official models available out-of-the-box
+    - Tailor threat detection and response to your organization's needs
+    - Advanced analysis and automated insights
+  </Accordion>
+</AccordionGroup>
+
+### 5. Improved User Experience
+
+<AccordionGroup>
+  <Accordion title="Redesigned Interface and Workflows" icon="paintbrush">
+    - **Completely redesigned graphical interface** for better usability
+    - Incident Response module renamed to **SOAR** (Security Orchestration, Automation and Response)
+    - Automated workflows for alert handling
+    - Simplified rule creation with a **visual editor**
+    - Advanced YAML configurations still supported for power users
+    - Log filtering moved from complex Logstash syntax to **accessible YAML format**
+  </Accordion>
+</AccordionGroup>
+
+### 6. Centralized Management and Flexible Deployment
+
+<AccordionGroup>
+  <Accordion title="Enterprise-Grade Management" icon="network-wired">
+    - All UTMStack instances can connect to a **central server**
+    - Remote log submission capabilities
+    - Centralized updates across all instances
+    - **Multi-platform support**: Ubuntu and Red Hat systems
+    - **Offline, on-premise deployments** supported with guided assistance
+    - **Automatic updates** can be scheduled from the central server
+    - No manual intervention required to keep systems current
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Core Features
 
 <CardGroup cols={2}>
-  <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
-  >
-    Get your docs set up locally for easy development
+  <Card title="Log Management & Correlation" icon="database">
+    Advanced real-time log analysis and correlation engine
   </Card>
-  <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
-  >
-    Preview your changes before you push to make sure they're perfect
+  <Card title="Threat Detection & Response" icon="shield-check">
+    Identify and respond to threats in real-time
+  </Card>
+  <Card title="Threat Intelligence" icon="magnifying-glass-chart">
+    Integrated threat intelligence feeds and analysis
+  </Card>
+  <Card title="Alert Investigation" icon="search">
+    Comprehensive alert investigation and forensics
+  </Card>
+  <Card title="File Classification" icon="file-shield">
+    Automated file analysis and classification
+  </Card>
+  <Card title="SOC AI-Powered Analysis" icon="brain-circuit">
+    Machine learning-driven security analysis
+  </Card>
+  <Card title="Security Compliance" icon="clipboard-check">
+    Built-in compliance management and reporting
+  </Card>
+  <Card title="SOAR Workflows" icon="diagram-project">
+    Automated security orchestration and response
   </Card>
 </CardGroup>
 
-## Make it yours
+---
 
-Update your docs to your brand and add valuable content for the best user conversion.
+## Why Choose UTMStack v11?
+
+UTMStack stands out in threat prevention by surpassing the boundaries of traditional systems. Our software platform can swiftly analyze log data to identify and halt threats at their source in real-time, even if the threat was not directly detected on the server itself.
+
+### Key Differentiators
+
+- **Real-time correlation before data ingestion** - reduces workload and improves response times
+- **Seamless SIEM and XDR integration** - unified threat management in a single platform
+- **Horizontal scalability** - add workers as your organization grows
+- **Open-source foundation** - transparent, community-driven development
+- **Enterprise-ready** - suitable for production environments and modern SOC operations
+
+---
+
+## Getting Started
 
 <CardGroup cols={2}>
-  <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
-  >
-    Customize your docs to your company's colors and brands
+  <Card title="Installation Guide" icon="download" href="/v11/Installation/installation">
+    Step-by-step instructions to install UTMStack v11
   </Card>
-  <Card
-    title="Reference APIs"
-    icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
-  >
-    Automatically generate endpoints from an OpenAPI spec
+  <Card title="Online Demo" icon="play" href="https://utmstack.com/demo">
+    Try UTMStack without installing anything
   </Card>
-  <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/content/components/accordions"
-  >
-    Build interactive features and designs to guide your users
+  <Card title="Video Tutorials" icon="video" href="https://www.youtube.com/watch?v=lKkydWFiu4Y">
+    Watch our feature overview and tutorials
   </Card>
-  <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
-  >
-    Check out our showcase of our favorite documentation
+  <Card title="API Documentation" icon="code" href="/v11/apidoc/overview">
+    Explore the complete API reference
   </Card>
 </CardGroup>
+
+---
+
+## Community and Support
+
+<CardGroup cols={2}>
+  <Card title="Official Documentation" icon="book" href="https://documentation.utmstack.com/v11/introduction">
+    Complete documentation and guides
+  </Card>
+  <Card title="Contributing Guide" icon="code-pull-request" href="https://github.com/utmstack/UTMStack/blob/v11/CONTRIBUTING.md">
+    Learn how to contribute to the project
+  </Card>
+  <Card title="Correlation Rules Repository" icon="git-alt" href="https://github.com/utmstack/rules">
+    Community-driven correlation rules
+  </Card>
+  <Card title="Discord Community" icon="discord" href="https://discord.gg/ZznvZ8xcHh">
+    Join our community discussions
+  </Card>
+</CardGroup>
+
+---
+
+## Summary
+
+UTMStack v11.0.0 marks a major evolution of the platform. With improvements in performance, scalability, security, and usability, this version is ready for production environments and modern SOC operations.
+
+<Note>
+For technical documentation, migration assistance, or enterprise support, visit [https://docs.utmstack.com/](https://docs.utmstack.com/) or contact the UTMStack team.
+</Note>

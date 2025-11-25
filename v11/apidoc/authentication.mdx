@@ -1,0 +1,304 @@
+---
+title: Authentication API
+sidebarTitle: "Authentication"
+description: "UTMStack Authentication API for issuing JWT tokens to authenticate users and access protected resources."
+---
+
+## Overview
+
+The **UTMStack Authentication API** issues **JWT tokens** to clients who provide valid credentials. Clients must authenticate using this endpoint before calling any protected resource in the UTMStack platform.
+
+<Note>
+This endpoint does **not** require authentication. It returns a **JWT access token** that must be used for subsequent requests.
+</Note>
+
+---
+
+## Endpoint Details
+
+<Card title="POST /api/authenticate" icon="lock">
+  **Method:** POST  
+  **Content-Type:** application/json  
+  **Authentication:** Not required  
+  **Response:** JWT token for API access
+</Card>
+
+---
+
+## Parameters
+
+### Request Body
+
+<ParamField body="username" type="string" required>
+  User login name or email address
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  User password
+</ParamField>
+
+<ParamField body="rememberMe" type="boolean" default="false">
+  Optional. Keeps the session active for a longer period
+</ParamField>
+
+### JSON Schema (Request)
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "username": { 
+      "type": "string", 
+      "description": "User login name" 
+    },
+    "password": { 
+      "type": "string", 
+      "description": "User password" 
+    },
+    "rememberMe": { 
+      "type": "boolean", 
+      "description": "Keep session alive" 
+    }
+  },
+  "required": ["username", "password"]
+}
+```
+
+---
+
+## Response Examples
+
+### Successful Authentication (TFA disabled)
+
+<Tabs>
+  <Tab title="Response">
+    ```json
+    {
+      "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
+      "authenticated": true
+    }
+    ```
+  </Tab>
+  <Tab title="Headers">
+    ```http
+    HTTP/1.1 200 OK
+    Content-Type: application/json
+    Content-Length: 245
+    ```
+  </Tab>
+</Tabs>
+
+### TFA Challenge (TFA enabled)
+
+<ResponseExample>
+```json
+{
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInRmYSI6dHJ1ZSwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
+  "authenticated": false
+}
+```
+</ResponseExample>
+
+<Info>
+When `authenticated` is `false`, you need to complete the two-factor authentication process by providing the verification code sent to your email.
+</Info>
+
+### JSON Schema (Response)
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id_token": { 
+      "type": "string", 
+      "description": "JWT bearer token" 
+    },
+    "authenticated": { 
+      "type": "boolean", 
+      "description": "Indicates whether two-factor authentication was required" 
+    }
+  },
+  "required": ["id_token", "authenticated"]
+}
+```
+
+---
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X POST https://utmstack.example.com/api/authenticate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "MySecurePassword123",
+    "rememberMe": true
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNjM0NTQ3MjAwfQ.signature",
+  "authenticated": true
+}
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from "axios";
+
+const response = await axios.post("https://utmstack.example.com/api/authenticate", {
+  username: "admin",
+  password: "MySecurePassword123",
+  rememberMe: true
+});
+
+console.log("Token:", response.data.id_token);
+```
+
+```python Python
+import requests
+
+url = "https://utmstack.example.com/api/authenticate"
+payload = {
+    "username": "admin",
+    "password": "MySecurePassword123",
+    "rememberMe": True
+}
+
+response = requests.post(url, json=payload)
+token = response.json()["id_token"]
+print(f"Token: {token}")
+```
+
+</CodeGroup>
+
+---
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Authentication successful. Token returned.
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Invalid username or password.
+</ResponseField>
+
+<ResponseField name="403" type="Forbidden">
+  Login blocked (too many attempts).
+</ResponseField>
+
+<ResponseField name="429" type="Too Many Requests">
+  Rate limit exceeded.
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Unexpected issue during authentication.
+</ResponseField>
+
+---
+
+## Error Handling
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    **Description:** Invalid credentials  
+    **Resolution:** Verify username/password and try again.
+  </Accordion>
+
+  <Accordion title="403 Forbidden">
+    **Description:** Login temporarily blocked due to multiple failed attempts  
+    **Resolution:** Wait for cooldown period or contact admin.
+  </Accordion>
+
+  <Accordion title="500 Internal Server Error">
+    **Description:** Unexpected backend error  
+    **Resolution:** Check logs or contact UTMStack support.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Security Considerations
+
+<Warning>
+**Important Security Notes:**
+- Always use **HTTPS (TLS)** when sending credentials
+- Do not store plain-text passwords or tokens locally
+- Implement **token expiration** and **refresh mechanisms** in clients
+- If TFA is enabled, a second verification code is sent by email
+</Warning>
+
+---
+
+## Using the Token
+
+After successful authentication, include the JWT token in the Authorization header for subsequent API requests:
+
+```bash
+Authorization: Bearer <jwt_token>
+```
+
+<Tip>
+Test your authentication by making a request to `/api/elasticsearch/search` with your Bearer token to verify it's working correctly.
+</Tip>
+
+---
+
+## OpenAPI Specification
+
+```yaml
+paths:
+  /api/authenticate:
+    post:
+      summary: Authenticate user and issue JWT token
+      operationId: authenticateUser
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        "401":
+          description: Invalid credentials
+        "403":
+          description: Login blocked
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username: { type: string }
+        password: { type: string }
+        rememberMe: { type: boolean }
+      required: [username, password]
+    LoginResponse:
+      type: object
+      properties:
+        id_token: { type: string }
+        authenticated: { type: boolean }
+```

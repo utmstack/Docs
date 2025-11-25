@@ -12,6 +12,185 @@
   "navigation": {
     "versions": [
       {
+        "version": "v11.0.0",
+        "tabs": [
+          {
+            "tab": "Guides",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "v11/introduction"
+                ]
+              },
+              {
+                "group": "Installation",
+                "pages": [
+                  "v11/Installation/architecture",
+                  "v11/Installation/system-requirements",
+                  "v11/Installation/installation",
+                  "v11/Installation/firewall_rules",
+                  "v11/Installation/ssl_certificate",
+                  "v11/Installation/update_guide"
+                ]
+              },
+              {
+                "group": "Rules and Filters",
+                "pages": [
+                  "v11/rules-and-filters/overview",
+                  "v11/rules-and-filters/implementing-rules",
+                  "v11/rules-and-filters/implementing-filters",
+                  "v11/rules-and-filters/best-practices"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Integrations",
+            "groups": [
+              {
+                "group": "Cloud",
+                "pages": [
+                  "v11/integrations/azure",
+                  "v11/integrations/googlecloud",
+                  "v11/integrations/office365",
+                  "v11/integrations/aws",
+                  "v11/integrations/taefik"
+                ]
+              },
+              {
+                "group": "Agents and Syslog",
+                "pages": [
+                  "v11/integrations/macos",
+                  "v11/integrations/windowsagent",
+                  "v11/integrations/linuxagent",
+                  "v11/integrations/syslog",
+                  "v11/integrations/vmware"
+                ]
+              },
+              {
+                "group": "Devices",
+                "pages": [
+                  "v11/integrations/cisco_asa",
+                  "v11/integrations/fortigate",
+                  "v11/integrations/sophos_xg",
+                  "v11/integrations/sonicwall",
+                  "v11/integrations/ibm_aix",
+                  "v11/integrations/ibmas400",
+                  "v11/integrations/fortiweb",
+                  "v11/integrations/pfsense",
+                  "v11/integrations/paloalto",
+                  "v11/integrations/mikrotik",
+                  "v11/integrations/ciscosw",
+                  "v11/integrations/firepower"
+                ]
+              },
+              {
+                "group": "Databases",
+                "pages": [
+                  "v11/integrations/oracle",
+                  "v11/integrations/mysql",
+                  "v11/integrations/pgsql",
+                  "v11/integrations/mongodb",
+                  "v11/integrations/elastic",
+                  "v11/integrations/redis",
+                  "v11/integrations/kafka",
+                  "v11/integrations/kibana",
+                  "v11/integrations/logstash"
+                ]
+              },
+              {
+                "group": "Web Server",
+                "pages": [
+                  "v11/integrations/iis",
+                  "v11/integrations/apache2",
+                  "v11/integrations/nginx"
+                ]
+              },
+              {
+                "group": "XDR",
+                "pages": [
+                  "v11/integrations/sophoscentral",
+                  "v11/integrations/sentinelone"
+                ]
+              },
+              {
+                "group": "Network",
+                "pages": [
+                  "v11/integrations/netflow"
+                ]
+              },
+              {
+                "group": "Proxy",
+                "pages": [
+                  "v11/integrations/haproxy"
+                ]
+              },
+              {
+                "group": "Configurations",
+                "pages": [
+                  "v11/integrations/config_curl"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API Documentation",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "v11/apidoc/overview",
+                  "v11/apidoc/postman-collection",
+                  "v11/Getting started/api"
+                ]
+              },
+              {
+                "group": "Authentication",
+                "pages": [
+                  "v11/apidoc/authentication"
+                ]
+              },
+              {
+                "group": "Alert Management",
+                "pages": [
+                  "v11/apidoc/alerts-list",
+                  "v11/apidoc/update-status",
+                  "v11/apidoc/update-tags",
+                  "v11/apidoc/update-notes"
+                ]
+              },
+              {
+                "group": "Incident Management",
+                "pages": [
+                  "v11/apidoc/convert-incident"
+                ]
+              },
+              {
+                "group": "Analytics & Utilities",
+                "pages": [
+                  "v11/apidoc/count-alerts",
+                  "v11/apidoc/property-values",
+                  "v11/apidoc/csv-export"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "API Reference",
+            "hidden": true,
+            "groups": [
+              {
+                "group": "API Documentation",
+                "pages": [
+                  "v11/api-reference/introduction"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
         "version": "v10.9.3",
         "tabs": [
           {

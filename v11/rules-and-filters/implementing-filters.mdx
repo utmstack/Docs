@@ -1,0 +1,301 @@
+---
+title: Implementing Data Filters
+sidebarTitle: "Implementing Filters"
+description: "Complete guide for creating data extraction and transformation filters in UTMStack v11"
+---
+
+# Implementing Data Filters
+
+This guide provides a comprehensive reference for developers creating **filters** to extract, enrich, and transform raw log data in UTMStack v11. Filters are YAML files used by the parsing plugin to convert raw events into a standardized format.
+
+<Info>
+**Developer Reference**: This page is designed as a practical guide for implementing data transformation pipelines through filters.
+</Info>
+
+---
+
+## What are Filters?
+
+**Filters** define how to extract and transform data from raw events into a standardized format that can be:
+- Analyzed by correlation rules
+- Searched in Log Explorer
+- Visualized in dashboards
+- Stored efficiently
+
+### Purpose
+
+- Parse raw log formats (JSON, CSV, key-value, free text)
+- Extract relevant fields from unstructured data
+- Normalize field names across data sources
+- Enrich data with additional context
+- Transform data types for proper analysis
+
+---
+
+## Filter Structure
+
+```yaml
+pipeline:
+  - dataTypes:              # Event types this filter applies to
+      - apache
+    steps:                  # Processing steps
+      - json:               # Step 1: Parse JSON
+          source: raw
+      - rename:             # Step 2: Rename fields
+          from:
+            - log.host.ip
+          to: origin.ip
+      # Additional steps...
+```
+
+See complete documentation for all available filter steps and detailed examples.
+
+[View Full Filter Implementation Guide →](/v11/rules-and-filters/filter-steps)
+
+---
+
+## Filter Steps Reference
+
+### Parsing Steps
+
+| Step | Purpose | Use Case |
+|------|---------|----------|
+| `json` | Parse JSON data | Structured logs from applications |
+| `grok` | Pattern-based parsing | Unstructured text logs (Apache, Syslog) |
+| `kv` | Key-value pair parsing | Simple formatted logs |
+| `csv` | CSV data parsing | Comma-separated log formats |
+
+### Transformation Steps
+
+| Step | Purpose | Use Case |
+|------|---------|----------|
+| `rename` | Rename fields | Standardize field names |
+| `cast` | Convert data types | Ensure proper types for analysis |
+| `reformat` | Reformat values | Timestamp conversion, string formatting |
+| `trim` | Remove characters | Clean up parsed data |
+
+### Enrichment Steps
+
+| Step | Purpose | Use Case |
+|------|---------|----------|
+| `add` | Add new fields | Add metadata, computed values |
+| `dynamic` | Call external plugins | Geolocation, threat intelligence |
+| `expand` | Expand nested data | Flatten complex structures |
+
+### Cleanup Steps
+
+| Step | Purpose | Use Case |
+|------|---------|----------|
+| `delete` | Remove fields | Remove unnecessary data |
+
+---
+
+## Quick Start Example
+
+Here's a complete filter for Apache access logs:
+
+```yaml
+pipeline:
+  - dataTypes:
+      - apache
+    steps:
+      # 1. Parse JSON container
+      - json:
+          source: raw
+
+      # 2. Extract IP using grok
+      - grok:
+          patterns:
+            - fieldName: origin.ip
+              pattern: '{{.ipv4}}|{{.ipv6}}'
+            - fieldName: deviceTime
+              pattern: '\[{{.data}}\]'
+            - fieldName: log.statusCode
+              pattern: '{{.integer}}'
+          source: log.message
+
+      # 3. Convert to proper types
+      - cast:
+          fields:
+            - log.statusCode
+          to: int
+
+      # 4. Add geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists(origin.ip)
+
+      # 5. Normalize action
+      - add:
+          function: 'string'
+          params:
+            key: action
+            value: 'get'
+          where: safe(log.method, "") == "GET"
+
+      # 6. Clean up
+      - delete:
+          fields:
+            - raw
+            - log.message
+          where: exists(action)
+```
+
+---
+
+## Development Workflow
+
+<Steps>
+  <Step title="Identify Data Source">
+    Determine what log source you need to process
+  </Step>
+  
+  <Step title="Analyze Raw Format">
+    Examine sample raw events to understand structure
+  </Step>
+  
+  <Step title="Create Filter File">
+    Start with basic parsing steps
+  </Step>
+  
+  <Step title="Add Transformation">
+    Normalize fields and data types
+  </Step>
+  
+  <Step title="Enrich Data">
+    Add geolocation, classifications
+  </Step>
+  
+  <Step title="Test Filter">
+    Deploy and test with sample data
+  </Step>
+  
+  <Step title="Optimize">
+    Remove unnecessary fields, improve performance
+  </Step>
+</Steps>
+
+---
+
+## Best Practices
+
+<Check>
+**Standardize Field Names**
+- Use consistent naming across all filters
+- Follow UTMStack field mapping conventions
+- Common fields: `origin.ip`, `target.ip`, `deviceTime`, `action`, `actionResult`
+
+**Remove Unnecessary Data**
+- Delete fields not needed for analysis
+- Reduces storage requirements
+- Improves query performance
+
+**Handle Missing Data**
+- Use conditional steps with `where` clauses
+- Test with incomplete/malformed data
+- Provide sensible defaults
+
+**Optimize Performance**
+- Apply heavy operations conditionally
+- Use efficient parsing methods
+- Delete unnecessary fields early in pipeline
+
+**Document Filters**
+- Comment complex patterns
+- Explain transformation logic
+- Note data source requirements
+</Check>
+
+---
+
+## Common Patterns
+
+### Pattern 1: Web Server Logs
+
+```yaml
+steps:
+  - grok:
+      patterns:
+        - fieldName: origin.ip
+          pattern: '{{.ipv4}}'
+        - fieldName: log.method
+          pattern: '{{.word}}'
+        - fieldName: origin.path
+          pattern: '{{.data}}'
+        - fieldName: log.statusCode
+          pattern: '{{.integer}}'
+      source: log.message
+  - cast:
+      fields: [log.statusCode]
+      to: int
+  - add:
+      function: 'string'
+      params:
+        key: actionResult
+        value: 'success'
+      where: safe(log.statusCode, 0) >= 200 && safe(log.statusCode, 0) < 300
+```
+
+### Pattern 2: Syslog Parsing
+
+```yaml
+steps:
+  - grok:
+      patterns:
+        - fieldName: deviceTime
+          pattern: '{{.monthName}}\s+{{.monthDay}}\s+{{.time}}'
+        - fieldName: origin.host
+          pattern: '{{.word}}'
+        - fieldName: log.program
+          pattern: '{{.word}}'
+        - fieldName: log.message
+          pattern: '{{.greedy}}'
+      source: raw
+  - reformat:
+      fields: [deviceTime]
+      function: time
+      fromFormat: 'Jan 02 15:04:05'
+      toFormat: '2006-01-02T15:04:05Z'
+```
+
+### Pattern 3: JSON with Nested Data
+
+```yaml
+steps:
+  - json:
+      source: raw
+  - expand:
+      source: log.metadata
+      to: log.expandedMetadata
+      where: exists(log.metadata)
+  - rename:
+      from: [log.expandedMetadata.userId]
+      to: origin.user
+  - delete:
+      fields: [log.metadata]
+      where: exists(log.expandedMetadata)
+```
+
+---
+
+## Troubleshooting
+
+### Filter Not Processing
+
+**Check**: Event has correct `dataType` field matching filter configuration
+
+### Fields Not Extracted
+
+**Check**: Field names in grok patterns match exactly, patterns are correct
+
+### Type Conversion Errors  
+
+**Check**: Field exists before casting, target type is appropriate
+
+### Performance Issues
+
+**Check**: Remove unnecessary fields early, use conditional steps, optimize grok patterns
+

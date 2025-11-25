@@ -1,0 +1,373 @@
+---
+title: Update Alert Notes API
+sidebarTitle: "Update Notes"
+description: "Add or update notes for a specific alert to document observations, investigations, or remediation steps."
+---
+
+## Overview
+
+Adds or updates **notes** for a specific alert. Notes allow analysts to document observations, investigations, or remediation steps related to an alert. Supports auditing for traceability.
+
+<Note>
+**Authorization Required:** Include a valid Bearer Token in the Authorization header.
+</Note>
+
+---
+
+## Endpoint Details
+
+<Card title="POST /api/utm-alerts/notes" icon="note-sticky">
+  **Method:** POST  
+  **Content-Type:** application/json  
+  **Authentication:** Bearer Token required  
+  **Query Parameter:** alertId (required)
+</Card>
+
+---
+
+## Parameters
+
+### Query Parameters
+
+<ParamField query="alertId" type="string" required>
+  UUID of the alert to update with notes
+</ParamField>
+
+### Request Body
+
+The request body should contain the notes as a plain JSON string.
+
+<ParamField body="notes" type="string">
+  Text notes for the alert. Can be empty to clear existing notes.
+</ParamField>
+
+---
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X POST "https://demo.utmstack.com/api/utm-alerts/notes?alertId=c1c4e32c-dd9f-4a15-98c4-0dac2af40740" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -H "Content-Type: application/json" \
+  -d '"Investigated alert, determined as false positive after analyzing network traffic patterns."'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "message": "Notes updated successfully"
+}
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from "axios";
+
+const updateAlertNotes = async (alertId, notes) => {
+  const token = "<your_access_token>";
+  
+  try {
+    const response = await axios.post(
+      `https://demo.utmstack.com/api/utm-alerts/notes?alertId=${alertId}`,
+      notes,
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    
+    console.log("Notes updated successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating notes:", error.response?.data || error.message);
+  }
+};
+
+// Usage examples
+await updateAlertNotes("c1c4e32c-dd9f-4a15-98c4-0dac2af40740", 
+  "Alert investigated - confirmed as legitimate security event. Escalating to security team.");
+
+await updateAlertNotes("d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f", 
+  "False positive - internal system maintenance activity.");
+```
+
+```python Python
+import requests
+
+def update_alert_notes(alert_id, notes):
+    url = f"https://demo.utmstack.com/api/utm-alerts/notes?alertId={alert_id}"
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>",
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json=notes, headers=headers)
+    
+    if response.status_code == 200:
+        print(f"Notes updated successfully for alert {alert_id}")
+        return response.json()
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+    
+    return None
+
+# Usage examples
+update_alert_notes(
+    "c1c4e32c-dd9f-4a15-98c4-0dac2af40740", 
+    "Alert investigated - confirmed as legitimate security event. Escalating to security team."
+)
+
+update_alert_notes(
+    "d2f5e12a-b5a4-4bcd-91d0-2a8f5b6d9e1f",
+    "False positive - internal system maintenance activity."
+)
+```
+
+</CodeGroup>
+
+---
+
+## Response Details
+
+### Successful Response
+
+<Tabs>
+  <Tab title="Success">
+    ```json
+    {
+      "message": "Notes updated successfully"
+    }
+    ```
+  </Tab>
+  <Tab title="Empty Notes">
+    ```json
+    {
+      "message": "Notes cleared successfully"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Notes updated successfully
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  Invalid alert ID format or malformed request body
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token
+</ResponseField>
+
+<ResponseField name="404" type="Not Found">
+  Alert not found with the specified ID
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Internal server error while updating notes
+</ResponseField>
+
+---
+
+## Common Use Cases
+
+### Investigation Notes
+
+```javascript
+// Document investigation findings
+await updateAlertNotes("alert-123", 
+  "Investigation Summary:\n" +
+  "- Analyzed source IP: 192.168.1.100\n" +
+  "- Reviewed firewall logs for the past 24 hours\n" +  
+  "- Contacted user for verification\n" +
+  "- Determined as legitimate access from approved device\n" +
+  "- No further action required"
+);
+```
+
+### False Positive Documentation
+
+```python
+# Document false positive reasoning
+update_alert_notes("alert-456", 
+    "FALSE POSITIVE: Alert triggered by scheduled backup process. "
+    "Backup runs daily at 2 AM. Added exception rule to prevent future alerts."
+)
+```
+
+### Escalation Notes
+
+```javascript
+// Document escalation
+const escalationNote = 
+  "ESCALATED TO SECURITY TEAM:\n" +
+  "- High severity alert confirmed as potential breach\n" +
+  "- Initial response completed at " + new Date().toISOString() + "\n" +
+  "- Assigned to: security-team@company.com\n" +
+  "- Next steps: Full forensic investigation required";
+
+await updateAlertNotes("alert-789", escalationNote);
+```
+
+### Clear Notes
+
+```python
+# Clear existing notes
+update_alert_notes("alert-101", "")
+```
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Note Content Guidelines">
+    **Structured Documentation:**
+    - Include timestamp and analyst name
+    - Describe investigation steps taken
+    - Document evidence found or lack thereof
+    - Specify next actions or resolution
+    - Use clear, professional language
+  </Accordion>
+
+  <Accordion title="False Positive Handling">
+    **Best Practices:**
+    - Clearly mark as "FALSE POSITIVE" 
+    - Explain the root cause
+    - Document prevention measures taken
+    - Reference any rules or exceptions added
+    - Include confidence level in assessment
+  </Accordion>
+
+  <Accordion title="Investigation Workflow">
+    **Recommended Flow:**
+    1. Initial triage notes with priority assessment
+    2. Investigation progress updates
+    3. Evidence collection documentation
+    4. Final resolution and lessons learned
+    5. Handoff notes if escalating to other teams
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Advanced Examples
+
+### Structured Investigation Notes
+
+```javascript
+const createInvestigationNote = (alertId, findings) => {
+  const timestamp = new Date().toISOString();
+  const analyst = "john.doe@company.com";
+  
+  const structuredNote = 
+    "=== INVESTIGATION REPORT ===\n" +
+    `Timestamp: ${timestamp}\n` +
+    `Analyst: ${analyst}\n` +
+    `Alert ID: ${alertId}\n\n` +
+    "INITIAL ASSESSMENT:\n" +
+    `${findings.assessment}\n\n` +
+    "INVESTIGATION STEPS:\n" +
+    findings.steps.map((step, index) => `${index + 1}. ${step}`).join('\n') + "\n\n" +
+    "EVIDENCE:\n" +
+    `${findings.evidence}\n\n` +
+    "CONCLUSION:\n" +
+    `${findings.conclusion}\n\n` +
+    "NEXT ACTIONS:\n" +
+    `${findings.nextActions}\n` +
+    "=== END REPORT ===";
+  
+  return updateAlertNotes(alertId, structuredNote);
+};
+
+// Usage
+await createInvestigationNote("alert-123", {
+  assessment: "Medium severity - suspicious login from new location",
+  steps: [
+    "Verified user identity through secondary channels",
+    "Checked login history for similar patterns", 
+    "Analyzed geolocation data",
+    "Contacted user directly via phone"
+  ],
+  evidence: "User confirmed legitimate travel to new location. Phone verification successful.",
+  conclusion: "Legitimate user activity - false positive",
+  nextActions: "Add travel notification to user profile. No further investigation needed."
+});
+```
+
+---
+
+## Security Considerations
+
+<Warning>
+**Security Notes:**
+- All note changes are audited for compliance
+- Notes are stored in plain text - avoid sensitive data
+- Users need proper permissions to update alert notes
+- Alert ID must be a valid UUID that exists in the system
+</Warning>
+
+---
+
+## OpenAPI Specification
+
+```yaml
+post:
+  summary: "Add or update notes for an alert"
+  tags:
+    - Alert Management
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: alertId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: "UUID of the alert to update"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: string
+          description: "Notes content as a JSON string"
+  responses:
+    '200':
+      description: "Notes updated successfully"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Notes updated successfully"
+    '400':
+      description: "Invalid alert ID or request format"
+    '401':
+      description: "Unauthorized"
+    '404':
+      description: "Alert not found"
+    '500':
+      description: "Internal server error"
+```

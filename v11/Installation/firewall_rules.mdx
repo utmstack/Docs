@@ -1,0 +1,488 @@
+---
+title: Firewall Rules and Network Configuration
+sidebarTitle: "Firewall Rules"
+description: "Configure firewall rules and network ports for secure UTMStack v11 operation."
+---
+
+# Firewall Rules
+
+Proper firewall configuration is essential for UTMStack v11 security and functionality. This guide details all required ports and provides security recommendations for different deployment scenarios.
+
+<Warning>
+**Security First**: Always follow the principle of least privilege. Only open ports that are necessary and restrict access to trusted networks or IP addresses.
+</Warning>
+
+---
+
+## Core System Ports
+
+These ports are required for basic UTMStack operation:
+
+### Administrative Access
+
+<AccordionGroup>
+  <Accordion title="Port 22/TCP - SSH (Secure Shell)" icon="terminal">
+    **Purpose**: Remote server administration and management
+    
+    **Required for**: 
+    - System administration
+    - Installation and updates
+    - Troubleshooting
+    
+    **Security Recommendations**:
+    ```bash
+    # Restrict to admin IPs only
+    sudo ufw allow from ADMIN_IP to any port 22 proto tcp
+    ```
+    
+    <Warning>
+    Never expose SSH to the public internet. Use VPN or IP whitelisting.
+    </Warning>
+  </Accordion>
+  
+  <Accordion title="Port 80/TCP - HTTP Redirector" icon="arrow-right">
+    **Purpose**: Redirects HTTP traffic to HTTPS
+    
+    **Required for**: 
+    - Automatic HTTPS redirect
+    - Let's Encrypt certificate validation (temporarily)
+    
+    **Security Recommendations**:
+    ```bash
+    # Allow from analyst networks
+    sudo ufw allow from ANALYST_NETWORK to any port 80 proto tcp
+    ```
+    
+    <Info>
+    This port can be blocked after SSL certificate setup if not using auto-renewal.
+    </Info>
+  </Accordion>
+  
+  <Accordion title="Port 443/TCP - HTTPS" icon="lock">
+    **Purpose**: UTMStack web-based graphical user interface (primary access)
+    
+    **Required for**: 
+    - Web interface access
+    - API connections
+    - User authentication
+    
+    **Security Recommendations**:
+    ```bash
+    # Restrict to security team networks
+    sudo ufw allow from SOC_NETWORK to any port 443 proto tcp
+    ```
+    
+    <Check>
+    This is the primary access point. Always use HTTPS, never HTTP.
+    </Check>
+  </Accordion>
+  
+  <Accordion title="Port 9090/TCP - Cockpit" icon="gauge">
+    **Purpose**: Web-based server management interface
+    
+    **Required for**: 
+    - System monitoring
+    - Container management
+    - Resource utilization viewing
+    
+    **Security Recommendations**:
+    ```bash
+    # Restrict to system administrators only
+    sudo ufw allow from ADMIN_IP to any port 9090 proto tcp
+    ```
+    
+    <Warning>
+    Highly sensitive. Restrict to administrators' IPs only.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Agent Communication Ports
+
+These ports are required for communication between UTMStack agents and the server:
+
+<CardGroup cols={2}>
+  <Card title="Port 9000/TCP" icon="network-wired">
+    **Agent-to-Manager Communication**
+    
+    Required for UTMStack agents to communicate with the manager server. This port handles agent registration and heartbeat traffic.
+    
+    ```bash
+    # Allow from agent networks
+    sudo ufw allow from AGENT_NETWORK to any port 9000 proto tcp
+    ```
+  </Card>
+  
+  <Card title="Port 9001/TCP" icon="network-wired">
+    **Agent Data Transfer**
+    
+    Used for transferring log data and telemetry from agents to the manager server.
+    
+    ```bash
+    # Allow from agent networks
+    sudo ufw allow from AGENT_NETWORK to any port 9001 proto tcp
+    ```
+  </Card>
+  
+  <Card title="Port 50051/TCP" icon="network-wired">
+    **gRPC Agent Communication**
+    
+    High-performance gRPC protocol for agent communication, including file transfers and advanced features.
+    
+    ```bash
+    # Allow from agent networks
+    sudo ufw allow from AGENT_NETWORK to any port 50051 proto tcp
+    ```
+  </Card>
+</CardGroup>
+
+<Info>
+**New in v11**: Agent communication has been optimized for better performance and security with enhanced TLS encryption.
+</Info>
+
+---
+
+## Integration and Data Collection Ports
+
+Additional ports are required based on your configured integrations:
+
+### Syslog Receivers
+
+<Accordion title="Syslog Ports Configuration">
+  **Port 514/UDP**: Standard Syslog
+  ```bash
+  sudo ufw allow from SOURCE_NETWORK to any port 514 proto udp
+  ```
+  
+  **Port 514/TCP**: Syslog over TCP
+  ```bash
+  sudo ufw allow from SOURCE_NETWORK to any port 514 proto tcp
+  ```
+  
+  **Port 6514/TCP**: Syslog over TLS (Recommended)
+  ```bash
+  sudo ufw allow from SOURCE_NETWORK to any port 6514 proto tcp
+  ```
+</Accordion>
+
+### NetFlow/IPFIX
+
+<Accordion title="Flow Data Collection">
+  **Port 2055/UDP**: NetFlow v5/v9
+  ```bash
+  sudo ufw allow from NETWORK_DEVICES to any port 2055 proto udp
+  ```
+  
+  **Port 4739/UDP**: IPFIX
+  ```bash
+  sudo ufw allow from NETWORK_DEVICES to any port 4739 proto udp
+  ```
+</Accordion>
+
+### Cloud Integrations
+
+<Info>
+Cloud integrations (AWS, Azure, GCP, Office 365) typically use **outbound HTTPS (443)** connections only. No inbound ports required.
+</Info>
+
+---
+
+## Multi-Node Deployment Ports
+
+For deployments with multiple nodes (manager + workers):
+
+### Manager-to-Worker Communication
+
+```
+Port 2377/TCP: Cluster management
+Port 7946/TCP+UDP: Container network discovery
+Port 4789/UDP: Overlay network traffic
+```
+
+```bash
+# On all nodes, allow from other cluster nodes
+sudo ufw allow from CLUSTER_NODE_IP to any port 2377 proto tcp
+sudo ufw allow from CLUSTER_NODE_IP to any port 7946
+sudo ufw allow from CLUSTER_NODE_IP to any port 4789 proto udp
+```
+
+### Elasticsearch Cluster (if distributed)
+
+```
+Port 9200/TCP: Elasticsearch HTTP API
+Port 9300/TCP: Elasticsearch transport
+```
+
+```bash
+# Between cluster nodes only
+sudo ufw allow from CLUSTER_NODE_IP to any port 9200 proto tcp
+sudo ufw allow from CLUSTER_NODE_IP to any port 9300 proto tcp
+```
+
+---
+
+## Federated Deployment Ports
+
+For MSP deployments with central federation server:
+
+```
+Port 443/TCP: API communication with central server
+Port 50052/TCP: Federation gRPC communication
+```
+
+```bash
+# Allow to central server
+sudo ufw allow out to CENTRAL_SERVER_IP port 443 proto tcp
+sudo ufw allow out to CENTRAL_SERVER_IP port 50052 proto tcp
+```
+
+---
+
+## UFW Configuration Examples
+
+### Basic Single-Node Deployment
+
+```bash
+#!/bin/bash
+# Basic UTMStack v11 firewall configuration
+
+# Reset UFW
+sudo ufw --force reset
+
+# Default policies
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+# SSH (from admin IP only)
+sudo ufw allow from 192.168.1.100 to any port 22 proto tcp
+
+# Web interface (from SOC network)
+sudo ufw allow from 192.168.1.0/24 to any port 443 proto tcp
+sudo ufw allow from 192.168.1.0/24 to any port 80 proto tcp
+
+# Cockpit (admin only)
+sudo ufw allow from 192.168.1.100 to any port 9090 proto tcp
+
+# Agent communication (from agent network)
+sudo ufw allow from 10.0.0.0/8 to any port 9000 proto tcp
+sudo ufw allow from 10.0.0.0/8 to any port 9001 proto tcp
+sudo ufw allow from 10.0.0.0/8 to any port 50051 proto tcp
+
+# Syslog (from network devices)
+sudo ufw allow from 10.0.0.0/8 to any port 514 proto udp
+sudo ufw allow from 10.0.0.0/8 to any port 6514 proto tcp
+
+# Enable firewall
+sudo ufw enable
+sudo ufw status verbose
+```
+
+### Multi-Node Deployment
+
+```bash
+#!/bin/bash
+# Multi-node UTMStack v11 firewall configuration
+
+# Include basic rules above, then add:
+
+# Cluster communication (between all nodes)
+CLUSTER_NODES=("10.10.10.11" "10.10.10.12" "10.10.10.13")
+
+for NODE in "${CLUSTER_NODES[@]}"; do
+  sudo ufw allow from $NODE to any port 2377 proto tcp
+  sudo ufw allow from $NODE to any port 7946
+  sudo ufw allow from $NODE to any port 4789 proto udp
+  sudo ufw allow from $NODE to any port 9200 proto tcp
+  sudo ufw allow from $NODE to any port 9300 proto tcp
+done
+
+sudo ufw enable
+```
+
+---
+
+## Cloud Provider Specific Configurations
+
+### AWS Security Groups
+
+```json
+{
+  "SecurityGroupIngress": [
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 443,
+      "ToPort": 443,
+      "CidrIp": "0.0.0.0/0",
+      "Description": "HTTPS access"
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 22,
+      "ToPort": 22,
+      "CidrIp": "ADMIN_IP/32",
+      "Description": "SSH admin access"
+    },
+    {
+      "IpProtocol": "tcp",
+      "FromPort": 9000,
+      "ToPort": 9001,
+      "CidrIp": "10.0.0.0/8",
+      "Description": "Agent communication"
+    }
+  ]
+}
+```
+
+### Azure Network Security Groups
+
+```powershell
+# Create NSG rule for HTTPS
+az network nsg rule create \
+  --resource-group UTMStack-RG \
+  --nsg-name UTMStack-NSG \
+  --name Allow-HTTPS \
+  --priority 100 \
+  --source-address-prefixes "ANALYST_IP" \
+  --destination-port-ranges 443 \
+  --protocol Tcp \
+  --access Allow
+```
+
+---
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Principle of Least Privilege" icon="shield">
+    - Only open required ports
+    - Restrict source IPs when possible
+    - Use network segmentation
+    - Regular security audits
+  </Card>
+  
+  <Card title="Network Segmentation" icon="layer-group">
+    - Separate management network
+    - Isolated agent network
+    - DMZ for log collectors
+    - Internal-only cluster communication
+  </Card>
+  
+  <Card title="Monitor Access" icon="eye">
+    - Log all connection attempts
+    - Alert on unauthorized access
+    - Regular review of firewall logs
+    - Use intrusion detection
+  </Card>
+  
+  <Card title="Keep Updated" icon="arrow-up">
+    - Apply security patches
+    - Update firewall rules
+    - Review access requirements
+    - Document changes
+  </Card>
+</CardGroup>
+
+---
+
+## Testing Connectivity
+
+### Test Open Ports
+
+```bash
+# From remote machine
+nmap -p 22,80,443,9000,9001,50051 UTMSTACK_IP
+
+# Test specific port
+telnet UTMSTACK_IP 443
+nc -zv UTMSTACK_IP 443
+
+# Check listening ports on server
+sudo netstat -tlnp | grep LISTEN
+sudo ss -tlnp
+```
+
+### Verify Agent Connectivity
+
+```bash
+# Test from agent machine
+curl -k https://UTMSTACK_IP:9000
+telnet UTMSTACK_IP 9000
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Cannot access web interface" icon="browser">
+    **Check**:
+    ```bash
+    # Verify port 443 is listening
+    sudo netstat -tlnp | grep 443
+    
+    # Check firewall rules
+    sudo ufw status numbered
+    
+    # Test from server
+    curl -k https://localhost
+    ```
+  </Accordion>
+  
+  <Accordion title="Agents cannot connect" icon="plug">
+    **Check**:
+    ```bash
+    # Verify agent ports are open
+    sudo netstat -tlnp | grep -E '9000|9001|50051'
+    
+    # Check firewall allows agent network
+    sudo ufw status | grep -E '9000|9001|50051'
+    
+    # Test connectivity from agent
+    telnet MANAGER_IP 9000
+    ```
+  </Accordion>
+  
+  <Accordion title="No logs from syslog sources" icon="file-lines">
+    **Check**:
+    ```bash
+    # Verify syslog port is listening
+    sudo netstat -ulnp | grep 514
+    
+    # Test syslog reception
+    logger -n UTMSTACK_IP -P 514 "Test message"
+    
+    # Check firewall rules
+    sudo ufw status | grep 514
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Integration-Specific Port Requirements
+
+<Note>
+Additional ports may be required for specific integrations. Refer to each integration's documentation for detailed port requirements and security recommendations.
+</Note>
+
+Common integration ports:
+- **Windows agents**: 9000-9001/TCP, 50051/TCP
+- **Linux agents**: 9000-9001/TCP, 50051/TCP
+- **Network devices**: 514/UDP (Syslog), 2055/UDP (NetFlow)
+- **Firewalls**: 514/TCP (Syslog-TLS recommended)
+- **Custom collectors**: Varies by integration
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SSL Certificate Setup" icon="certificate" href="/v11/Installation/ssl_certificate">
+    Secure your installation
+  </Card>
+  <Card title="Agent Installation" icon="laptop" href="/v11/integrations">
+    Integrations
+  </Card>
+</CardGroup>

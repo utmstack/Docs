@@ -1,0 +1,70 @@
+---
+title: Integration guide for Kafka
+sidebarTitle: "Kafka"
+description: "Kafka is primarily used to build real-time streaming data pipelines and applications that adapt to the data streams. It combines messaging, storage, and stream processing to allow storage and analysis of both historical and real-time data."
+---
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
+
+### 1. Enable Filebeat module
+
+> Linux
+
+```
+cd /opt/utmstack-linux-agent/beats/filebeat/ && ./filebeat modules enable kafka
+```
+
+> Windows
+
+```
+cd "C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\" && filebeat modules enable kafka
+```
+
+### 2. Configure Filebeat module
+
+> Configure the module configuration file according to the image below. You can find it in the path:
+
+> Linux
+
+```
+/opt/utmstack-linux-agent/beats/filebeat/modules.d/kafka.yml
+```
+
+> Windows
+
+```
+C:\Program Files\UTMStack\UTMStack Agent\beats\filebeat\modules.d\kafka.yml
+```
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/kafka/config-kafka.png"
+  alt="Fafka"
+/>
+
+<Note>
+    Important!! After a Filebeat module is enabled, the service needs to be restarted using the following command:   
+</Note>
+
+> Linux
+
+```
+sudo systemctl restart UTMStackModulesLogsCollector
+```
+
+> Windows
+
+```
+sc stop UTMStackModulesLogsCollector && timeout /t 5 && sc start UTMStackModulesLogsCollector
+```
+
+<Warning>
+    Depending on how you’ve installed Filebeat, you might see errors related to file ownership or permissions when you try to run Filebeat modules. See [Config File Ownership and Permissions](https://www.elastic.co/guide/en/beats/libbeat/8.5/config-file-permissions.html)
+</Warning>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration

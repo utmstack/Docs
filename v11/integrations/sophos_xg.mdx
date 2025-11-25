@@ -1,0 +1,44 @@
+---
+title: Integration guide for Sophos XG
+sidebarTitle: "Sophos XG"
+description: "Features full protection for your home network, including anti-malware, web security and URL filtering, application control, IPS, traffic shaping, VPN, reporting and monitoring, and much more."
+---
+
+## Installing Sophos XG
+
+<Warning>
+    This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> This integration relies on Syslog. Logs received via Syslog are parsed and correlated by UTMStack automatically.
+
+
+### 1. Configure your device to send logs to a UTMStack agent on ports:
+        * 7008 TCP
+        * 7008 UDP
+
+### 2. Enable log collector.
+
+<Note>
+    To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
+</Note>
+
+<Tip>
+    Execute command according to the selected platform
+</Tip>
+
+<Warning>
+    Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
+    This ensures that all tokens, identifiers, and configuration parameters are accurate and specific to your environment.
+</Warning>
+
+#### Example:
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/sophos_xg/step2.png"
+  alt="Sophos XG"
+/>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration

@@ -1,0 +1,421 @@
+---
+title: SSL Certificate Management
+sidebarTitle: "SSL Certificate"
+description: "Complete guide for installing, generating, and managing SSL certificates in UTMStack v11."
+---
+
+# SSL Certificate Management
+
+Secure your UTMStack v11 installation with proper SSL/TLS certificate configuration. This guide covers manual installation, automatic generation with Let's Encrypt, and certificate renewal.
+
+<Note>
+UTMStack v11 requires HTTPS for all web interface access. Proper SSL certificate configuration is essential for production deployments.
+</Note>
+
+---
+
+## Certificate Requirements
+
+### Supported Certificate Types
+
+- **Self-signed certificates** (development/testing only)
+- **Commercial certificates** from trusted CAs
+- **Let's Encrypt certificates** (recommended, free)
+- **Enterprise PKI certificates**
+
+### File Requirements
+
+You need two files:
+- **Certificate file**: `.crt` or `.pem` extension
+- **Private key file**: `.key` or `.pem` extension
+
+<Warning>
+Never share your private key. Keep it secure and backed up safely.
+</Warning>
+
+---
+
+## Method 1: Manual SSL Certificate Installation
+
+Use this method if you already have a certificate from a Certificate Authority.
+
+### Step 1: Prepare Certificate Files
+
+After obtaining your certificate:
+
+1. **Rename the certificate file** to `utm.crt`
+2. **Rename the private key file** to `utm.key`
+
+```bash
+# Example renaming
+mv your-certificate.crt utm.crt
+mv your-private-key.key utm.key
+```
+
+### Step 2: Transfer Files to Server
+
+Copy both files to the UTMStack certificate directory:
+
+```bash
+# Move certificate to UTMStack directory
+sudo mv utm.crt /UTMStack/cert/
+sudo mv utm.key /UTMStack/cert/
+
+# Set proper permissions
+sudo chmod 600 /UTMStack/cert/utm.key
+sudo chmod 644 /UTMStack/cert/utm.crt
+```
+
+### Step 3: Restart Services
+
+Restart Docker services to apply the new certificate:
+
+```bash
+sudo systemctl restart docker
+```
+
+<Info>
+Allow approximately 10 minutes for all services to restart completely.
+</Info>
+
+### Step 4: Verify Installation
+
+```bash
+# Check certificate
+openssl x509 -in /UTMStack/cert/utm.crt -text -noout
+
+# Verify web interface
+curl -I https://your-domain.com
+```
+
+<Check>
+Your SSL certificate is now installed! Access UTMStack at `https://your-domain.com`
+</Check>
+
+---
+
+## Method 2: Generate SSL with Let's Encrypt (Certbot)
+
+Let's Encrypt provides free, automated SSL certificates. This is the recommended method for most deployments.
+
+### Prerequisites
+
+- A registered domain name
+- Domain pointing to your UTMStack server's public IP
+- Port 80 accessible from the internet (temporarily)
+
+### Step 1: Install Certbot
+
+```bash
+# Update package list
+sudo apt update
+
+# Install Certbot with Nginx plugin
+sudo apt install certbot python3-certbot-nginx -y
+```
+
+### Step 2: Prepare Services
+
+Stop the frontend service to allow Certbot to use port 80:
+
+```bash
+# Scale down frontend service
+docker service scale utmstack_frontend=0
+
+# Verify frontend is stopped
+docker ps | grep frontend
+
+# Start Nginx temporarily
+sudo systemctl start nginx
+```
+
+<Note>
+This temporary Nginx instance is only used for certificate generation.
+</Note>
+
+### Step 3: Generate Certificate
+
+Replace `siem.yourdomain.com` with your actual domain:
+
+```bash
+sudo certbot --nginx -d siem.yourdomain.com
+```
+
+Follow the prompts:
+1. Enter your email address
+2. Agree to Terms of Service
+3. Choose whether to share your email
+4. Certbot will automatically generate and configure your certificate
+
+### Step 4: Install Certificate in UTMStack
+
+```bash
+# Copy certificate files to UTMStack directory
+sudo cp /etc/letsencrypt/live/*/fullchain.pem /UTMStack/cert/utm.crt
+sudo cp /etc/letsencrypt/live/*/privkey.pem /UTMStack/cert/utm.key
+
+# Set proper permissions
+sudo chmod 600 /UTMStack/cert/utm.key
+sudo chmod 644 /UTMStack/cert/utm.crt
+```
+
+### Step 5: Restart UTMStack Services
+
+```bash
+# Scale frontend back up
+docker service scale utmstack_frontend=1
+
+# Verify frontend is running
+docker ps | grep frontend
+
+# Stop temporary Nginx
+sudo systemctl stop nginx
+
+# Restart Docker to apply changes
+sudo systemctl restart docker
+```
+
+<Check>
+Your Let's Encrypt SSL certificate is now active!
+</Check>
+
+---
+
+## Certificate Renewal
+
+Let's Encrypt certificates expire after 90 days. Here's how to renew them.
+
+### Automatic Renewal (Recommended)
+
+Certbot includes automatic renewal. Verify it's configured:
+
+```bash
+# Check renewal timer
+sudo systemctl status certbot.timer
+
+# Test renewal process (dry run)
+sudo certbot renew --dry-run
+```
+
+### Manual Renewal
+
+If you need to renew manually:
+
+#### Step 1: Stop Frontend Service
+
+```bash
+docker service scale utmstack_frontend=0
+```
+
+#### Step 2: Renew Certificate
+
+```bash
+# Start Nginx for renewal
+sudo systemctl start nginx
+
+# Renew certificate
+sudo certbot renew
+
+# Stop Nginx
+sudo systemctl stop nginx
+```
+
+#### Step 3: Update UTMStack Certificates
+
+Replace `siem.yourdomain.com` with your domain:
+
+```bash
+sudo cp /etc/letsencrypt/live/siem.yourdomain.com/fullchain.pem /UTMStack/cert/utm.crt
+sudo cp /etc/letsencrypt/live/siem.yourdomain.com/privkey.pem /UTMStack/cert/utm.key
+```
+
+#### Step 4: Restart Services
+
+```bash
+docker service scale utmstack_frontend=1
+docker ps | grep frontend
+sudo systemctl restart docker
+```
+
+---
+
+## Certificate Renewal Automation Script
+
+Create an automated renewal script:
+
+```bash
+#!/bin/bash
+# /root/renew-utm-cert.sh
+
+# Stop frontend
+docker service scale utmstack_frontend=0
+sleep 10
+
+# Start Nginx and renew
+systemctl start nginx
+certbot renew --quiet
+systemctl stop nginx
+
+# Update certificates
+cp /etc/letsencrypt/live/*/fullchain.pem /UTMStack/cert/utm.crt
+cp /etc/letsencrypt/live/*/privkey.pem /UTMStack/cert/utm.key
+chmod 600 /UTMStack/cert/utm.key
+chmod 644 /UTMStack/cert/utm.crt
+
+# Restart services
+docker service scale utmstack_frontend=1
+sleep 30
+systemctl restart docker
+```
+
+Make it executable and add to cron:
+
+```bash
+# Make executable
+chmod +x /root/renew-utm-cert.sh
+
+# Add to crontab (runs monthly)
+(crontab -l 2>/dev/null; echo "0 3 1 * * /root/renew-utm-cert.sh") | crontab -
+```
+
+---
+
+## Alternative: Certbot with DNS Challenge
+
+For environments where port 80 is not accessible:
+
+```bash
+# Install DNS plugin (example for Cloudflare)
+sudo apt install python3-certbot-dns-cloudflare
+
+# Create credentials file
+echo "dns_cloudflare_api_token = YOUR_API_TOKEN" > ~/.secrets/cloudflare.ini
+chmod 600 ~/.secrets/cloudflare.ini
+
+# Generate certificate
+sudo certbot certonly \
+  --dns-cloudflare \
+  --dns-cloudflare-credentials ~/.secrets/cloudflare.ini \
+  -d siem.yourdomain.com
+```
+
+<Note>
+DNS plugins are available for many providers: Route53, Google Cloud DNS, Azure DNS, etc.
+</Note>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Certificate not recognized by browser" icon="browser">
+    **Possible causes**:
+    - Incorrect certificate chain
+    - Self-signed certificate without import
+    
+    **Solution**:
+    - Ensure you're using the fullchain.pem (includes intermediate certificates)
+    - For self-signed: Import CA certificate to browser
+  </Accordion>
+  
+  <Accordion title="Certbot fails with 'Port 80 already in use'" icon="plug">
+    **Solution**:
+    ```bash
+    # Stop any service using port 80
+    docker service scale utmstack_frontend=0
+    sudo systemctl stop nginx
+    sudo systemctl stop apache2
+    
+    # Check what's using port 80
+    sudo netstat -tlnp | grep :80
+    ```
+  </Accordion>
+  
+  <Accordion title="Certificate shows as expired" icon="calendar-xmark">
+    **Solution**:
+    - Renew the certificate using the renewal process above
+    - Check system date/time is correct
+    - Verify certificate files are updated
+  </Accordion>
+  
+  <Accordion title="Services won't restart after certificate update" icon="rotate">
+    **Solution**:
+    ```bash
+    # Check Docker logs
+    docker service logs utmstack_frontend
+    
+    # Verify certificate files
+    openssl x509 -in /UTMStack/cert/utm.crt -noout -dates
+    openssl rsa -in /UTMStack/cert/utm.key -check
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Certificate Monitoring
+
+Monitor your certificate expiration:
+
+```bash
+# Check certificate expiration date
+openssl x509 -enddate -noout -in /UTMStack/cert/utm.crt
+
+# Or check via web
+echo | openssl s_client -servername yourdomain.com -connect yourdomain.com:443 2>/dev/null | openssl x509 -noout -dates
+```
+
+---
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Strong Keys" icon="key">
+    - Minimum 2048-bit RSA keys
+    - 4096-bit recommended for high security
+    - Consider ECDSA for better performance
+  </Card>
+  
+  <Card title="Protect Private Keys" icon="lock">
+    - Never share or expose private keys
+    - Set proper file permissions (600)
+    - Back up securely
+  </Card>
+  
+  <Card title="Monitor Expiration" icon="clock">
+    - Set up expiration alerts
+    - Renew 30 days before expiration
+    - Test renewal process regularly
+  </Card>
+  
+  <Card title="Use Automation" icon="robot">
+    - Enable Certbot auto-renewal
+    - Use scripts for updates
+    - Monitor renewal logs
+  </Card>
+</CardGroup>
+
+---
+
+## Wildcard Certificates
+
+For multiple subdomains:
+
+```bash
+# Generate wildcard certificate
+sudo certbot certonly \
+  --manual \
+  --preferred-challenges dns \
+  -d "*.yourdomain.com" \
+  -d "yourdomain.com"
+```
+
+Follow the prompts to add DNS TXT records for validation.
+
+---
+
+## Support
+
+<Note>
+If you encounter issues during certificate installation or renewal, contact UTMStack support or consult the [community forums](https://github.com/utmstack/UTMStack/discussions).
+</Note>

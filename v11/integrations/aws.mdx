@@ -1,0 +1,138 @@
+---
+title: Integration guide for AWS Cloudwatch
+sidebarTitle: "AWS Cloudwatch"
+description: "AWS Cloudwatch enables auditing, security monitoring, and operational troubleshooting by tracking user activity and API usage. CloudTrail logs, continuously monitors, and retains account activity related to actions across your AWS infrastructure, giving you control over storage, analysis, and remediation actions."
+---
+
+#### 1. Go to IAM configuration panel and click on "Users"
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/iam_config.png"
+  alt="AWS"
+/>
+
+#### 2. Add a new user filling the name and marking the access type "Programmatic access". Then click on Next.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/programmatic_access.png"
+  alt="AWS"
+/>
+
+#### 3. Click on Attach existing policies directly. Find CloudWatchReadOnlyAccess and mark it. Then click on next.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/policies_directly.png"
+  alt="AWS"
+/>
+
+
+#### 4. In the tags page click on next.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/tags.png"
+  alt="AWS"
+/>
+
+#### 5. Create user and then download the csv file with the access and secret keys.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/user_secret.png"
+  alt="AWS"
+/>
+
+
+#### 6. Fill the following inputs with the info obtained in previous steps.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/step6.png"
+  alt="AWS"
+/>
+
+## Configuring AWS Cloudwatch
+
+#### 7. In the CloudTrail panel, select “Create trail”.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/welcome-page.png"
+  alt="AWS"
+/>
+
+#### 8. Fill in the "Trail name" field.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/trail-name.png"
+  alt="AWS"
+/>
+
+
+#### 9. Mark "Select all S3 buckets in your account".
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/s3-buckets.png"
+  alt="AWS"
+/>
+
+#### 10. Fill in the "S3 bucket" field. The name of the bucket must be unique in S3. Then click on “Create”.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/bucket-name.png"
+  alt="AWS"
+/>
+
+#### 11. Click on the name of the trail to edit.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/edit-trail.png"
+  alt="AWS"
+/>
+
+#### 12. Configure CloudWatch Logs.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/cloud-watch-config.png"
+  alt="AWS"
+/>
+
+#### 13. Fill the group name and continue.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/trial-group.png"
+  alt="AWS"
+/>
+
+#### 14. Click on “Allow” to grant CloudTrail permissions.
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/aws/trial-permissions.png"
+  alt="AWS"
+/>
+
+#### 15. Click on the button shown below, to activate the UTMStack features related to this integration

@@ -1,0 +1,44 @@
+---
+title: Integration guide for PfSense
+sidebarTitle: "PfSense"
+description: "PfSense is a free and open-source firewall and router that also features unified threat management load balancing, multi-WAN and more."
+---
+
+## Installing PfSense
+
+<Warning>
+   This integration requires a UTMStack agent to work properly. Please, make sure you have installed it before you continue.
+</Warning>
+
+> This integration relies on Syslog. Logs received via Syslog are parsed and correlated by UTMStack automatically.
+
+
+### 1. Configure your device to send logs to a UTMStack agent on ports:
+        * 7017 TCP
+        * 7017 UDP
+
+### 2. Enable log collector.
+
+<Note>
+    To enable the log collector where you have the UTMStack agent installed, follow the instructions below based on your operating system and preferred protocol.
+</Note>
+
+<Tip>
+    Execute command according to the selected platform
+</Tip>
+
+<Warning>
+    Agent installation commands for operating systems **must be copied directly from your UTMStack instance**, under the **Integrations** section.  
+    This ensures that all tokens, identifiers, and configuration parameters are accurate and specific to your environment.
+</Warning>
+
+#### Example:
+
+<img
+  height="200"
+  className="block rounded-xl"
+  src="/images/integrations/pfsense/step1.png"
+  alt="PfSense"
+/>
+
+### 3. Click on the button shown below, to activate the UTMStack features related to this integration

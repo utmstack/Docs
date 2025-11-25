@@ -1,0 +1,236 @@
+---
+title: System Requirements
+description: "Hardware and software requirements for UTMStack v11"
+---
+
+# System Requirements
+
+This guide outlines the hardware, software, and network requirements needed to successfully deploy UTMStack v11.
+
+## Operating System
+
+UTMStack v11 is designed to run on:
+
+- **Ubuntu 22.04 LTS** (Recommended)
+- Red Hat Enterprise Linux compatible distributions
+
+<Note>
+This installation guide provides instructions to perform the UTMStack installation on Ubuntu 22.04 LTS.
+</Note>
+
+## Hardware Resources
+
+The following specifications are based on typical deployment scenarios. Resource requirements scale with the number of data sources and data volume.
+
+### Definitions
+
+<AccordionGroup>
+  <Accordion title="Hot Log Storage">
+    Non-archived data that can be accessed for analysis at any time. This is the actively indexed data in Elasticsearch.
+  </Accordion>
+  
+  <Accordion title="Cold Log Storage">
+    Archived data that must be restored before accessing it. Used for long-term compliance and historical analysis.
+  </Accordion>
+  
+  <Accordion title="Data Source">
+    Any individual source of logs, including devices, agents, SaaS integrations, network equipment, servers, and applications.
+  </Accordion>
+</AccordionGroup>
+
+### Baseline Assumptions
+
+- **60 data sources** generate approximately **100 GB** of monthly data
+- Specifications below are for **one month of hot log storage**
+
+### Resource Tiers
+
+<CardGroup cols={2}>
+  <Card title="Small Deployment" icon="building">
+    **50 data sources (120 GB/month)**
+    - CPU: 4 Cores
+    - RAM: 16 GB
+    - Disk: 150 GB SSD
+    - Ideal for: Small businesses, branch offices
+  </Card>
+
+  <Card title="Medium Deployment" icon="city">
+    **120 data sources (250 GB/month)**
+    - CPU: 8 Cores
+    - RAM: 16 GB
+    - Disk: 250 GB SSD
+    - Ideal for: Mid-size organizations
+  </Card>
+
+  <Card title="Large Deployment" icon="building-columns">
+    **240 data sources (500 GB/month)**
+    - CPU: 16 Cores
+    - RAM: 32 GB
+    - Disk: 500 GB SSD
+    - Ideal for: Enterprises, MSPs
+  </Card>
+
+  <Card title="Enterprise Deployment" icon="globe">
+    **500 data sources (1 TB/month)**
+    - CPU: 32 Cores
+    - RAM: 64 GB
+    - Disk: 1 TB SSD
+    - Ideal for: Large enterprises
+  </Card>
+</CardGroup>
+
+<Warning>
+**Horizontal Scaling Required**: Deployments exceeding 500 data sources require adding secondary worker nodes for horizontal scaling. See the [Architecture](/v11/Installation/architecture) guide for multi-node deployment patterns.
+</Warning>
+
+### Combining Resource Tiers
+
+You may combine these tiers to allocate resources based on:
+- Number of devices and data sources
+- Desired hot log storage retention period
+- Expected log volume and ingestion rate
+- Analysis and query performance requirements
+
+**Example**: If you need 6 months of hot storage for 120 data sources:
+- Base: 8 Cores, 16 GB RAM, 250 GB Disk
+- Multiply storage by 6: **1.5 TB Disk**
+- Consider increasing RAM to 32 GB for better query performance
+
+## Network Requirements
+
+### Required Ports
+
+The following ports must be accessible for UTMStack to function properly:
+
+<AccordionGroup>
+  <Accordion title="22/TCP - SSH (Secure Shell)" icon="terminal">
+    **Purpose**: Server administration and management
+    
+    **Security Recommendation**: 
+    - Create a firewall rule to allow access only from administrator workstations
+    - Use key-based authentication
+    - Disable password authentication
+    - Consider changing the default port
+  </Accordion>
+
+  <Accordion title="80/TCP - HTTP Redirect" icon="arrow-right">
+    **Purpose**: Web interface HTTP redirector to HTTPS
+    
+    **Security Recommendation**: 
+    - Allow access only from admin and security analyst workstations
+    - Automatically redirects to HTTPS (port 443)
+  </Accordion>
+
+  <Accordion title="443/TCP - HTTPS" icon="lock">
+    **Purpose**: UTMStack web-based graphical user interface
+    
+    **Security Recommendation**: 
+    - Allow access only from admin and security analyst workstations
+    - Use valid SSL/TLS certificates
+    - Enable HSTS (HTTP Strict Transport Security)
+  </Accordion>
+
+  <Accordion title="9090/TCP - Cockpit" icon="server">
+    **Purpose**: Web-based graphical interface for server management
+    
+    **Security Recommendation**: 
+    - Restrict access to administrator workstations only
+    - Consider disabling if not used
+  </Accordion>
+</AccordionGroup>
+
+### Integration Ports
+
+<Info>
+Additional ports will be required during the configuration of UTMStack integrations to receive logs from various data sources. 
+
+These ports vary by integration type (syslog, agents, APIs, etc.). Please follow the security recommendations provided in each specific integration guide.
+</Info>
+
+Common integration ports include:
+- **514/UDP & 514/TCP**: Syslog
+- **6514/TCP**: Syslog over TLS
+- **5044/TCP**: Beats protocol (for agents)
+- **9200/TCP**: Elasticsearch (internal cluster communication)
+- **Various**: API endpoints for cloud integrations
+
+## Storage Recommendations
+
+### Disk Type
+- **SSD strongly recommended** for Elasticsearch data
+- NVMe SSDs provide optimal performance for high-volume deployments
+- Standard HDDs acceptable only for cold storage archives
+
+### Filesystem
+- **ext4** or **XFS** recommended
+- Disable `atime` updates for better performance
+- Consider separate volumes for:
+  - System (`/`)
+  - Docker (`/var/lib/docker`)
+  - UTMStack data (`/opt/utmstack` or custom path)
+
+### IOPS Considerations
+- Minimum 3,000 IOPS for small deployments
+- 10,000+ IOPS recommended for large deployments
+- Monitor disk I/O and scale accordingly
+
+## Network Bandwidth
+
+### Minimum Requirements
+- **100 Mbps** for small deployments (up to 50 sources)
+- **1 Gbps** for medium to large deployments
+- **10 Gbps** for enterprise deployments with 500+ sources
+
+### Considerations
+- Factor in peak ingestion rates
+- Account for user access and dashboard queries
+- Consider bandwidth for backup and data replication
+
+## Browser Compatibility
+
+UTMStack v11 web interface is compatible with:
+
+- **Google Chrome** (recommended) - Latest 2 versions
+- **Mozilla Firefox** - Latest 2 versions  
+- **Microsoft Edge** (Chromium-based) - Latest 2 versions
+- **Safari** - Latest 2 versions
+
+<Warning>
+Internet Explorer is not supported. JavaScript must be enabled.
+</Warning>
+
+## Additional Considerations
+
+### Virtualization
+UTMStack can run on:
+- VMware ESXi
+- Proxmox VE
+- KVM/QEMU
+- Microsoft Hyper-V
+- Cloud platforms (AWS, Azure, GCP)
+
+<Note>
+Ensure CPU cores are dedicated (not overcommitted) for production deployments.
+</Note>
+
+### Time Synchronization
+- **NTP/Chrony** must be configured and synchronized
+- Critical for accurate log correlation and timestamp analysis
+- All nodes in a multi-node deployment must be time-synchronized
+
+### DNS Resolution
+- Proper DNS configuration required for hostname resolution
+- Forward and reverse DNS should be correctly configured
+- Important for multi-node deployments and integrations
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="diagram-project" href="/v11/Installation/architecture">
+    Learn about UTMStack v11 architecture and deployment models
+  </Card>
+  
+  <Card title="Installation Guide" icon="download" href="/v11/Installation/installation">
+    Follow the step-by-step installation instructions
+  </Card>
+</CardGroup>

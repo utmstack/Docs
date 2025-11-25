@@ -1,0 +1,429 @@
+---
+title: Count Open Alerts API
+sidebarTitle: "Count Open Alerts"
+description: "Get the total count of open alerts in the system for dashboard displays and monitoring purposes."
+---
+
+## Overview
+
+This endpoint provides a quick way to retrieve the total number of open alerts currently in the UTMStack system. It's commonly used for dashboard widgets, monitoring displays, and alert metrics.
+
+<Note>
+**Authorization Required:** Include a valid Bearer Token in the Authorization header.
+</Note>
+
+---
+
+## Endpoint Details
+
+<Card title="GET /api/utm-alerts/count-open-alerts" icon="calculator">
+  **Method:** GET  
+  **Authentication:** Bearer Token required  
+  **Response:** Integer count of open alerts
+</Card>
+
+---
+
+## Request & Response Examples
+
+<RequestExample>
+
+```bash Request
+curl -X GET "https://demo.utmstack.com/api/utm-alerts/count-open-alerts" \
+  -H "Authorization: Bearer <your_access_token>"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+42
+```
+
+</ResponseExample>
+
+### Additional Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+import axios from "axios";
+
+const getOpenAlertsCount = async () => {
+  const token = "<your_access_token>";
+
+  try {
+    const response = await axios.get(
+      "https://demo.utmstack.com/api/utm-alerts/count-open-alerts",
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    
+    console.log("Open alerts count:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error getting count:", error.response?.data || error.message);
+  }
+};
+```
+
+```python Python
+import requests
+
+def get_open_alerts_count():
+    url = "https://demo.utmstack.com/api/utm-alerts/count-open-alerts"
+    
+    headers = {
+        "Authorization": "Bearer <your_access_token>"
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        count = response.json()
+        print(f"Open alerts count: {count}")
+        return count
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+    
+    return None
+```
+
+```bash Shell Script
+#!/bin/bash
+
+TOKEN="your_access_token"
+BASE_URL="https://demo.utmstack.com"
+
+# Get open alerts count
+count=$(curl -s -H "Authorization: Bearer $TOKEN" \
+  "$BASE_URL/api/utm-alerts/count-open-alerts")
+
+echo "Current open alerts: $count"
+
+# Use in monitoring script
+if [ "$count" -gt 100 ]; then
+  echo "HIGH ALERT: More than 100 open alerts!"
+fi
+```
+
+</CodeGroup>
+
+---
+
+## Response Details
+
+### Successful Response
+
+<Tabs>
+  <Tab title="Success Response">
+    ```json
+    42
+    ```
+    The response is a simple integer representing the total count of open alerts.
+  </Tab>
+  <Tab title="Zero Alerts">
+    ```json
+    0
+    ```
+    When no open alerts exist, the response is `0`.
+  </Tab>
+  <Tab title="Error Response">
+    ```json
+    {
+      "error": "Internal server error",
+      "message": "Unable to retrieve alert count",
+      "timestamp": "2024-10-16T10:30:00.000Z",
+      "status": 500
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Successfully retrieved the count of open alerts
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid Bearer token
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Internal server error while retrieving count
+</ResponseField>
+
+---
+
+## Use Cases
+
+### Dashboard Integration
+
+```javascript
+// Dashboard widget example
+async function updateAlertCountWidget() {
+  try {
+    const count = await getOpenAlertsCount();
+    document.getElementById('alert-count').textContent = count;
+    
+    // Update status indicator
+    const indicator = document.getElementById('alert-status');
+    if (count === 0) {
+      indicator.className = 'status-good';
+      indicator.textContent = 'All Clear';
+    } else if (count < 10) {
+      indicator.className = 'status-warning';
+      indicator.textContent = 'Normal';
+    } else {
+      indicator.className = 'status-critical';
+      indicator.textContent = 'High Alert Volume';
+    }
+  } catch (error) {
+    console.error('Failed to update alert count:', error);
+  }
+}
+
+// Update every 30 seconds
+setInterval(updateAlertCountWidget, 30000);
+```
+
+### Monitoring and Alerting
+
+```python
+import requests
+import time
+from datetime import datetime
+
+def monitor_alert_levels():
+    """Monitor alert levels and send notifications when thresholds are exceeded"""
+    
+    thresholds = {
+        'warning': 50,
+        'critical': 100
+    }
+    
+    try:
+        count = get_open_alerts_count()
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        print(f"[{timestamp}] Open alerts: {count}")
+        
+        if count >= thresholds['critical']:
+            send_notification(f"CRITICAL: {count} open alerts!", 'critical')
+        elif count >= thresholds['warning']:
+            send_notification(f"WARNING: {count} open alerts", 'warning')
+        
+    except Exception as e:
+        print(f"Monitoring error: {e}")
+
+def send_notification(message, level):
+    """Send notification to monitoring system"""
+    print(f"NOTIFICATION [{level.upper()}]: {message}")
+    # Integrate with your notification system (Slack, email, etc.)
+
+# Run monitoring every 5 minutes
+while True:
+    monitor_alert_levels()
+    time.sleep(300)
+```
+
+### Metrics Collection
+
+```bash
+#!/bin/bash
+# Metrics collection script for Prometheus/Grafana
+
+TOKEN="your_access_token"
+BASE_URL="https://demo.utmstack.com"
+METRICS_FILE="/var/log/utmstack/alert_metrics.log"
+
+while true; do
+  timestamp=$(date +%s)
+  count=$(curl -s -H "Authorization: Bearer $TOKEN" \
+    "$BASE_URL/api/utm-alerts/count-open-alerts")
+  
+  # Write metrics in Prometheus format
+  echo "utmstack_open_alerts_total $count $timestamp" >> $METRICS_FILE
+  
+  sleep 60
+done
+```
+
+---
+
+## Performance Considerations
+
+<Info>
+**Performance Notes:**
+- This endpoint is optimized for frequent polling
+- Response time is typically under 100ms
+- Safe to call every 30-60 seconds for real-time dashboards
+- Uses database indexing for fast count operations
+- Minimal server resources required
+</Info>
+
+---
+
+## Integration Examples
+
+### React Dashboard Component
+
+```jsx
+import React, { useState, useEffect } from 'react';
+
+const AlertCountWidget = () => {
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/utm-alerts/count-open-alerts', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (response.ok) {
+          const alertCount = await response.json();
+          setCount(alertCount);
+          setError(null);
+        } else {
+          throw new Error('Failed to fetch alert count');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  return (
+    <div className={`alert-widget ${count > 50 ? 'high-count' : 'normal-count'}`}>
+      <h3>Open Alerts</h3>
+      <div className="count-display">{count}</div>
+      <div className="status-text">
+        {count === 0 ? 'All Clear' : `${count} alerts require attention`}
+      </div>
+    </div>
+  );
+};
+
+export default AlertCountWidget;
+```
+
+### PowerShell Monitoring Script
+
+```powershell
+# PowerShell script for Windows environments
+param(
+    [string]$BaseUrl = "https://demo.utmstack.com",
+    [string]$Token = "your_access_token"
+)
+
+function Get-OpenAlertsCount {
+    $headers = @{
+        'Authorization' = "Bearer $Token"
+    }
+    
+    try {
+        $response = Invoke-RestMethod -Uri "$BaseUrl/api/utm-alerts/count-open-alerts" -Headers $headers -Method Get
+        return $response
+    }
+    catch {
+        Write-Error "Failed to get alert count: $($_.Exception.Message)"
+        return $null
+    }
+}
+
+# Main monitoring loop
+while ($true) {
+    $count = Get-OpenAlertsCount
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    
+    if ($count -ne $null) {
+        Write-Host "[$timestamp] Open alerts: $count"
+        
+        # Write to Windows Event Log
+        if ($count -gt 100) {
+            Write-EventLog -LogName Application -Source "UTMStack Monitor" -EventID 1001 -EntryType Warning -Message "High alert count: $count open alerts"
+        }
+    }
+    
+    Start-Sleep -Seconds 300  # Wait 5 minutes
+}
+```
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Polling Frequency">
+    **Recommended intervals:**
+    - Real-time dashboards: 30-60 seconds
+    - Monitoring systems: 2-5 minutes
+    - Reporting systems: 15-30 minutes
+    - Avoid polling more frequently than every 15 seconds
+  </Accordion>
+
+  <Accordion title="Error Handling">
+    **Handle failures gracefully:**
+    - Cache the last known count during outages
+    - Implement exponential backoff for retries
+    - Set timeout values for requests
+    - Log failures for troubleshooting
+  </Accordion>
+
+  <Accordion title="Alerting Thresholds">
+    **Establish meaningful thresholds:**
+    - 0 alerts: All clear status
+    - 1-10 alerts: Normal operational level
+    - 11-50 alerts: Elevated attention needed
+    - 50+ alerts: High volume investigation required
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## OpenAPI Specification
+
+```yaml
+get:
+  summary: "Get count of open alerts"
+  tags:
+    - Alert Analytics
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: "Count of open alerts"
+      content:
+        application/json:
+          schema:
+            type: integer
+            example: 42
+            description: "Total number of open alerts in the system"
+    '401':
+      description: "Unauthorized"
+    '500':
+      description: "Internal server error"
+```
