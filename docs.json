@@ -30,8 +30,7 @@
                   "v11/Installation/system-requirements",
                   "v11/Installation/installation",
                   "v11/Installation/firewall_rules",
-                  "v11/Installation/ssl_certificate",
-                  "v11/Installation/update_guide"
+                  "v11/Installation/ssl_certificate"
                 ]
               },
               {
