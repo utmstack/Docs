@@ -148,7 +148,8 @@
               {
                 "group": "Authentication",
                 "pages": [
-                  "v11/apidoc/authentication"
+                  "v11/apidoc/authentication",
+                  "v11/apidoc/api-keys"
                 ]
               },
               {

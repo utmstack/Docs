@@ -1,0 +1,307 @@
+---
+title: API Keys Management
+description: "Create and manage API keys for secure programmatic access to UTMStack"
+---
+
+API Keys provide secure programmatic access to UTMStack's API endpoints. This guide walks you through creating, managing, and using API keys for authentication.
+
+<Info>
+API Keys are an alternative authentication method to user credentials, ideal for integrations, automation scripts, and third-party applications.
+</Info>
+
+---
+
+## Accessing API Keys Management
+
+<Steps>
+  <Step title="Navigate to Settings">
+    From the UTMStack main interface, click on the **Settings** menu in the left sidebar.
+    <img src="/images/apidoc/api-keys-management.png" alt="API Keys Management Page" />
+  </Step>
+
+  <Step title="Open Connection Keys Section">
+    Select **Connection Keys** from the settings menu to access the Connection Keys management page.
+    
+    <img src="/images/apidoc/api-keys-list.png" alt="API Keys Management Page" />
+    
+    The API Keys page displays a table with:
+    - **Name**: Descriptive name of the API key
+    - **Created At**: Timestamp when the key was created
+    - **Expires At**: Expiration date and time
+    - **Status indicators**: Red icon for expired or problematic keys, green for active
+    - **Actions**: Icons to view details, regenerate, or delete each key
+    - **Pagination**: Navigate through multiple pages of API keys at the bottom
+  </Step>
+</Steps>
+
+---
+
+## Creating a New API Key
+
+<Steps>
+  <Step title="Click Create API Key">
+    On the API Keys page, locate and click the **Create Api Key** button in the top right corner.
+    
+    <img src="/images/apidoc/api-keys-list.png" alt="Create API Key Button" />
+    
+    <Note>
+    The button is positioned above the API keys table for easy access.
+    </Note>
+  </Step>
+
+  <Step title="Configure API Key Details">
+    A modal dialog titled **"Create Api Key"** will appear with the following fields:
+    
+    <img src="/images/apidoc/create-api-key-form.png" alt="Create API Key Form" />
+    
+    ### Name
+    Enter a descriptive name for your API key (e.g., "Integration Agent", "Monitoring Script", "Test").
+    
+    <Tip>
+    Use clear, descriptive names that indicate the purpose and environment of the key.
+    </Tip>
+  </Step>
+
+  <Step title="Set Expiration Date">
+    Click the calendar icon next to **"Expires At"** to open the date picker.
+    
+    Select a future date when the API key should expire (e.g., `2035-11-01`).
+    
+    **Best Practices**:
+    - Set shorter expiration periods for testing or temporary integrations (30-90 days)
+    - Use longer periods (e.g., 1 year) for production integrations
+    - Regularly rotate API keys before expiration for enhanced security
+    
+    <Note>
+    Expired keys will be automatically disabled and cannot be used for authentication. You'll need to regenerate them.
+    </Note>
+  </Step>
+
+  <Step title="Configure Allowed IPs (Security)">
+    In the **"Allowed IPs"** field, add IP addresses or CIDR ranges that are permitted to use this API key.
+    
+    **Input Format**:
+    - Type or paste an IP address or CIDR notation
+    - Click the plus icon (⊕) to add it to the allowed list
+    - Example placeholder: `Add IP address or CIDR (e.g., 192.168.1.0/24)`
+    
+    **Format Examples**:
+    - Single IP: `192.168.1.10`
+    - CIDR Range: `192.168.1.0/24`
+    - Multiple entries: Add each IP/CIDR separately by clicking the plus icon
+    
+    <Warning>
+    **Security Recommendation**: Always restrict API keys to specific IP addresses or ranges. The form will show an error message "Please enter an IP address or CIDR" if you try to proceed without adding at least one IP.
+    
+    Avoid leaving this field empty unless absolutely necessary for your use case.
+    </Warning>
+  </Step>
+
+  <Step title="Create the API Key">
+    Click the **Create API Key** button to generate the key.
+  </Step>
+
+  <Step title="Copy and Secure Your API Key">
+    After clicking **Create Api Key**, a success dialog titled **"Generated Api Key"** will appear displaying your newly created API key.
+    
+    <img src="/images/apidoc/generated-api-key.png" alt="Generated API Key" />
+    
+    The dialog shows:
+    - A message: "COPY YOUR API KEY AS IT WILL BE SHOWN ONLY ONCE"
+    - The API key value (partially masked with dots: `••••••••`)
+    - A **Copy** button to copy the key to your clipboard
+    - A **Close** button
+    
+    <Warning>
+    **CRITICAL - READ CAREFULLY**: This is the **only time** you will see the complete API key. 
+    
+    **Action Required**:
+    1. Click the **Copy** button immediately to copy the key to your clipboard
+    2. Paste and store it in a secure password manager or secrets vault
+    3. **You cannot retrieve this key again** - if lost, you must regenerate it
+    4. Only click **Close** after you have safely stored the key
+    </Warning>
+    
+    <Tip>
+    Verify that you've successfully copied the key by pasting it into a secure location before closing the dialog.
+    </Tip>
+  </Step>
+</Steps>
+---
+
+## Managing Existing API Keys
+
+### View API Key Details
+
+Click on any API key in the list to view its details:
+- Name
+- Creation date
+- Expiration date
+- Allowed IP addresses
+- Last used timestamp
+
+### Regenerate an API Key
+
+If an API key is compromised or needs to be rotated:
+
+<Steps>
+  <Step title="Select the API Key">
+    Find the API key you want to regenerate in the list.
+  </Step>
+
+  <Step title="Click Regenerate">
+    Click the regenerate icon (circular arrows) next to the API key.
+  </Step>
+
+  <Step title="Confirm Regeneration">
+    Confirm the action. The old key will be invalidated immediately.
+  </Step>
+
+  <Step title="Copy New Key">
+    Copy and securely store the newly generated key.
+  </Step>
+</Steps>
+
+<Warning>
+Regenerating an API key immediately invalidates the old key. Update all applications using the old key to prevent authentication failures.
+</Warning>
+
+---
+
+### Delete an API Key
+
+To permanently remove an API key:
+
+<Steps>
+  <Step title="Select the API Key">
+    Find the API key you want to delete in the list.
+  </Step>
+
+  <Step title="Click Delete">
+    Click the delete icon (trash can) next to the API key.
+  </Step>
+
+  <Step title="Confirm Deletion">
+    Confirm the action. This cannot be undone.
+  </Step>
+</Steps>
+
+<Warning>
+Deleting an API key is permanent and cannot be undone. All applications using this key will immediately lose access.
+</Warning>
+
+---
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Restrict by IP Address" icon="shield-check">
+    **Always** configure allowed IP addresses or CIDR ranges for each API key. This prevents unauthorized use if a key is compromised.
+    
+    **Example**:
+    - Development: `192.168.1.0/24` (internal network only)
+    - Production: `203.0.113.10` (specific server IP)
+    - Cloud: Use your cloud provider's outbound IP ranges
+  </Accordion>
+
+  <Accordion title="Use Short Expiration Periods" icon="clock">
+    Set appropriate expiration dates based on use case:
+    - **Testing/Development**: 30-90 days
+    - **Production**: 6-12 months
+    - **Temporary integrations**: As short as needed
+    
+    Regularly rotate keys before expiration.
+  </Accordion>
+
+  <Accordion title="Store Keys Securely" icon="key">
+    Never store API keys in:
+    - Source code repositories
+    - Configuration files committed to version control
+    - Plain text files on disk
+    - Browser local storage
+    
+    **Secure storage options**:
+    - Environment variables
+    - Secret management services (HashiCorp Vault, AWS Secrets Manager)
+    - Encrypted configuration stores
+    - Password managers (for manual testing)
+  </Accordion>
+
+  <Accordion title="Use Descriptive Names" icon="tag">
+    Name API keys clearly to indicate their purpose and owner:
+    - ✅ "Production-SIEM-Integration-Server-01"
+    - ✅ "Dev-Testing-John-Temp"
+    - ✅ "Monitoring-Script-Nagios"
+    - ❌ "Test"
+    - ❌ "Key1"
+  </Accordion>
+
+  <Accordion title="Monitor API Key Usage" icon="chart-line">
+    Regularly review:
+    - Active API keys and their purpose
+    - Last used timestamps
+    - Keys approaching expiration
+    - Unused or forgotten keys (delete them)
+    
+    Set up alerts for:
+    - Failed authentication attempts
+    - Keys used from unexpected IP addresses
+    - Keys approaching expiration
+  </Accordion>
+
+  <Accordion title="Principle of Least Privilege" icon="user-shield">
+    Create separate API keys for different purposes:
+    - One key per application/integration
+    - One key per environment (dev, staging, production)
+    - Different keys for different teams
+    
+    This limits the impact if a single key is compromised.
+  </Accordion>
+
+  <Accordion title="Immediate Revocation" icon="ban">
+    If you suspect a key has been compromised:
+    1. **Immediately regenerate or delete it**
+    2. Review access logs for suspicious activity
+    3. Update all legitimate applications with the new key
+    4. Investigate the potential security incident
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## API Key Lifecycle Management
+
+### Recommended Workflow
+
+<Steps>
+  <Step title="Create Key with Clear Purpose">
+    Define why you need the key and document its intended use.
+  </Step>
+
+  <Step title="Configure Security Settings">
+    - Set appropriate expiration date
+    - Add allowed IP restrictions
+    - Use descriptive name
+  </Step>
+
+  <Step title="Securely Distribute">
+    Store the key in a secure location and share only with authorized personnel through secure channels.
+  </Step>
+
+  <Step title="Monitor Usage">
+    Regularly check when the key was last used and from which IPs.
+  </Step>
+
+  <Step title="Rotate Before Expiration">
+    Create a new key and update applications before the old one expires.
+  </Step>
+
+  <Step title="Revoke Old Key">
+    After successfully transitioning to the new key, delete or let the old key expire.
+  </Step>
+</Steps>
+---
+
+<Note>
+For enterprise support with API integrations or custom development, contact the UTMStack support team at support@utmstack.com
+</Note>
