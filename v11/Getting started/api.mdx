@@ -8,8 +8,8 @@ description: "Complete guide for authenticating with the UTMStack API using Bear
 
 UTMStack API supports two authentication methods:
 
-1. **Bearer Token Authentication**: Uses username/password to obtain a Bearer token for API requests
-2. **API Key Authentication**: Uses an internal API key sent in request headers
+1. **Bearer Token Authentication**: Uses username/password to obtain a JWT Bearer token for API requests
+2. **API Key Authentication**: Uses managed API keys created through UTMStack Settings
 
 Choose the authentication method that best fits your use case and security requirements.
 
@@ -158,58 +158,57 @@ curl -X 'POST' \
   "path": "/api/elasticsearch/search"
 }
 ````
+
 ----
 
 ## Method 2: API Key Authentication
 
-<Tip>
-    Use the **Utm-Internal-Key** header for server-to-server authentication without requiring user credentials.
-</Tip>
+<Info>
+API Keys provide a secure alternative to Bearer tokens for programmatic access. They are ideal for integrations, automation scripts, and third-party applications.
+</Info>
 
-<Warning>
-    **Important Security Notice**: This API key is unique to each UTMStack instance and never changes. It must be kept strictly confidential and should never be shared with anyone outside your organization. Improper use or unauthorized access to this key could compromise your entire UTMStack instance. Do not modify this value in your configuration files.
-</Warning>
+### Step 1: Create an API Key
 
-### Step 1: Obtain the API Key
+Before you can use API Key authentication, you need to create an API key in UTMStack:
 
-To get the internal API key, you need access to your UTMStack server instance:
+<Steps>
+  <Step title="Navigate to Settings">
+    Go to **Settings** > **API Keys** in your UTMStack interface.
+  </Step>
 
-1. Connect to your UTMStack server terminal
-2. Run the following command:
+  <Step title="Create New API Key">
+    Click **Create API Key** and configure:
+    - **Name**: Descriptive name for your integration
+    - **Expires At**: Set expiration date
+    - **Allowed IPs**: Add IP addresses or CIDR ranges (recommended for security)
+  </Step>
 
-````bash
-cat compose.yml
-````
+  <Step title="Copy Your API Key">
+    After creation, **copy the API key immediately** - it will only be shown once!
+    
+    <Warning>
+    Store the API key securely. You cannot retrieve it again after closing the dialog.
+    </Warning>
+  </Step>
+</Steps>
 
-3. Look for the `backend:` section, then under `environment:`, find the value:
+<Card title="Complete API Key Management Guide" icon="key" href="/v11/apidoc/api-keys">
+  For detailed instructions on creating, managing, and securing API keys, see the API Keys Management documentation.
+</Card>
 
-````yaml
-backend:
-  environment:
-    INTERNAL_KEY: your_api_key_value_here
-````
-
-<Note>
-    Copy the value after `INTERNAL_KEY =` - this is your API key for authentication.
-</Note>
+---
 
 ### Step 2: Use the API Key in Requests
 
-Include the API key in the `Utm-Internal-Key` header when making requests:
+Include your API key as a Bearer token in the `Authorization` header:
 
-> **Header Configuration:**
-- **Name**: `Utm-Internal-Key`
-- **Location**: Header
-- **Value**: The internal key obtained from `compose.yml`
-
-> **Request Example:**
-
-````bash
+<CodeGroup>
+```bash cURL
 curl -X 'POST' \
   'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' \
   -H 'accept: */*' \
   -H 'Content-Type: application/json' \
-  -H 'Utm-Internal-Key: your_internal_key_value' \
+  -H 'Authorization: Bearer YOUR_API_KEY_HERE' \
   -d '[
     {
       "field": "status",
@@ -230,17 +229,150 @@ curl -X 'POST' \
       ]
     }
   ]'
-````
+```
 
-<Warning>
-    Keep your internal API key secure and never expose it in client-side code. This method is intended for server-to-server communication.
-</Warning>
+```python Python
+import requests
+import os
+
+# Load API key from environment variable
+api_key = os.environ.get('UTMSTACK_API_KEY')
+
+url = "https://demo.utmstack.com/api/elasticsearch/search"
+headers = {
+    "Authorization": f"Bearer {api_key}",
+    "Content-Type": "application/json"
+}
+
+params = {
+    "page": 1,
+    "size": 25,
+    "top": 100000000,
+    "indexPattern": "alert-*",
+    "sort": "@timestamp,desc"
+}
+
+filters = [
+    {
+        "field": "status",
+        "operator": "IS",
+        "value": 2
+    },
+    {
+        "field": "tags",
+        "operator": "IS_NOT",
+        "value": "False positive"
+    },
+    {
+        "field": "@timestamp",
+        "operator": "IS_BETWEEN",
+        "value": ["now-7d", "now"]
+    }
+]
+
+response = requests.post(url, headers=headers, params=params, json=filters)
+print(response.json())
+```
+
+```javascript Node.js
+const axios = require('axios');
+
+// Load API key from environment variable
+const apiKey = process.env.UTMSTACK_API_KEY;
+
+const config = {
+  headers: {
+    'Authorization': `Bearer ${apiKey}`,
+    'Content-Type': 'application/json'
+  },
+  params: {
+    page: 1,
+    size: 25,
+    top: 100000000,
+    indexPattern: 'alert-*',
+    sort: '@timestamp,desc'
+  }
+};
+
+const filters = [
+  {
+    field: 'status',
+    operator: 'IS',
+    value: 2
+  },
+  {
+    field: 'tags',
+    operator: 'IS_NOT',
+    value: 'False positive'
+  },
+  {
+    field: '@timestamp',
+    operator: 'IS_BETWEEN',
+    value: ['now-7d', 'now']
+  }
+];
+
+axios.post('https://demo.utmstack.com/api/elasticsearch/search', filters, config)
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+```
+
+```powershell PowerShell
+# Load API key from environment variable
+$apiKey = $env:UTMSTACK_API_KEY
+
+$headers = @{
+    "Authorization" = "Bearer $apiKey"
+    "Content-Type" = "application/json"
+}
+
+$params = @{
+    page = 1
+    size = 25
+    top = 100000000
+    indexPattern = "alert-*"
+    sort = "@timestamp,desc"
+}
+
+$filters = @(
+    @{
+        field = "status"
+        operator = "IS"
+        value = 2
+    },
+    @{
+        field = "tags"
+        operator = "IS_NOT"
+        value = "False positive"
+    },
+    @{
+        field = "@timestamp"
+        operator = "IS_BETWEEN"
+        value = @("now-7d", "now")
+    }
+)
+
+$response = Invoke-RestMethod -Uri "https://demo.utmstack.com/api/elasticsearch/search" `
+    -Method Post `
+    -Headers $headers `
+    -Body ($params | ConvertTo-Json) `
+    -ContentType "application/json"
+
+$response | ConvertTo-Json
+```
+</CodeGroup>
+
+<Note>
+The API key is used exactly like a Bearer token - just replace the JWT token with your API key in the Authorization header.
+</Note>
+
+---
 
 ### Step 3: API Key Response
 
-When using the correct API key, you'll receive the same successful response as with Bearer token authentication:
+When using a valid API key, you'll receive the same successful response as with JWT authentication:
 
-````json
+```json
 {
   "severity": 3,
   "regDateRulebot": null,
@@ -252,10 +384,7 @@ When using the correct API key, you'll receive the same successful response as w
     "accuracyRadius": 5,
     "city": "New Delhi",
     "ip": "122.176.80.250",
-    "coordinates": [
-      28.6320,
-      77.2202
-    ]
+    "coordinates": [28.6320, 77.2202]
   },
   "port": 63725,
   "countryCode": "IN",
@@ -266,22 +395,71 @@ When using the correct API key, you'll receive the same successful response as w
   "user": "Administrator",
   "san": 24505
 }
-````
+```
 
-----
+---
+
+### API Key Best Practices
+
+<AccordionGroup>
+  <Accordion title="Store Keys Securely" icon="shield-check">
+    - Never hardcode API keys in source code
+    - Use environment variables or secret management systems
+    - Avoid committing keys to version control
+    - Store in encrypted configuration or password managers
+  </Accordion>
+
+  <Accordion title="Restrict by IP Address" icon="network-wired">
+    Always configure allowed IP addresses when creating API keys:
+    - Limits access to specific servers or networks
+    - Prevents unauthorized use if key is compromised
+    - Use CIDR notation for IP ranges
+  </Accordion>
+
+  <Accordion title="Set Appropriate Expiration" icon="clock">
+    - Use shorter expiration periods for development (30-90 days)
+    - Set longer periods for production (6-12 months)
+    - Rotate keys before expiration
+    - Remove or regenerate unused keys
+  </Accordion>
+
+  <Accordion title="Monitor and Audit" icon="chart-line">
+    - Regularly review active API keys in Settings
+    - Check last used timestamps
+    - Monitor for unexpected access patterns
+    - Set up alerts for failed authentication attempts
+  </Accordion>
+
+  <Accordion title="One Key Per Integration" icon="puzzle-piece">
+    Create separate API keys for different:
+    - Applications or services
+    - Environments (dev, staging, production)
+    - Teams or departments
+    
+    This limits impact if a key is compromised.
+  </Accordion>
+</AccordionGroup>
+
+---
 
 ## Authentication Methods Comparison
 
-| Feature | Bearer Token | API Key (Utm-Internal-Key) |
-|---------|-------------|----------------------------|
-| **Use Case** | User-based authentication | Server-to-server communication |
-| **Security** | Token expires, user-specific | Long-lived, instance-specific |
-| **Setup** | Requires user credentials | Requires server access |
-| **Best For** | Interactive applications | Automated scripts, integrations |
+| Feature | Bearer Token (JWT) | API Key |
+|---------|-------------------|---------|
+| **Use Case** | User-based authentication, interactive applications | Server-to-server, automation, integrations |
+| **Creation** | Obtained via login credentials | Created in Settings > API Keys |
+| **Lifetime** | Short-lived, expires after session | Long-lived, custom expiration date |
+| **Security** | User-specific, session-based | Key-specific, can be restricted by IP |
+| **Revocation** | Automatic on logout | Manual deletion or expiration |
+| **Best For** | Web applications, user sessions | Automated scripts, CI/CD, third-party apps |
+| **Management** | Automatic | Manual via Settings UI |
 
-<Note>
-    Choose Bearer Token for user-facing applications and API Key for backend integrations and automated systems.
-</Note>
+<Tip>
+**Recommendation**: 
+- Use **Bearer Token** for user-facing applications and interactive sessions
+- Use **API Key** for backend integrations, automation scripts, and long-running services
+</Tip>
+
 
 ----
 

@@ -4,18 +4,17 @@ sidebarTitle: "API Authentication"
 description: "Complete guide for authenticating with the UTMStack API using Bearer Token or API Key methods. Learn how to access secured endpoints and find official API documentation."
 ---
 
-## Authentication Methods
+## Authentication Method
 
-UTMStack API supports two authentication methods:
+UTMStack API uses **Bearer Token Authentication**:
 
-1. **Bearer Token Authentication**: Uses username/password to obtain a Bearer token for API requests
-2. **API Key Authentication**: Uses an internal API key sent in request headers
-
-Choose the authentication method that best fits your use case and security requirements.
+- Uses username/password to obtain a Bearer token for API requests
+- Secure, user-specific authentication with token expiration
+- Recommended for all API integrations and applications
 
 ---
 
-## Method 1: Bearer Token Authentication
+## Bearer Token Authentication
 
 ###  Step 1: Authentication Request
 
@@ -158,130 +157,7 @@ curl -X 'POST' \
   "path": "/api/elasticsearch/search"
 }
 ````
-----
 
-## Method 2: API Key Authentication
-
-<Tip>
-    Use the **Utm-Internal-Key** header for server-to-server authentication without requiring user credentials.
-</Tip>
-
-<Warning>
-    **Important Security Notice**: This API key is unique to each UTMStack instance and never changes. It must be kept strictly confidential and should never be shared with anyone outside your organization. Improper use or unauthorized access to this key could compromise your entire UTMStack instance. Do not modify this value in your configuration files.
-</Warning>
-
-### Step 1: Obtain the API Key
-
-To get the internal API key, you need access to your UTMStack server instance:
-
-1. Connect to your UTMStack server terminal
-2. Run the following command:
-
-````bash
-cat compose.yml
-````
-
-3. Look for the `backend:` section, then under `environment:`, find the value:
-
-````yaml
-backend:
-  environment:
-    INTERNAL_KEY: your_api_key_value_here
-````
-
-<Note>
-    Copy the value after `INTERNAL_KEY =` - this is your API key for authentication.
-</Note>
-
-### Step 2: Use the API Key in Requests
-
-Include the API key in the `Utm-Internal-Key` header when making requests:
-
-> **Header Configuration:**
-- **Name**: `Utm-Internal-Key`
-- **Location**: Header
-- **Value**: The internal key obtained from `compose.yml`
-
-> **Request Example:**
-
-````bash
-curl -X 'POST' \
-  'https://demo.utmstack.com/api/elasticsearch/search?page=1&size=25&top=100000000&indexPattern=alert-*&sort=@timestamp,desc' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -H 'Utm-Internal-Key: your_internal_key_value' \
-  -d '[
-    {
-      "field": "status",
-      "operator": "IS",
-      "value": 2
-    },
-    {
-      "field": "tags",
-      "operator": "IS_NOT",
-      "value": "False positive"
-    },
-    {
-      "field": "@timestamp",
-      "operator": "IS_BETWEEN",
-      "value": [
-        "now-7d",
-        "now"
-      ]
-    }
-  ]'
-````
-
-<Warning>
-    Keep your internal API key secure and never expose it in client-side code. This method is intended for server-to-server communication.
-</Warning>
-
-### Step 3: API Key Response
-
-When using the correct API key, you'll receive the same successful response as with Bearer token authentication:
-
-````json
-{
-  "severity": 3,
-  "regDateRulebot": null,
-  "severityLabel": "High",
-  "notes": "",
-  "dataType": "alertEventLog",
-  "destination": {
-    "country": "India",
-    "accuracyRadius": 5,
-    "city": "New Delhi",
-    "ip": "122.176.80.250",
-    "coordinates": [
-      28.6320,
-      77.2202
-    ]
-  },
-  "port": 63725,
-  "countryCode": "IN",
-  "subProtocolCategory": "false",
-  "alertEventDetailCateg": "utmstack.demo",
-  "isSatelliteProvider": false,
-  "ago": "Thatti Airtel Ltd. , Telangela Services",
-  "user": "Administrator",
-  "san": 24505
-}
-````
-
-----
-
-## Authentication Methods Comparison
-
-| Feature | Bearer Token | API Key (Utm-Internal-Key) |
-|---------|-------------|----------------------------|
-| **Use Case** | User-based authentication | Server-to-server communication |
-| **Security** | Token expires, user-specific | Long-lived, instance-specific |
-| **Setup** | Requires user credentials | Requires server access |
-| **Best For** | Interactive applications | Automated scripts, integrations |
-
-<Note>
-    Choose Bearer Token for user-facing applications and API Key for backend integrations and automated systems.
-</Note>
 
 ----
 
