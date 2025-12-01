@@ -40,6 +40,7 @@
                   "v11/rules-and-filters/overview",
                   "v11/rules-and-filters/implementing-rules",
                   "v11/rules-and-filters/implementing-filters",
+                  "v11/rules-and-filters/adding-custom-filters",
                   "v11/rules-and-filters/best-practices"
                 ]
               }

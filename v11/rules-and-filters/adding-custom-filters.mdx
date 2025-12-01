@@ -1,0 +1,774 @@
+---
+title: Adding Custom Filters to Data Sources
+description: "Create custom filters for syslog and other data sources that aren't covered in standard integration guides"
+---
+
+This guide explains how to add custom filters to data sources that send logs via syslog or other methods, especially when they aren't covered in the standard integration documentation.
+
+<Info>
+Custom filters allow you to parse, transform, and normalize logs from any data source, making them compatible with UTMStack's correlation engine and analytics.
+</Info>
+
+---
+
+## When to Use Custom Filters
+
+Use custom filters when:
+- Your data source sends logs via syslog but doesn't have a dedicated integration guide
+- You need to parse custom log formats
+- Standard filters don't extract all the fields you need
+- You're integrating a proprietary or uncommon system
+- You need to transform data before it reaches the correlation engine
+
+<Note>
+Custom filters follow the same YAML-based format as standard filters. Review the [Implementing Filters](/v11/rules-and-filters/implementing-filters) guide for syntax details.
+</Note>
+
+---
+
+## Prerequisites
+
+Before creating custom filters:
+
+<Steps>
+  <Step title="Configure Data Source">
+    Ensure your data source is sending logs to UTMStack via:
+    - Syslog (UDP 514 or TCP 514)
+    - Syslog-TLS (TCP 6514)
+    - Custom collector port
+  </Step>
+
+  <Step title="Understand Log Format">
+    Collect sample logs from your data source to understand:
+    - Log structure (JSON, key-value, plain text)
+    - Field names and values
+    - Timestamp format
+    - Important fields to extract
+  </Step>
+
+  <Step title="Review Filter Types">
+    Familiarize yourself with available filter step types:
+    - `json` - Parse JSON logs
+    - `grok` - Parse unstructured text with patterns
+    - `kv` (key-value) - Parse key=value format
+    - `cast` - Convert field types
+    - `rename` - Rename fields
+    - Others covered in the [filter documentation](/v11/rules-and-filters/implementing-filters)
+  </Step>
+</Steps>
+
+---
+
+## Step-by-Step: Creating a Custom Filter
+
+### Step 1: Open Data Processing
+
+<Steps>
+  <Step title="Navigate to Data Processing">
+    From the UTMStack main interface, locate the **Data Processing** option in the right sidebar menu.
+    
+    <img src="/images/data-processing/menu.png" alt="Data Processing Menu" />
+    
+    Click on **Data Processing** to open the data sources management page.
+  </Step>
+</Steps>
+
+The Data Processing page displays all configured data sources with:
+- **Data source name** (e.g., Syslog, MongoDB, Mikrotik, Paloalto)
+- **Status indicator** (red dot = down, green = active)
+- **Processed events count** - Number of logs processed
+- **Pipeline button** (📋) - View/edit the processing pipeline
+- **Import/Export buttons** - Manage configurations
+
+---
+
+### Step 2: Select Your Data Source
+
+<Steps>
+  <Step title="Choose the Data Source">
+    Locate the data source you want to add a custom filter to. Common sources include:
+    - **Syslog** - Generic syslog receiver
+    - **Windows agent** - Windows event logs
+    - **JSON input** - Generic JSON receiver
+    - Any other configured source
+
+  </Step>
+
+  <Step title="Click the Pipeline Button">
+    Click the pipeline button (📋) next to your data source to open the pipeline editor.
+    
+    A modal will appear showing the **Pipeline [Source] detail**.
+
+  </Step>
+</Steps>
+
+---
+
+### Step 3: View Current Pipeline
+
+The pipeline detail modal displays:
+<img src="/images/data-processing/data-sources.png" alt="Data Sources List" />
+
+**Information shown**:
+- **Status**: Current state (up/down) with status indicator
+- **ID**: Unique identifier for the data source
+- **Events**: Number of processed events
+- **Pipeline filters**: List of existing filters in the processing pipeline
+
+**Pipeline Filters Section**:
+- Shows filters in order of execution (top to bottom)
+- Each filter card displays:
+  - Filter icon
+  - Filter name
+  - Status badge (e.g., "FAIL" in red, "PASS" in green)
+  - Edit button (✏️)
+  - Delete button (✖)
+- Filters are connected by dotted lines showing data flow
+
+---
+
+### Step 4: Add New Filter
+
+<Steps>
+  <Step title="Click Add Filter">
+    In the Pipeline filters section, click the **Add filter** button in the top right corner.
+    
+  </Step>
+
+  <Step title="Open Log Filter Editor">
+    The **Log filter editor** modal will appear with:
+    
+    <img src="/images/data-processing/pipeline-detail.png" alt="Pipeline Detail" />
+    
+    **Fields**:
+    - **Information banner**: Link to filter documentation at "UTMStack filters documentation"
+    - **Filter name**: Text field for naming your filter
+    - **Data Types**: Dropdown menu to select the log type (e.g., syslog, json, etc.)
+    - **Filter definition**: Large text area for writing the YAML filter definition
+    - **Cancel** and **Save** buttons
+  </Step>
+</Steps>
+
+---
+
+### Step 5: Write Your Custom Filter
+
+Now you'll write the filter definition using YAML syntax.
+
+#### Filter Structure
+
+```yaml
+pipeline:
+  - [filter-step-type]:
+      # Configuration for this step
+  - [next-filter-step]:
+      # Configuration for next step
+```
+
+#### Example 1: Parse JSON Syslog Logs
+
+If your data source sends JSON-formatted logs via syslog:
+
+```yaml
+pipeline:
+  # Step 1: Parse the JSON content
+  - json:
+      source: message
+      target: parsed
+      
+  # Step 2: Extract timestamp
+  - cast:
+      field: parsed.timestamp
+      type: datetime
+      format: "2006-01-02T15:04:05Z07:00"
+      target: "@timestamp"
+      
+  # Step 3: Rename fields to standard names
+  - rename:
+      fields:
+        - from: parsed.src_ip
+          to: source.ip
+        - from: parsed.dst_ip
+          to: destination.ip
+        - from: parsed.username
+          to: user.name
+          
+  # Step 4: Add source type tag
+  - add_fields:
+      fields:
+        log.source.type: "my-custom-source"
+```
+
+#### Example 2: Parse Key-Value Syslog Logs
+
+For logs with key=value format:
+
+```yaml
+pipeline:
+  # Step 1: Parse key-value pairs
+  - kv:
+      source: message
+      target: parsed
+      field_separator: " "
+      value_separator: "="
+      
+  # Step 2: Cast fields to correct types
+  - cast:
+      field: parsed.bytes
+      type: integer
+      target: network.bytes
+      
+  - cast:
+      field: parsed.port
+      type: integer
+      target: destination.port
+      
+  # Step 3: Normalize IP addresses
+  - rename:
+      fields:
+        - from: parsed.src
+          to: source.ip
+        - from: parsed.dst
+          to: destination.ip
+```
+
+#### Example 3: Parse Unstructured Text with Grok
+
+For plain text logs without clear structure:
+
+```yaml
+pipeline:
+  # Step 1: Use grok pattern to parse
+  - grok:
+      source: message
+      pattern: "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log.level} %{IP:source.ip} %{GREEDYDATA:message}"
+      target: parsed
+      
+  # Step 2: Parse the timestamp
+  - cast:
+      field: parsed.timestamp
+      type: datetime
+      format: "2006-01-02T15:04:05Z07:00"
+      target: "@timestamp"
+      
+  # Step 3: Add metadata
+  - add_fields:
+      fields:
+        event.module: "custom-app"
+        event.dataset: "custom-app.logs"
+```
+
+#### Example 4: Complex Multi-Step Filter
+
+For more complex parsing requirements:
+
+```yaml
+pipeline:
+  # Step 1: Extract the main log body from syslog wrapper
+  - grok:
+      source: message
+      pattern: "%{SYSLOGTIMESTAMP:syslog_timestamp} %{HOSTNAME:syslog_hostname} %{GREEDYDATA:log_message}"
+      target: syslog_parsed
+      
+  # Step 2: Parse the actual log message as JSON
+  - json:
+      source: syslog_parsed.log_message
+      target: parsed
+      on_error: skip
+      
+  # Step 3: Handle case where JSON parsing failed (plain text logs)
+  - condition:
+      if: "!has(parsed)"
+      then:
+        - kv:
+            source: syslog_parsed.log_message
+            target: parsed
+            field_separator: ","
+            value_separator: "="
+            
+  # Step 4: Normalize fields
+  - rename:
+      fields:
+        - from: parsed.sourceAddress
+          to: source.ip
+        - from: parsed.destinationAddress
+          to: destination.ip
+        - from: parsed.protocol
+          to: network.transport
+          
+  # Step 5: Convert field types
+  - cast:
+      field: parsed.bytes_sent
+      type: integer
+      target: network.bytes
+      
+  # Step 6: Add ECS-compliant fields
+  - add_fields:
+      fields:
+        event.category: ["network"]
+        event.type: ["connection"]
+        log.source.type: "custom-firewall"
+        
+  # Step 7: GeoIP enrichment for source IP
+  - geoip:
+      source: source.ip
+      target: source.geo
+```
+
+---
+
+### Step 6: Configure Filter Details
+
+<Steps>
+  <Step title="Name Your Filter">
+    In the **Filter name** field, enter a descriptive name:
+    - Use clear, meaningful names
+    - Include the purpose or data source
+    - Examples: "Parse Firewall JSON", "Extract Custom Fields", "Normalize Syslog Format"
+  </Step>
+
+  <Step title="Select Data Type">
+    From the **Data Types** dropdown, select the appropriate type:
+    - `syslog` - For syslog-based sources
+    - `json` - For JSON input sources
+    - `windows` - For Windows agents
+    - Others as applicable to your source
+    
+    <Tip>
+    The data type helps UTMStack understand the initial log format before your custom processing.
+    </Tip>
+  </Step>
+
+  <Step title="Paste Filter Definition">
+    Copy your YAML filter definition into the **Filter definition** text area.
+    
+    <Note>
+    The editor supports multi-line YAML. Ensure proper indentation (use 2 spaces, not tabs).
+    </Note>
+  </Step>
+</Steps>
+
+---
+
+### Step 7: Save and Test
+
+<Steps>
+  <Step title="Save the Filter">
+    Click the **Save** button to add the filter to your pipeline.
+    
+    The filter will appear in the pipeline filters list.
+  </Step>
+
+  <Step title="Verify Filter Order">
+    Filters execute in order from top to bottom. If needed:
+    - Add multiple filters for complex processing
+    - Ensure filters are in the correct sequence
+    - Each filter's output becomes the input for the next filter
+  </Step>
+
+  <Step title="Send Test Logs">
+    Send sample logs from your data source to test the filter:
+    
+    ```bash
+    # Example: Send test syslog message
+    logger -n your-utmstack-ip -P 514 "Test log message"
+    ```
+  </Step>
+
+  <Step title="Check Processing">
+    Monitor the data source card to verify:
+    - **Processed events** counter increases
+    - Filter status shows green/passing
+    - No error indicators appear
+  </Step>
+
+  <Step title="Verify in Log Explorer">
+    Go to **Log Explorer** to view the processed logs:
+    - Search for logs from your data source
+    - Verify that fields are extracted correctly
+    - Check that timestamps are parsed properly
+    - Confirm normalization to ECS fields
+  </Step>
+</Steps>
+
+---
+
+## Filter Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use ECS Field Names" icon="list-check">
+    Normalize field names to the Elastic Common Schema (ECS) standard:
+    
+    **Network Fields**:
+    - `source.ip`, `destination.ip`
+    - `source.port`, `destination.port`
+    - `network.bytes`, `network.packets`
+    - `network.transport` (tcp, udp, icmp)
+    
+    **User Fields**:
+    - `user.name`, `user.domain`
+    - `user.email`
+    
+    **Event Fields**:
+    - `event.category` (network, authentication, file, etc.)
+    - `event.type` (start, end, denied, allowed)
+    - `event.outcome` (success, failure)
+    
+    **Process Fields**:
+    - `process.name`, `process.pid`
+    - `process.command_line`
+    
+    This ensures compatibility with UTMStack correlation rules and dashboards.
+  </Accordion>
+
+  <Accordion title="Handle Parsing Errors Gracefully" icon="shield-exclamation">
+    Always account for logs that might not match your pattern:
+    
+    ```yaml
+    - json:
+        source: message
+        target: parsed
+        on_error: skip  # Don't fail entire pipeline if JSON is invalid
+        
+    - grok:
+        source: message
+        pattern: "%{PATTERN}"
+        on_error: drop  # Drop logs that don't match pattern
+    ```
+    
+    Options:
+    - `skip` - Continue processing without this step
+    - `drop` - Discard the log entirely
+    - `log` - Log the error but continue
+  </Accordion>
+
+  <Accordion title="Test with Real Logs" icon="flask">
+    Before deploying filters to production:
+    
+    1. Collect real log samples from your data source
+    2. Test filter against various log formats and edge cases
+    3. Check for logs with:
+       - Missing fields
+       - Different timestamp formats
+       - Special characters
+       - Unexpected values
+    4. Verify performance with high log volumes
+  </Accordion>
+
+  <Accordion title="Use Conditions for Complex Logic" icon="code-branch">
+    Handle different log formats from the same source:
+    
+    ```yaml
+    - condition:
+        if: 'contains(message, "JSON")'
+        then:
+          - json:
+              source: message
+              target: parsed
+        else:
+          - kv:
+              source: message
+              target: parsed
+    ```
+  </Accordion>
+
+  <Accordion title="Add Source Identification" icon="tag">
+    Always tag logs with their source for easier filtering:
+    
+    ```yaml
+    - add_fields:
+        fields:
+          log.source.type: "custom-firewall"
+          log.source.vendor: "acme-corp"
+          event.module: "firewall"
+    ```
+  </Accordion>
+
+  <Accordion title="Preserve Original Message" icon="copy">
+    Keep the original log message for troubleshooting:
+    
+    ```yaml
+    - rename:
+        fields:
+          - from: message
+            to: original_message
+    ```
+    
+    Or use a dedicated field:
+    ```yaml
+    - add_fields:
+        fields:
+          log.original: "{{message}}"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Common Filter Patterns
+
+### Pattern 1: Cisco ASA Syslog
+
+```yaml
+pipeline:
+  - grok:
+      source: message
+      pattern: "%{CISCOFW106001}"
+      target: cisco
+      
+  - rename:
+      fields:
+        - from: cisco.src_ip
+          to: source.ip
+        - from: cisco.dst_ip
+          to: destination.ip
+        - from: cisco.src_port
+          to: source.port
+        - from: cisco.dst_port
+          to: destination.port
+          
+  - add_fields:
+      fields:
+        event.module: "cisco.asa"
+        event.category: ["network"]
+```
+
+### Pattern 2: Custom Application JSON
+
+```yaml
+pipeline:
+  - json:
+      source: message
+      target: app
+      
+  - cast:
+      field: app.timestamp
+      type: datetime
+      format: "2006-01-02 15:04:05"
+      target: "@timestamp"
+      
+  - rename:
+      fields:
+        - from: app.user
+          to: user.name
+        - from: app.action
+          to: event.action
+        - from: app.result
+          to: event.outcome
+          
+  - add_fields:
+      fields:
+        event.module: "custom-app"
+```
+
+### Pattern 3: Web Server Access Logs
+
+```yaml
+pipeline:
+  - grok:
+      source: message
+      pattern: '%{IPORHOST:source.ip} - %{USER:user.name} \[%{HTTPDATE:timestamp}\] "%{WORD:http.request.method} %{URIPATHPARAM:url.path} HTTP/%{NUMBER:http.version}" %{INT:http.response.status_code} %{INT:http.response.body.bytes}'
+      
+  - cast:
+      field: timestamp
+      type: datetime
+      format: "02/Jan/2006:15:04:05 -0700"
+      target: "@timestamp"
+      
+  - cast:
+      field: http.response.status_code
+      type: integer
+      
+  - add_fields:
+      fields:
+        event.category: ["web"]
+        event.type: ["access"]
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Filter shows FAIL status" icon="triangle-exclamation">
+    **Cause**: Syntax error or invalid YAML
+    
+    **Solution**:
+    1. Click the edit button (✏️) to reopen the filter
+    2. Check YAML syntax:
+       - Proper indentation (2 spaces)
+       - Correct field names
+       - Valid filter step types
+    3. Validate against the [filter documentation](/v11/rules-and-filters/implementing-filters)
+    4. Test with a simple filter first, then add complexity
+  </Accordion>
+
+  <Accordion title="No events being processed" icon="hourglass">
+    **Possible Causes**:
+    - Data source not sending logs
+    - Firewall blocking syslog port
+    - Wrong port configuration
+    - Filter dropping all logs
+    
+    **Solution**:
+    1. Verify data source is sending logs:
+       ```bash
+       tcpdump -i any port 514
+       ```
+    2. Check firewall rules allow syslog traffic
+    3. Test with netcat:
+       ```bash
+       echo "test message" | nc -u utmstack-ip 514
+       ```
+    4. Temporarily remove filters to see if logs arrive
+  </Accordion>
+
+  <Accordion title="Fields not extracted correctly" icon="table-cells">
+    **Solution**:
+    1. Review sample logs to verify format matches your pattern
+    2. Use simpler patterns first, then refine
+    3. Test grok patterns at https://grokdebugger.com
+    4. Check for special characters that need escaping
+    5. Verify source field name in each filter step
+  </Accordion>
+
+  <Accordion title="Performance issues / slow processing" icon="gauge-high">
+    **Causes**:
+    - Complex regex patterns
+    - Too many filter steps
+    - Inefficient grok patterns
+    
+    **Solution**:
+    1. Simplify grok patterns - use specific patterns instead of `GREEDYDATA`
+    2. Combine multiple rename operations into one step
+    3. Remove unnecessary processing steps
+    4. Consider using json parsing instead of grok when possible
+    5. Add conditions to skip unnecessary processing
+  </Accordion>
+
+  <Accordion title="Timestamps incorrect or missing" icon="clock">
+    **Solution**:
+    1. Verify the timestamp format string matches your logs exactly
+    2. Common Go time formats:
+       - ISO8601: `2006-01-02T15:04:05Z07:00`
+       - RFC3339: `2006-01-02T15:04:05Z07:00`
+       - Custom: `2006-01-02 15:04:05`
+    3. Ensure timezone is included or use UTC
+    4. Cast to datetime type explicitly:
+       ```yaml
+       - cast:
+           field: parsed.time
+           type: datetime
+           format: "2006-01-02 15:04:05"
+           target: "@timestamp"
+       ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Testing Your Filter
+
+### Method 1: Use Log Explorer
+
+1. Go to **Log Explorer** in UTMStack
+2. Filter by your data source: `log.source.type: "your-source"`
+3. Examine a few logs to verify:
+   - All expected fields are present
+   - Values are correct
+   - Types are appropriate (numbers not strings)
+   - Timestamps are accurate
+
+### Method 2: Export and Inspect
+
+1. In Data Processing, click the export button for your source
+2. Review the filter configuration
+3. Validate YAML syntax with an online validator
+
+### Method 3: Check Pipeline Status
+
+1. Monitor the pipeline detail modal
+2. Look for filter status indicators
+3. Check processed event counts increase
+4. Watch for error messages
+
+---
+
+## Advanced Topics
+
+### Using Go Modules in Filters
+
+Some filter types support Go module functions:
+
+```yaml
+- script:
+    lang: go
+    source: |
+      // Custom Go code for complex transformations
+      if strings.Contains(message, "ERROR") {
+        severity = "high"
+      }
+```
+
+See the [Implementing Filters](/v11/rules-and-filters/implementing-filters) guide for Go module references.
+
+### Conditional Processing
+
+```yaml
+- condition:
+    if: 'log.level == "ERROR"'
+    then:
+      - add_fields:
+          fields:
+            event.severity: 3
+    else:
+      - add_fields:
+          fields:
+            event.severity: 1
+```
+
+### Multi-Source Pipelines
+
+For sources receiving multiple log formats:
+
+```yaml
+pipeline:
+  # Try JSON first
+  - json:
+      source: message
+      target: parsed
+      on_error: skip
+      
+  # If JSON failed, try key-value
+  - condition:
+      if: "!has(parsed)"
+      then:
+        - kv:
+            source: message
+            target: parsed
+            
+  # If both failed, use grok
+  - condition:
+      if: "!has(parsed)"
+      then:
+        - grok:
+            source: message
+            pattern: "%{GREEDYDATA:parsed.message}"
+```
+
+<Note>
+For assistance with custom filters, consult the [UTMStack community](https://discord.gg/ZznvZ8xcHh) or contact support at support@utmstack.com
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Implementing Filters" icon="filter" href="/v11/rules-and-filters/implementing-filters">
+    Complete guide to filter syntax and step types
+  </Card>
+
+  <Card title="Implementing Rules" icon="gavel" href="/v11/rules-and-filters/implementing-rules">
+    Create correlation rules to detect threats
+  </Card>
+</CardGroup>
+
