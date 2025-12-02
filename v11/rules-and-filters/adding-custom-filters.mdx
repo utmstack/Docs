@@ -77,8 +77,6 @@ The Data Processing page displays all configured data sources with:
 - **Data source name** (e.g., Syslog, MongoDB, Mikrotik, Paloalto)
 - **Status indicator** (red dot = down, green = active)
 - **Processed events count** - Number of logs processed
-- **Pipeline button** (📋) - View/edit the processing pipeline
-- **Import/Export buttons** - Manage configurations
 
 ---
 
@@ -155,15 +153,29 @@ The pipeline detail modal displays:
 
 Now you'll write the filter definition using YAML syntax.
 
+<Tip>
+You can write and test your filter locally in a text editor, then copy and paste it into the Filter definition field.
+</Tip>
+
 #### Filter Structure
+
+The complete filter structure includes the pipeline wrapper, dataTypes, and steps:
 
 ```yaml
 pipeline:
-  - [filter-step-type]:
-      # Configuration for this step
-  - [next-filter-step]:
-      # Configuration for next step
+  - dataTypes:
+      - syslog      # Specify the data type(s) this filter applies to
+    steps:
+      - [filter-step-type]:
+          # Configuration for this step
+      - [next-filter-step]:
+          # Configuration for next step
 ```
+
+<Note>
+- **dataTypes**: Array of data types this filter processes (e.g., syslog, json, windows)
+- **steps**: Array of filter operations to perform in sequence
+</Note>
 
 #### Example 1: Parse JSON Syslog Logs
 
@@ -171,32 +183,37 @@ If your data source sends JSON-formatted logs via syslog:
 
 ```yaml
 pipeline:
-  # Step 1: Parse the JSON content
-  - json:
-      source: message
-      target: parsed
-      
-  # Step 2: Extract timestamp
-  - cast:
-      field: parsed.timestamp
-      type: datetime
-      format: "2006-01-02T15:04:05Z07:00"
-      target: "@timestamp"
-      
-  # Step 3: Rename fields to standard names
-  - rename:
-      fields:
-        - from: parsed.src_ip
-          to: source.ip
-        - from: parsed.dst_ip
-          to: destination.ip
-        - from: parsed.username
-          to: user.name
+  - dataTypes:
+      - syslog
+    steps:
+      # Step 1: Parse the JSON content
+      - json:
+          source: message
+          target: parsed
           
-  # Step 4: Add source type tag
-  - add_fields:
-      fields:
-        log.source.type: "my-custom-source"
+      # Step 2: Extract timestamp
+      - reformat:
+          field: parsed.timestamp
+          function: 'time'
+          fromFormat: '2006-01-02T15:04:05Z07:00'
+          toFormat: '2024-09-29T18:40:53 +0000'
+          
+      # Step 3: Rename fields to standard names
+      - rename:
+          fields:
+            - from: parsed.src_ip
+              to: source.ip
+            - from: parsed.dst_ip
+              to: destination.ip
+            - from: parsed.username
+              to: user.name
+              
+      # Step 4: Add source type tag
+      - add:
+          function: 'string'
+          params:
+            key: log.source.type
+            value: 'my-custom-source'
 ```
 
 #### Example 2: Parse Key-Value Syslog Logs
@@ -205,31 +222,33 @@ For logs with key=value format:
 
 ```yaml
 pipeline:
-  # Step 1: Parse key-value pairs
-  - kv:
-      source: message
-      target: parsed
-      field_separator: " "
-      value_separator: "="
-      
-  # Step 2: Cast fields to correct types
-  - cast:
-      field: parsed.bytes
-      type: integer
-      target: network.bytes
-      
-  - cast:
-      field: parsed.port
-      type: integer
-      target: destination.port
-      
-  # Step 3: Normalize IP addresses
-  - rename:
-      fields:
-        - from: parsed.src
-          to: source.ip
-        - from: parsed.dst
-          to: destination.ip
+  - dataTypes:
+      - syslog
+    steps:
+      # Step 1: Parse key-value pairs
+       - kv:
+          fieldSplit: " "
+          valueSplit: "="
+          source: log.restData
+          
+      # Step 2: Cast fields to correct types
+      - cast:
+          field: parsed.bytes
+          type: integer
+          target: network.bytes
+          
+      - cast:
+          field: parsed.port
+          type: integer
+          target: destination.port
+          
+      # Step 3: Normalize IP addresses
+      - rename:
+          fields:
+            - from: parsed.src
+              to: source.ip
+            - from: parsed.dst
+              to: destination.ip
 ```
 
 #### Example 3: Parse Unstructured Text with Grok
@@ -238,24 +257,36 @@ For plain text logs without clear structure:
 
 ```yaml
 pipeline:
-  # Step 1: Use grok pattern to parse
-  - grok:
-      source: message
-      pattern: "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log.level} %{IP:source.ip} %{GREEDYDATA:message}"
-      target: parsed
-      
-  # Step 2: Parse the timestamp
-  - cast:
-      field: parsed.timestamp
-      type: datetime
-      format: "2006-01-02T15:04:05Z07:00"
-      target: "@timestamp"
-      
-  # Step 3: Add metadata
-  - add_fields:
-      fields:
-        event.module: "custom-app"
-        event.dataset: "custom-app.logs"
+  - dataTypes:
+      - syslog
+    steps:
+      # Step 1: Use grok pattern to parse
+      - grok:
+          patterns:
+            - fieldName: log.requested
+              pattern: '{{.greedy}}{{.space}}'
+            - fieldName: log.irrelevant
+              pattern: '{{.greedy}}'
+          source: log.requestToParse
+          
+      # Step 2: Parse the timestamp
+      - reformat:
+          field: parsed.timestamp
+          function: 'time'
+          fromFormat: '2006-01-02T15:04:05Z07:00'
+          toFormat: '2024-09-29T18:40:53 +0000'
+          
+      # Step 3: Add metadata
+      - add:
+          function: 'string'
+          params:
+            key: event.module
+            value: 'custom-app'
+      - add:
+          function: 'string'
+          params:
+            key: event.dataset
+            value: 'custom-app.logs'
 ```
 
 #### Example 4: Complex Multi-Step Filter
@@ -264,133 +295,62 @@ For more complex parsing requirements:
 
 ```yaml
 pipeline:
-  # Step 1: Extract the main log body from syslog wrapper
-  - grok:
-      source: message
-      pattern: "%{SYSLOGTIMESTAMP:syslog_timestamp} %{HOSTNAME:syslog_hostname} %{GREEDYDATA:log_message}"
-      target: syslog_parsed
-      
-  # Step 2: Parse the actual log message as JSON
-  - json:
-      source: syslog_parsed.log_message
-      target: parsed
-      on_error: skip
-      
-  # Step 3: Handle case where JSON parsing failed (plain text logs)
-  - condition:
-      if: "!has(parsed)"
-      then:
-        - kv:
-            source: syslog_parsed.log_message
-            target: parsed
-            field_separator: ","
-            value_separator: "="
-            
-  # Step 4: Normalize fields
-  - rename:
-      fields:
-        - from: parsed.sourceAddress
-          to: source.ip
-        - from: parsed.destinationAddress
-          to: destination.ip
-        - from: parsed.protocol
-          to: network.transport
+  - dataTypes:
+      - syslog
+    steps:
+      # Step 1: Extract the main log body from syslog wrapper
+      - grok:
+          source: message
+          pattern: "%{SYSLOGTIMESTAMP:syslog_timestamp} %{HOSTNAME:syslog_hostname} %{GREEDYDATA:log_message}"
+          target: syslog_parsed
           
-  # Step 5: Convert field types
-  - cast:
-      field: parsed.bytes_sent
-      type: integer
-      target: network.bytes
-      
-  # Step 6: Add ECS-compliant fields
-  - add_fields:
-      fields:
-        event.category: ["network"]
-        event.type: ["connection"]
-        log.source.type: "custom-firewall"
-        
-  # Step 7: GeoIP enrichment for source IP
-  - geoip:
-      source: source.ip
-      target: source.geo
+      # Step 2: Parse the actual log message as JSON
+      - json:
+          source: syslog_parsed.log_message
+          target: parsed
+          on_error: skip
+                
+      # Step 3: Normalize fields
+      - rename:
+          fields:
+            - from: parsed.sourceAddress
+              to: source.ip
+            - from: parsed.destinationAddress
+              to: destination.ip
+            - from: parsed.protocol
+              to: network.transport
+              
+      # Step 4: Convert field types
+      - cast:
+          field: parsed.bytes_sent
+          type: integer
+          target: network.bytes
+          
+      # Step 5: Add ECS-compliant fields
+      - add:
+          function: 'string'
+          params:
+            key: event.category
+            value: 'network'
+      - add:
+          function: 'string'
+          params:
+            key: event.type
+            value: 'connection'
+      - add:
+          function: 'string'
+          params:
+            key: log.source.type
+            value: 'custom-firewall'
+            
+      # Step 6: Adding geolocation
+      - dynamic:
+          plugin: com.utmstack.geolocation
+          params:
+            source: origin.ip
+            destination: origin.geolocation
+          where: exists("origin.ip"
 ```
-
----
-
-### Step 6: Configure Filter Details
-
-<Steps>
-  <Step title="Name Your Filter">
-    In the **Filter name** field, enter a descriptive name:
-    - Use clear, meaningful names
-    - Include the purpose or data source
-    - Examples: "Parse Firewall JSON", "Extract Custom Fields", "Normalize Syslog Format"
-  </Step>
-
-  <Step title="Select Data Type">
-    From the **Data Types** dropdown, select the appropriate type:
-    - `syslog` - For syslog-based sources
-    - `json` - For JSON input sources
-    - `windows` - For Windows agents
-    - Others as applicable to your source
-    
-    <Tip>
-    The data type helps UTMStack understand the initial log format before your custom processing.
-    </Tip>
-  </Step>
-
-  <Step title="Paste Filter Definition">
-    Copy your YAML filter definition into the **Filter definition** text area.
-    
-    <Note>
-    The editor supports multi-line YAML. Ensure proper indentation (use 2 spaces, not tabs).
-    </Note>
-  </Step>
-</Steps>
-
----
-
-### Step 7: Save and Test
-
-<Steps>
-  <Step title="Save the Filter">
-    Click the **Save** button to add the filter to your pipeline.
-    
-    The filter will appear in the pipeline filters list.
-  </Step>
-
-  <Step title="Verify Filter Order">
-    Filters execute in order from top to bottom. If needed:
-    - Add multiple filters for complex processing
-    - Ensure filters are in the correct sequence
-    - Each filter's output becomes the input for the next filter
-  </Step>
-
-  <Step title="Send Test Logs">
-    Send sample logs from your data source to test the filter:
-    
-    ```bash
-    # Example: Send test syslog message
-    logger -n your-utmstack-ip -P 514 "Test log message"
-    ```
-  </Step>
-
-  <Step title="Check Processing">
-    Monitor the data source card to verify:
-    - **Processed events** counter increases
-    - Filter status shows green/passing
-    - No error indicators appear
-  </Step>
-
-  <Step title="Verify in Log Explorer">
-    Go to **Log Explorer** to view the processed logs:
-    - Search for logs from your data source
-    - Verify that fields are extracted correctly
-    - Check that timestamps are parsed properly
-    - Confirm normalization to ECS fields
-  </Step>
-</Steps>
-
 ---
 
 ## Filter Best Practices
@@ -476,11 +436,21 @@ pipeline:
     Always tag logs with their source for easier filtering:
     
     ```yaml
-    - add_fields:
-        fields:
-          log.source.type: "custom-firewall"
-          log.source.vendor: "acme-corp"
-          event.module: "firewall"
+    - add:
+        function: 'string'
+        params:
+          key: log.source.type
+          value: 'custom-firewall'
+    - add:
+        function: 'string'
+        params:
+          key: log.source.vendor
+          value: 'acme-corp'
+    - add:
+        function: 'string'
+        params:
+          key: event.module
+          value: 'firewall'
     ```
   </Accordion>
 
@@ -496,9 +466,11 @@ pipeline:
     
     Or use a dedicated field:
     ```yaml
-    - add_fields:
-        fields:
-          log.original: "{{message}}"
+    - add:
+        function: 'string'
+        params:
+          key: log.original
+          value: '{{message}}'
     ```
   </Accordion>
 </AccordionGroup>
@@ -511,78 +483,101 @@ pipeline:
 
 ```yaml
 pipeline:
-  - grok:
-      source: message
-      pattern: "%{CISCOFW106001}"
-      target: cisco
-      
-  - rename:
-      fields:
-        - from: cisco.src_ip
-          to: source.ip
-        - from: cisco.dst_ip
-          to: destination.ip
-        - from: cisco.src_port
-          to: source.port
-        - from: cisco.dst_port
-          to: destination.port
+  - dataTypes:
+      - syslog
+    steps:
+      - grok:
+          source: message
+          pattern: "%{CISCOFW106001}"
+          target: cisco
           
-  - add_fields:
-      fields:
-        event.module: "cisco.asa"
-        event.category: ["network"]
+      - rename:
+          fields:
+            - from: cisco.src_ip
+              to: source.ip
+            - from: cisco.dst_ip
+              to: destination.ip
+            - from: cisco.src_port
+              to: source.port
+            - from: cisco.dst_port
+              to: destination.port
+              
+      - add:
+          function: 'string'
+          params:
+            key: event.module
+            value: 'cisco.asa'
+      - add:
+          function: 'string'
+          params:
+            key: event.category
+            value: 'network'
 ```
 
 ### Pattern 2: Custom Application JSON
 
 ```yaml
 pipeline:
-  - json:
-      source: message
-      target: app
-      
-  - cast:
-      field: app.timestamp
-      type: datetime
-      format: "2006-01-02 15:04:05"
-      target: "@timestamp"
-      
-  - rename:
-      fields:
-        - from: app.user
-          to: user.name
-        - from: app.action
-          to: event.action
-        - from: app.result
-          to: event.outcome
+  - dataTypes:
+      - json
+    steps:
+      - json:
+          source: message
+          target: app
           
-  - add_fields:
-      fields:
-        event.module: "custom-app"
+      - reformat:
+          field: app.timestamp
+          function: 'time'
+          fromFormat: '2006-01-02 15:04:05'
+          toFormat: '2024-09-29T18:40:53 +0000'
+          
+      - rename:
+          fields:
+            - from: app.user
+              to: user.name
+            - from: app.action
+              to: event.action
+            - from: app.result
+              to: event.outcome
+              
+      - add:
+          function: 'string'
+          params:
+            key: event.module
+            value: 'custom-app'
 ```
 
 ### Pattern 3: Web Server Access Logs
 
 ```yaml
 pipeline:
-  - grok:
-      source: message
-      pattern: '%{IPORHOST:source.ip} - %{USER:user.name} \[%{HTTPDATE:timestamp}\] "%{WORD:http.request.method} %{URIPATHPARAM:url.path} HTTP/%{NUMBER:http.version}" %{INT:http.response.status_code} %{INT:http.response.body.bytes}'
-      
-  - cast:
-      field: timestamp
-      type: datetime
-      format: "02/Jan/2006:15:04:05 -0700"
-      target: "@timestamp"
-      
-  - cast:
-      field: http.response.status_code
-      type: integer
-      
-  - add_fields:
-      fields:
-        event.category: ["web"]
-        event.type: ["access"]
+  - dataTypes:
+      - syslog
+    steps:
+      - grok:
+          source: message
+          pattern: '%{IPORHOST:source.ip} - %{USER:user.name} \[%{HTTPDATE:timestamp}\] "%{WORD:http.request.method} %{URIPATHPARAM:url.path} HTTP/%{NUMBER:http.version}" %{INT:http.response.status_code} %{INT:http.response.body.bytes}'
+          
+      - reformat:
+          field: timestamp
+          function: 'time'
+          fromFormat: '02/Jan/2006:15:04:05 -0700'
+          toFormat: '2024-09-29T18:40:53 +0000'
+          
+      - cast:
+          field: http.response.status_code
+          type: integer
+          
+      - add:
+          function: 'string'
+          params:
+            key: event.category
+            value: 'web'
+      - add:
+          function: 'string'
+          params:
+            key: event.type
+            value: 'access'
 ```
 
 ---
@@ -654,13 +649,13 @@ pipeline:
        - RFC3339: `2006-01-02T15:04:05Z07:00`
        - Custom: `2006-01-02 15:04:05`
     3. Ensure timezone is included or use UTC
-    4. Cast to datetime type explicitly:
+    4. Reformat timestamp explicitly:
        ```yaml
-       - cast:
+       - reformat:
            field: parsed.time
-           type: datetime
-           format: "2006-01-02 15:04:05"
-           target: "@timestamp"
+           function: 'time'
+           fromFormat: '2006-01-02 15:04:05'
+           toFormat: '2024-09-29T18:40:53 +0000'
        ```
   </Accordion>
 </AccordionGroup>
@@ -701,13 +696,17 @@ pipeline:
 Some filter types support Go module functions:
 
 ```yaml
-- script:
-    lang: go
-    source: |
-      // Custom Go code for complex transformations
-      if strings.Contains(message, "ERROR") {
-        severity = "high"
-      }
+pipeline:
+  - dataTypes:
+      - syslog
+    steps:
+      - script:
+          lang: go
+          source: |
+            // Custom Go code for complex transformations
+            if strings.Contains(message, "ERROR") {
+              severity = "high"
+            }
 ```
 
 See the [Implementing Filters](/v11/rules-and-filters/implementing-filters) guide for Go module references.
@@ -715,16 +714,24 @@ See the [Implementing Filters](/v11/rules-and-filters/implementing-filters) guid
 ### Conditional Processing
 
 ```yaml
-- condition:
-    if: 'log.level == "ERROR"'
-    then:
-      - add_fields:
-          fields:
-            event.severity: 3
-    else:
-      - add_fields:
-          fields:
-            event.severity: 1
+pipeline:
+  - dataTypes:
+      - syslog
+    steps:
+      - condition:
+          if: 'log.level == "ERROR"'
+          then:
+            - add:
+                function: 'integer'
+                params:
+                  key: event.severity
+                  value: 3
+          else:
+            - add:
+                function: 'integer'
+                params:
+                  key: event.severity
+                  value: 1
 ```
 
 ### Multi-Source Pipelines
@@ -733,27 +740,30 @@ For sources receiving multiple log formats:
 
 ```yaml
 pipeline:
-  # Try JSON first
-  - json:
-      source: message
-      target: parsed
-      on_error: skip
-      
-  # If JSON failed, try key-value
-  - condition:
-      if: "!has(parsed)"
-      then:
-        - kv:
-            source: message
-            target: parsed
-            
-  # If both failed, use grok
-  - condition:
-      if: "!has(parsed)"
-      then:
-        - grok:
-            source: message
-            pattern: "%{GREEDYDATA:parsed.message}"
+  - dataTypes:
+      - syslog
+    steps:
+      # Try JSON first
+      - json:
+          source: message
+          target: parsed
+          on_error: skip
+          
+      # If JSON failed, try key-value
+      - condition:
+          if: "!has(parsed)"
+          then:
+            - kv:
+                source: message
+                target: parsed
+                
+      # If both failed, use grok
+      - condition:
+          if: "!has(parsed)"
+          then:
+            - grok:
+                source: message
+                pattern: "%{GREEDYDATA:parsed.message}"
 ```
 
 <Note>
