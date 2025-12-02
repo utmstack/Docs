@@ -177,9 +177,7 @@ pipeline:
 - **steps**: Array of filter operations to perform in sequence
 </Note>
 
-#### Example 1: Parse JSON Syslog Logs
-
-If your data source sends JSON-formatted logs via syslog:
+#### Example 1: Analyze JSON system logs
 
 ```yaml
 pipeline:
@@ -189,7 +187,6 @@ pipeline:
       # Step 1: Parse the JSON content
       - json:
           source: message
-          target: parsed
           
       # Step 2: Extract timestamp
       - reformat:
@@ -216,9 +213,7 @@ pipeline:
             value: 'my-custom-source'
 ```
 
-#### Example 2: Parse Key-Value Syslog Logs
-
-For logs with key=value format:
+#### Example 2: Analyze key-value system records
 
 ```yaml
 pipeline:
@@ -229,18 +224,13 @@ pipeline:
        - kv:
           fieldSplit: " "
           valueSplit: "="
-          source: log.restData
+          source: message
           
       # Step 2: Cast fields to correct types
       - cast:
-          field: parsed.bytes
-          type: integer
-          target: network.bytes
-          
-      - cast:
-          field: parsed.port
-          type: integer
-          target: destination.port
+          field:
+            - origin.port
+          to: int
           
       # Step 3: Normalize IP addresses
       - rename:
@@ -251,47 +241,7 @@ pipeline:
               to: destination.ip
 ```
 
-#### Example 3: Parse Unstructured Text with Grok
-
-For plain text logs without clear structure:
-
-```yaml
-pipeline:
-  - dataTypes:
-      - syslog
-    steps:
-      # Step 1: Use grok pattern to parse
-      - grok:
-          patterns:
-            - fieldName: log.requested
-              pattern: '{{.greedy}}{{.space}}'
-            - fieldName: log.irrelevant
-              pattern: '{{.greedy}}'
-          source: log.requestToParse
-          
-      # Step 2: Parse the timestamp
-      - reformat:
-          field: parsed.timestamp
-          function: 'time'
-          fromFormat: '2006-01-02T15:04:05Z07:00'
-          toFormat: '2024-09-29T18:40:53 +0000'
-          
-      # Step 3: Add metadata
-      - add:
-          function: 'string'
-          params:
-            key: event.module
-            value: 'custom-app'
-      - add:
-          function: 'string'
-          params:
-            key: event.dataset
-            value: 'custom-app.logs'
-```
-
-#### Example 4: Complex Multi-Step Filter
-
-For more complex parsing requirements:
+#### Example 3: Complex multi-step filter
 
 ```yaml
 pipeline:
@@ -300,15 +250,14 @@ pipeline:
     steps:
       # Step 1: Extract the main log body from syslog wrapper
       - grok:
+          patterns:
+            - fieldName: syslog_parsed
+              pattern: "%{SYSLOGTIMESTAMP:syslog_timestamp} %{HOSTNAME:syslog_hostname} %{GREEDYDATA:log_message}"
           source: message
-          pattern: "%{SYSLOGTIMESTAMP:syslog_timestamp} %{HOSTNAME:syslog_hostname} %{GREEDYDATA:log_message}"
-          target: syslog_parsed
           
       # Step 2: Parse the actual log message as JSON
       - json:
           source: syslog_parsed.log_message
-          target: parsed
-          on_error: skip
                 
       # Step 3: Normalize fields
       - rename:
@@ -322,9 +271,9 @@ pipeline:
               
       # Step 4: Convert field types
       - cast:
-          field: parsed.bytes_sent
-          type: integer
-          target: network.bytes
+          fields:
+            - parsed.bytes_sent
+          to: int
           
       # Step 5: Add ECS-compliant fields
       - add:
@@ -349,7 +298,57 @@ pipeline:
           params:
             source: origin.ip
             destination: origin.geolocation
-          where: exists("origin.ip"
+          where: exists("origin.ip")
+```
+
+#### Example 4: Common filter patterns - Cisco ASA Syslog
+
+```yaml
+pipeline:
+  - dataTypes:
+      - firewall-cisco-asa
+    steps:
+      - grok:
+          patterns:
+            - fieldName: log.syslogPri
+              pattern: '(\<{{.integer}}\>)'
+            - fieldName: log.ciscoTime
+              pattern: '({{.day}}\s)?{{.monthName}}\s{{.monthDay}}\s{{.year}}\s{{.time}}'
+            - fieldName: log.localIp
+              pattern: '{{.ipv4}}|{{.ipv6}}|{{.hostname}}'
+            - fieldName: log.asaHeader
+              pattern: '{{.data}}ASA-'
+            - fieldName: log.severity
+              pattern: '{{.integer}}'
+            - fieldName: log.messageId
+              pattern: '-{{.integer}}'
+            - fieldName: log.ciscoSeparator
+              pattern: '\:{{.space}}'
+            - fieldName: log.msg
+              pattern: '{{.greedy}}'
+          source: raw
+          
+      - rename:
+          fields:
+            - from: cisco.src_ip
+              to: source.ip
+            - from: cisco.dst_ip
+              to: destination.ip
+            - from: cisco.src_port
+              to: source.port
+            - from: cisco.dst_port
+              to: destination.port
+              
+      - add:
+          function: 'string'
+          params:
+            key: event.module
+            value: 'cisco.asa'
+      - add:
+          function: 'string'
+          params:
+            key: event.category
+            value: 'network'
 ```
 ---
 
@@ -474,113 +473,6 @@ pipeline:
     ```
   </Accordion>
 </AccordionGroup>
-
----
-
-## Common Filter Patterns
-
-### Pattern 1: Cisco ASA Syslog
-
-```yaml
-pipeline:
-  - dataTypes:
-      - syslog
-    steps:
-      - grok:
-          source: message
-          pattern: "%{CISCOFW106001}"
-          target: cisco
-          
-      - rename:
-          fields:
-            - from: cisco.src_ip
-              to: source.ip
-            - from: cisco.dst_ip
-              to: destination.ip
-            - from: cisco.src_port
-              to: source.port
-            - from: cisco.dst_port
-              to: destination.port
-              
-      - add:
-          function: 'string'
-          params:
-            key: event.module
-            value: 'cisco.asa'
-      - add:
-          function: 'string'
-          params:
-            key: event.category
-            value: 'network'
-```
-
-### Pattern 2: Custom Application JSON
-
-```yaml
-pipeline:
-  - dataTypes:
-      - json
-    steps:
-      - json:
-          source: message
-          target: app
-          
-      - reformat:
-          field: app.timestamp
-          function: 'time'
-          fromFormat: '2006-01-02 15:04:05'
-          toFormat: '2024-09-29T18:40:53 +0000'
-          
-      - rename:
-          fields:
-            - from: app.user
-              to: user.name
-            - from: app.action
-              to: event.action
-            - from: app.result
-              to: event.outcome
-              
-      - add:
-          function: 'string'
-          params:
-            key: event.module
-            value: 'custom-app'
-```
-
-### Pattern 3: Web Server Access Logs
-
-```yaml
-pipeline:
-  - dataTypes:
-      - syslog
-    steps:
-      - grok:
-          source: message
-          pattern: '%{IPORHOST:source.ip} - %{USER:user.name} \[%{HTTPDATE:timestamp}\] "%{WORD:http.request.method} %{URIPATHPARAM:url.path} HTTP/%{NUMBER:http.version}" %{INT:http.response.status_code} %{INT:http.response.body.bytes}'
-          
-      - reformat:
-          field: timestamp
-          function: 'time'
-          fromFormat: '02/Jan/2006:15:04:05 -0700'
-          toFormat: '2024-09-29T18:40:53 +0000'
-          
-      - cast:
-          field: http.response.status_code
-          type: integer
-          
-      - add:
-          function: 'string'
-          params:
-            key: event.category
-            value: 'web'
-      - add:
-          function: 'string'
-          params:
-            key: event.type
-            value: 'access'
-```
-
----
 
 ## Troubleshooting
 
