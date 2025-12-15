@@ -13,9 +13,9 @@ UTMStack v11 introduces a revolutionary architecture designed for modern cyberse
 UTMStack v11 uses a distributed architecture with two primary container types:
 
 <CardGroup cols={2}>
-  <Card title="Manager Node" icon="pi pi-server" iconAlign="left" content="**Central coordination and management**     - Web interface hosting     - User authentication and authorization     - Configuration management     - Alert orchestration     - API endpoints     - Database management" />
+  <Card title="Manager Node" icon="pi pi-server" iconAlign="left" content="Central coordination and management     - Web interface hosting     - User authentication and authorization     - Configuration management     - Alert orchestration     - API endpoints     - Database management" />
   
-  <Card title="Worker Nodes" icon="pi pi-sitemap" iconAlign="left" content="**Distributed data processing**     - Log ingestion and parsing     - Real-time correlation     - Threat detection     - Plugin execution     - Parallel processing     - Horizontal scalability" />
+  <Card title="Worker Nodes" icon="pi pi-sitemap" iconAlign="left" content="Distributed data processing     - Log ingestion and parsing     - Real-time correlation     - Threat detection     - Plugin execution     - Parallel processing     - Horizontal scalability" />
 ### Key Architectural Features
 
 <Accordion multiple={true}>
@@ -171,19 +171,12 @@ The **SaaS deployment model** provides a turnkey, cloud-hosted solution:
 
 ## Data Flow Architecture
 
-```mermaid
-graph TB
-    A[Data Sources] --> B[Collection Layer]
-    B --> C[EventProcessor]
-    C --> D[Correlation Engine]
-    D --> E[Storage Layer]
-    D --> F[Alert Engine]
-    F --> G[SOAR Workflows]
-    E --> H[Query Engine]
-    H --> I[Web Interface]
-    F --> I
-    G --> I
-```
+<img
+  height="200"
+  noZoom
+  src="/images/architecture/dataflow_architecture.png"
+  alt="Data Flow Architecture"
+/>
 
 ### Processing Pipeline
 
@@ -210,27 +203,6 @@ graph TB
   <Card title="Service Security" icon="pi pi-shield-halved" iconAlign="left" content="- Microservices architecture     - Fail2ban protection     - Regular security updates     - Vulnerability scanning" />
 ---
 
-## Scalability Considerations
-
-### When to Scale Horizontally
-
-  ### Monitor Performance Metrics
-
-    Watch CPU, memory, and disk I/O on your manager node
-  ### Add Worker Nodes When
-
-    - Processing more than 500 data sources
-    - CPU usage consistently above 70%
-    - Log ingestion delays occur
-    - Real-time correlation lags
-  ### Scale Gradually
-
-    Add worker nodes one at a time and monitor improvement
-  ### Optimize Distribution
-
-    Configure plugin distribution across workers for optimal performance
----
-
 ## High Availability Options
 
 For mission-critical deployments:
@@ -240,32 +212,6 @@ For mission-critical deployments:
 - **Worker Pools**: Multiple workers ensure continued processing
 - **Load Balancing**: Distribute user connections across manager nodes
 - **Backup Systems**: Automated backup and disaster recovery
-
----
-
-## Network Architecture
-
-### Required Connectivity
-
-```
-Manager Node:
-  ← Data Sources (various ports)
-  ← Worker Nodes (internal)
-  ← Administrators (443/TCP)
-  → Central Server (optional)
-
-Worker Nodes:
-  ← Data Sources (various ports)
-  → Manager Node (internal)
-  → Elasticsearch (internal)
-```
-
-### Security Zones
-
-- **DMZ**: Agent collectors and log receivers
-- **Internal**: Core processing and storage
-- **Management**: Web interface and administration
-- **Isolated**: Customer data in federated deployments
 
 ---
 
