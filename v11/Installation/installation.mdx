@@ -312,25 +312,6 @@ sudo dnf install wget
 
 ---
 
-## Scaling Your Deployment
-
-UTMStack v11 introduces horizontal scaling capabilities with worker nodes.
-
-### Adding Worker Nodes
-
-To scale beyond 500 data sources or improve processing capacity:
-
-1. Install UTMStack on additional servers using the same installer
-2. Configure them as worker nodes during installation
-3. Connect workers to the manager node
-4. Distribute processing load automatically
-
-<Info>
-Worker nodes can run plugins and process data in parallel with the manager, eliminating bottlenecks and providing linear scalability.
-</Info>
-
----
-
 ## Support and Resources
 
 <CardGroup cols={2}>
