@@ -30,6 +30,7 @@
                   "v11/Installation/system-requirements",
                   "v11/Installation/installation",
                   "v11/Installation/installation-from-iso",
+                  "v11/Installation/manual-update",
                   "v11/Installation/firewall_rules",
                   "v11/Installation/ssl_certificate"
                 ]

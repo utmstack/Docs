@@ -1,0 +1,112 @@
+---
+title: Manual Update Guide
+description: "Step-by-step guide for manually updating UTMStack using the update script"
+---
+
+This guide details the process of updating UTMStack using the provided update script, based on internal team testing and procedures.
+
+---
+
+## 1. Update Script Overview
+
+The update script is a tool designed to simplify the UTMStack update process.
+
+<Card title="Update Script" icon="code" href="https://github.com/utmstack/infra/blob/main/utils/utmstack-update-script/update.sh">
+  Access the official update script on GitHub
+</Card>
+
+### Latest Version Download
+
+<Info>
+The script is designed to always download and install the latest available version of UTMStack.
+</Info>
+
+---
+
+## 2. Execution Instructions
+
+The execution process is straightforward using copy and paste in the server console:
+
+<Warning>
+**Important:** The update script must be downloaded or copied into the **same directory where the UTMStack installer is located**. Running the script from a different location may cause the update to fail.
+</Warning>
+
+### Step-by-Step Process
+
+<Steps>
+  <Step title="Navigate to Installation Directory">
+    Ensure you are in the **same directory where the UTMStack installer is located**.
+    
+    ```bash
+    cd /path/to/utmstack/installer
+    ```
+  </Step>
+  
+  <Step title="Download the Update Script">
+    Download the script directly to your server:
+    
+    ```bash
+    curl -O https://raw.githubusercontent.com/utmstack/infra/main/utils/utmstack-update-script/update.sh
+    ```
+  </Step>
+  
+  <Step title="Make Script Executable">
+    Grant execution permissions to the script:
+    
+    ```bash
+    chmod +x update.sh
+    ```
+  </Step>
+  
+  <Step title="Execute the Update Script">
+    Run the script using right-click paste functionality in console:
+    
+    ```bash
+    ./update.sh
+    ```
+    
+    <Warning>
+    The update process may take several minutes depending on your system specifications and network speed. Do not interrupt the process.
+    </Warning>
+  </Step>
+</Steps>
+
+---
+
+## 3. Update Verification and Logs
+
+Once the script has been executed, review the logs to confirm the update status:
+
+### Checking Update Status
+
+<Accordion title="View Update Logs">
+  Monitor the update process by checking the logs:
+  
+  ```bash
+  tail -f /var/log/utmstack-update.log
+  ```
+</Accordion>
+
+<Accordion title="Verify Services Status">
+  After the update completes, verify all services are running:
+  
+  ```bash
+  docker-compose ps
+  ```
+  
+  All services should show "Up" status.
+</Accordion>
+
+<Accordion title="Check UTMStack Version">
+  Confirm the new version is installed:
+  
+  ```bash
+  docker exec utmstack-backend cat /app/version.txt
+  ```
+</Accordion>
+
+---
+
+<Note>
+**Need Help?** If you encounter issues during the update process, please contact UTMStack support or visit our community forums.
+</Note>
