@@ -1,0 +1,510 @@
+#!/bin/bash
+
+# ============================================================================
+# UTMStack Update Script
+# ============================================================================
+# Description:
+#   Automated update script for UTMStack infrastructure. This script handles
+#   the complete update process including downloading the latest installer,
+#   managing services, and monitoring the update progress.
+#
+# Prerequisites:
+#   - Must be executed in the directory containing the previous UTMStack installer
+#   - Root/sudo privileges required
+#   - Active internet connection
+#   - systemd-based Linux distribution
+#
+# Usage:
+#   bash update.sh [OPTIONS]
+#
+# Options:
+#   -h, --help       Display this help message
+#   -v, --verbose    Enable verbose output
+#   -d, --dry-run    Perform a dry run without making changes
+#
+# Exit Codes:
+#   0 - Success
+#   1 - General error
+#   2 - Missing prerequisites
+#   3 - Download failure
+#   4 - Service management failure
+# ============================================================================
+
+set -euo pipefail  # Exit on error, undefined variables, and pipe failures
+IFS=$'\n\t'        # Set Internal Field Separator for better word splitting
+
+# ============================================================================
+# Global Variables
+# ============================================================================
+readonly SCRIPT_VERSION="1.0.0"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly INSTALLER_URL="https://github.com/utmstack/UTMStack/releases/latest/download/installer"
+readonly INSTALLER_FILE="installer"
+readonly LOG_FILE="/utmstack/updates/logs/utmstack-updater.log"
+readonly LOG_DIR="/utmstack/updates/logs"
+readonly SERVICE_NAME="UTMStackComponentsUpdater"
+readonly TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Script options
+VERBOSE=false
+DRY_RUN=false
+
+# Color codes for output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly NC='\033[0m' # No Color
+
+# ============================================================================
+# Utility Functions
+# ============================================================================
+
+# Print formatted messages with timestamp
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} [$(date '+%Y-%m-%d %H:%M:%S')] $*"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} [$(date '+%Y-%m-%d %H:%M:%S')] $*"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} [$(date '+%Y-%m-%d %H:%M:%S')] $*"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} [$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
+}
+
+log_verbose() {
+    if [[ "${VERBOSE}" == true ]]; then
+        echo -e "${BLUE}[VERBOSE]${NC} [$(date '+%Y-%m-%d %H:%M:%S')] $*"
+    fi
+}
+
+# Display help message
+show_help() {
+    sed -n '/^# ===.*UTMStack Update Script/,/^# ===.*$/p' "$0" | \
+    sed 's/^# \?//' | \
+    sed "s/SCRIPT_VERSION/${SCRIPT_VERSION}/"
+}
+
+# Print section header
+print_header() {
+    local message="$1"
+    local width=60
+    echo ""
+    echo "$(printf '=%.0s' $(seq 1 $width))"
+    echo "  $message"
+    echo "$(printf '=%.0s' $(seq 1 $width))"
+    echo ""
+}
+
+# Print step information
+print_step() {
+    local current="$1"
+    local total="$2"
+    local description="$3"
+    echo ""
+    log_info "Step [$current/$total]: $description"
+    echo "$(printf -- '-%.0s' $(seq 1 60))"
+}
+
+# ============================================================================
+# Validation Functions
+# ============================================================================
+
+# Check if script is run with sufficient privileges
+check_privileges() {
+    log_verbose "Checking for sudo privileges..."
+    if [[ $EUID -ne 0 ]] && ! sudo -n true 2>/dev/null; then
+        log_error "This script requires sudo privileges"
+        log_info "Please run with: sudo bash $0"
+        return 2
+    fi
+    log_verbose "Privileges check passed"
+    return 0
+}
+
+# Verify required commands are available
+check_dependencies() {
+    log_verbose "Checking required dependencies..."
+    local missing_deps=()
+    
+    for cmd in wget chmod systemctl tail; do
+        if ! command -v "$cmd" &> /dev/null; then
+            missing_deps+=("$cmd")
+        fi
+    done
+    
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        log_error "Missing required commands: ${missing_deps[*]}"
+        return 2
+    fi
+    
+    log_verbose "All dependencies are available"
+    return 0
+}
+
+# Verify internet connectivity
+check_connectivity() {
+    log_verbose "Checking internet connectivity..."
+    if ! wget --spider --quiet --timeout=10 "https://github.com" 2>/dev/null; then
+        log_error "No internet connectivity detected"
+        log_info "Please check your network connection and try again"
+        return 3
+    fi
+    log_verbose "Internet connectivity verified"
+    return 0
+}
+
+# Check if systemd service exists
+check_service_exists() {
+    log_verbose "Checking if ${SERVICE_NAME} service exists..."
+    if ! systemctl list-unit-files | grep -q "^${SERVICE_NAME}.service"; then
+        log_warning "Service ${SERVICE_NAME} not found in systemd"
+        return 1
+    fi
+    log_verbose "Service exists"
+    return 0
+}
+
+# Check if script is being executed from installer directory
+check_installer_directory() {
+    log_verbose "Checking if installer exists in current directory..."
+    
+    if [[ ! -f "${INSTALLER_FILE}" ]]; then
+        echo ""
+        echo "$(printf '=%.0s' $(seq 1 60))"
+        log_error "INSTALLER NOT FOUND IN EXECUTION DIRECTORY"
+        echo "$(printf '=%.0s' $(seq 1 60))"
+        echo ""
+        log_info "This script must be executed from the directory where the"
+        log_info "UTMStack installer is located."
+        echo ""
+        log_info "To find your installer location, run:"
+        log_info "  find /root /home -name 'installer' -type f 2>/dev/null"
+        echo ""
+        log_info "Then navigate to that directory and run the script:"
+        log_info "  cd /path/to/installer/directory"
+        log_info "  bash update.sh"
+        echo ""
+        return 2
+    fi
+    
+    log_verbose "Installer file found: ${INSTALLER_FILE}"
+    log_info "Installer found in current directory: $(pwd)"
+    return 0
+}
+
+# ============================================================================
+# Core Functions
+# ============================================================================
+
+# Remove old installer file
+remove_old_installer() {
+    print_step 1 8 "Cleaning up old installer"
+    
+    if [[ "${DRY_RUN}" == true ]]; then
+        log_info "DRY RUN: Would remove ${INSTALLER_FILE}"
+        return 0
+    fi
+    
+    if [[ -f "${INSTALLER_FILE}" ]]; then
+        log_info "Removing existing installer file..."
+        rm -f "${INSTALLER_FILE}"
+        log_success "Old installer removed successfully"
+    else
+        log_info "No existing installer found (clean state)"
+    fi
+}
+
+# Download the latest installer
+download_installer() {
+    print_step 2 8 "Downloading latest installer"
+    
+    if [[ "${DRY_RUN}" == true ]]; then
+        log_info "DRY RUN: Would download from ${INSTALLER_URL}"
+        return 0
+    fi
+    
+    log_info "Fetching installer from: ${INSTALLER_URL}"
+    
+    if wget --timeout=300 --tries=3 --progress=bar:force "${INSTALLER_URL}" -O "${INSTALLER_FILE}" 2>&1; then
+        log_success "Installer downloaded successfully"
+        
+        # Verify the downloaded file
+        if [[ ! -s "${INSTALLER_FILE}" ]]; then
+            log_error "Downloaded file is empty"
+            return 3
+        fi
+    else
+        log_error "Failed to download installer"
+        log_info "Please check your internet connection and try again"
+        return 3
+    fi
+}
+
+# Make installer executable
+set_executable_permissions() {
+    print_step 3 8 "Setting executable permissions"
+    
+    if [[ "${DRY_RUN}" == true ]]; then
+        log_info "DRY RUN: Would set executable permissions on ${INSTALLER_FILE}"
+        return 0
+    fi
+    
+    log_info "Making installer executable..."
+    chmod +x "${INSTALLER_FILE}"
+    log_success "Permissions set successfully"
+    
+    log_verbose "File permissions: $(ls -lh ${INSTALLER_FILE})"
+}
+
+# Stop the UTMStack service
+stop_service() {
+    print_step 4 8 "Stopping ${SERVICE_NAME} service"
+    
+    if [[ "${DRY_RUN}" == true ]]; then
+        log_info "DRY RUN: Would stop ${SERVICE_NAME} service"
+        return 0
+    fi
+    
+    if ! check_service_exists; then
+        log_warning "Service not found, skipping stop operation"
+        return 0
+    fi
+    
+    log_info "Stopping service..."
+    if sudo systemctl stop "${SERVICE_NAME}"; then
+        log_success "Service stopped successfully"
+        
+        # Wait for service to fully stop
+        local timeout=30
+        local elapsed=0
+        while systemctl is-active --quiet "${SERVICE_NAME}" && [[ $elapsed -lt $timeout ]]; do
+            sleep 1
+            ((elapsed++))
+            log_verbose "Waiting for service to stop... (${elapsed}s)"
+        done
+        
+        if systemctl is-active --quiet "${SERVICE_NAME}"; then
+            log_warning "Service did not stop within ${timeout} seconds"
+            return 4
+        fi
+    else
+        log_warning "Failed to stop service (may not be running)"
+    fi
+}
+
+# Clean up old log file
+cleanup_log_file() {
+    print_step 5 8 "Cleaning up old log file"
+    
+    if [[ "${DRY_RUN}" == true ]]; then
+        log_info "DRY RUN: Would remove ${LOG_FILE}"
+        return 0
+    fi
+    
+    # Ensure log directory exists
+    if [[ ! -d "${LOG_DIR}" ]]; then
+        log_info "Creating log directory: ${LOG_DIR}"
+        sudo mkdir -p "${LOG_DIR}"
+    fi
+    
+    if [[ -f "${LOG_FILE}" ]]; then
+        # Backup old log before removing
+        local backup_file="${LOG_FILE}.$(date +%Y%m%d_%H%M%S).bak"
+        log_info "Backing up old log to: ${backup_file}"
+        sudo cp "${LOG_FILE}" "${backup_file}"
+        
+        log_info "Removing old log file..."
+        sudo rm -f "${LOG_FILE}"
+        log_success "Log file cleaned up"
+    else
+        log_info "No existing log file found"
+    fi
+}
+
+# Start the UTMStack service
+start_service() {
+    print_step 6 8 "Starting ${SERVICE_NAME} service"
+    
+    if [[ "${DRY_RUN}" == true ]]; then
+        log_info "DRY RUN: Would start ${SERVICE_NAME} service"
+        return 0
+    fi
+    
+    if ! check_service_exists; then
+        log_error "Service not found, cannot start"
+        return 4
+    fi
+    
+    log_info "Starting service..."
+    if sudo systemctl start "${SERVICE_NAME}"; then
+        log_success "Service started successfully"
+        
+        # Verify service is running
+        sleep 2
+        if systemctl is-active --quiet "${SERVICE_NAME}"; then
+            log_success "Service is running and active"
+        else
+            log_error "Service started but is not active"
+            return 4
+        fi
+    else
+        log_error "Failed to start service"
+        log_info "Check service status with: sudo systemctl status ${SERVICE_NAME}"
+        return 4
+    fi
+}
+
+# Run the installer
+run_installer() {
+    print_step 7 8 "Running UTMStack installer"
+    
+    if [[ "${DRY_RUN}" == true ]]; then
+        log_info "DRY RUN: Would run installer"
+        return 0
+    fi
+    
+    if [[ ! -f "${INSTALLER_FILE}" ]]; then
+        log_error "Installer file not found: ${INSTALLER_FILE}"
+        return 1
+    fi
+    
+    log_info "Executing installer..."
+    echo "$(printf '=%.0s' $(seq 1 60))"
+    
+    if sudo ./"${INSTALLER_FILE}"; then
+        echo "$(printf '=%.0s' $(seq 1 60))"
+        log_success "Installer completed successfully"
+    else
+        local exit_code=$?
+        echo "$(printf '=%.0s' $(seq 1 60))"
+        log_error "Installer failed with exit code: ${exit_code}"
+        return 1
+    fi
+}
+
+# Monitor the update log
+monitor_log() {
+    print_step 8 8 "Monitoring update progress"
+    
+    if [[ "${DRY_RUN}" == true ]]; then
+        log_info "DRY RUN: Would monitor log file"
+        return 0
+    fi
+    
+    log_info "Following log file: ${LOG_FILE}"
+    log_info "Press Ctrl+C to exit log monitoring"
+    echo "$(printf '=%.0s' $(seq 1 60))"
+    
+    # Wait for log file to be created
+    local max_wait=10
+    local wait_count=0
+    
+    while [[ ! -f "${LOG_FILE}" ]] && [[ $wait_count -lt $max_wait ]]; do
+        log_verbose "Waiting for log file to be created... (${wait_count}s)"
+        sleep 1
+        ((wait_count++))
+    done
+    
+    if [[ -f "${LOG_FILE}" ]]; then
+        sudo tail -f "${LOG_FILE}"
+    else
+        log_error "Log file was not created after ${max_wait} seconds"
+        log_info "Update may have failed. Check service status:"
+        log_info "  sudo systemctl status ${SERVICE_NAME}"
+        return 1
+    fi
+}
+
+# ============================================================================
+# Main Execution Function
+# ============================================================================
+
+main() {
+    local exit_code=0
+    
+    print_header "UTMStack Update Process v${SCRIPT_VERSION}"
+    log_info "Started at: ${TIMESTAMP}"
+    log_info "Working directory: ${SCRIPT_DIR}"
+    
+    # Run pre-flight checks
+    log_info "Running pre-flight checks..."
+    check_privileges || exit $?
+    check_dependencies || exit $?
+    check_connectivity || exit $?
+    check_installer_directory || exit $?
+    log_success "Pre-flight checks completed"
+    
+    # Execute update steps
+    remove_old_installer || exit_code=$?
+    [[ $exit_code -ne 0 ]] && exit $exit_code
+    
+    download_installer || exit_code=$?
+    [[ $exit_code -ne 0 ]] && exit $exit_code
+    
+    set_executable_permissions || exit_code=$?
+    [[ $exit_code -ne 0 ]] && exit $exit_code
+    
+    stop_service || exit_code=$?
+    [[ $exit_code -ne 0 ]] && exit $exit_code
+    
+    cleanup_log_file || exit_code=$?
+    [[ $exit_code -ne 0 ]] && exit $exit_code
+    
+    start_service || exit_code=$?
+    [[ $exit_code -ne 0 ]] && exit $exit_code
+    
+    run_installer || exit_code=$?
+    [[ $exit_code -ne 0 ]] && exit $exit_code
+    
+    monitor_log || exit_code=$?
+    
+    if [[ $exit_code -eq 0 ]]; then
+        print_header "Update Process Completed Successfully"
+    else
+        print_header "Update Process Completed with Errors"
+    fi
+    
+    log_info "Finished at: $(date '+%Y-%m-%d %H:%M:%S')"
+    exit $exit_code
+}
+
+# ============================================================================
+# Script Entry Point
+# ============================================================================
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -d|--dry-run)
+            DRY_RUN=true
+            log_info "Running in DRY RUN mode - no changes will be made"
+            shift
+            ;;
+        *)
+            log_error "Unknown option: $1"
+            log_info "Use -h or --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+# Trap errors and interrupts
+trap 'log_error "Script interrupted"; exit 130' INT TERM
+trap 'log_error "Script failed at line $LINENO with exit code $?"' ERR
+
+# Execute main function
+main "$@"
